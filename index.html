@@ -28,7 +28,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .wrap{max-width:1320px;margin:0 auto;padding-block:0 32px}
 
 /* En-tête */
-.top{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding-block:18px 14px;margin-bottom:8px}
+.top{position:relative;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding-block:18px 14px;margin-bottom:8px}
 .brand{display:flex;align-items:center;gap:12px;min-width:0}
 .brand img{width:40px;height:46px;object-fit:contain;flex:none}
 .wordmark{font-family:var(--f-title);font-size:32px;line-height:1;text-transform:uppercase;letter-spacing:.01em;white-space:nowrap}
@@ -43,6 +43,13 @@ button,input,select,textarea{font:inherit;color:inherit}
 .savechip{background:var(--warn);color:#120A00;padding:9px 14px;font-family:var(--f-mono);font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.06em}
 .savechip svg{width:15px;height:15px}
 .t-orange{background:#F28C28}
+.backbtn{justify-self:start;display:inline-flex;align-items:center;gap:6px;border:1px solid rgba(255,255,255,.18);background:transparent;color:var(--ink);padding:6px 14px 6px 10px;cursor:pointer;font-family:var(--f-display);font-weight:800;font-size:16px;text-transform:uppercase;transform:skewX(-12deg)}.backbtn svg{width:16px;height:16px}.backbtn:hover{border-color:var(--green);color:var(--green)}
+@media (min-width:981px){
+  body:has(#v-game:not([hidden])) .wrap{max-width:1720px}
+  .game{grid-template-columns:minmax(0,1fr) 440px;align-items:stretch;height:calc(100vh - 100px);height:calc(100dvh - 100px);min-height:560px}
+  .game .stage{height:100%;min-height:0}
+  .game .panel{max-height:100%;overflow-y:auto;overscroll-behavior:contain;align-content:start;padding-right:6px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.2) transparent}
+}
 .pquit{pointer-events:auto;cursor:pointer;border:0;background:#F28C28;color:#120A00;padding:6px 14px;font-family:var(--f-display);font-weight:800;font-size:16px;text-transform:uppercase;transform:skewX(-12deg);margin-top:4px}.pquit:hover{background:#FFA64D}
 .sndbtn{display:inline-flex;align-items:center;justify-content:center;width:42px;height:40px;border:1px solid rgba(255,255,255,.18);background:transparent;color:var(--ink);cursor:pointer;transform:skewX(-12deg)}.sndbtn svg{width:20px;height:20px;transform:skewX(12deg)}.sndbtn[aria-pressed="false"]{color:var(--muted)}
 .sndbtn{position:relative}.sndbtn.hint{border-color:var(--green);color:var(--green);animation:sndp 1.4s ease-in-out infinite}.sndbtn.hint::after{content:"Son";position:absolute;top:calc(100% + 6px);left:50%;transform:translateX(-50%) skewX(12deg);background:var(--green);color:#08120D;font-family:var(--f-mono);font-weight:700;font-size:10.5px;padding:2px 6px;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;pointer-events:none}@keyframes sndp{0%,100%{box-shadow:0 0 0 0 rgba(198,244,50,.5)}50%{box-shadow:0 0 0 6px rgba(198,244,50,0)}}@media (prefers-reduced-motion:reduce){.sndbtn.hint{animation:none}}
@@ -130,10 +137,7 @@ legend{padding:0;margin-bottom:8px}
 .stage .viewbtn{position:absolute;right:14px;top:14px;background:rgba(8,18,13,.9);color:#F2F6EF;border:0;padding:7px 12px;font-family:var(--f-display);font-weight:800;font-size:16px;text-transform:uppercase;cursor:pointer;transform:skewX(-12deg)}
 .zoom{position:absolute;right:14px;bottom:14px;display:flex;flex-direction:column;gap:4px}
 .zoom button{width:40px;height:40px;background:rgba(8,18,13,.9);color:#F2F6EF;border:0;font-size:19px;font-weight:700;cursor:pointer}
-.rainfx{position:absolute;inset:0;pointer-events:none;opacity:.55;
-  background-image:repeating-linear-gradient(104deg,transparent 0 22px,rgba(210,228,255,.45) 22px 23px,transparent 23px 46px),repeating-linear-gradient(98deg,transparent 0 37px,rgba(210,228,255,.3) 37px 38px,transparent 38px 71px);
-  background-size:180px 180px,260px 260px;animation:rain .45s linear infinite}
-@keyframes rain{to{background-position:-40px 180px,-60px 260px}}
+.rainfx{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;display:block}
 .overlay{position:absolute;inset:0;display:grid;place-items:center;padding:16px;background:rgba(4,9,6,.55);z-index:5}
 .ov-card{background:#0F1D16;color:var(--ink);border:1px solid var(--line);max-width:460px;width:100%;max-height:100%;overflow:auto;padding:18px 20px 18px;box-shadow:0 18px 50px rgba(0,0,0,.5);display:grid;gap:10px}
 .ov-card.rule{border-top:6px solid var(--green)}
@@ -262,7 +266,7 @@ table.bag input[type=number]{width:72px;border:1px solid var(--line);background:
   .menu-title{font-size:40px}
   .tee-item b{font-size:28px}
 }
-@media (prefers-reduced-motion: reduce){*{scroll-behavior:auto}.rainfx{animation:none}}
+@media (prefers-reduced-motion: reduce){*{scroll-behavior:auto}}
 </style>
 
 <div class="wrap">
@@ -372,7 +376,7 @@ table.bag input[type=number]{width:72px;border:1px solid var(--line);background:
     <div class="game">
       <div class="stage" id="stage">
         <canvas id="cv" aria-label="Carte du trou. Cliquez pour viser."></canvas>
-        <div class="rainfx" id="rainFx" hidden></div>
+        <canvas class="rainfx" id="rainFx" hidden aria-hidden="true"></canvas>
         <div class="hud" id="hud"></div>
         <button class="viewbtn" id="btnView" type="button">Vue du trou</button>
         <div class="zoom"><button type="button" id="zIn" aria-label="Zoomer">+</button><button type="button" id="zOut" aria-label="Dézoomer">−</button><button type="button" id="zReset" aria-label="Cadrage automatique" style="font-size:12px">auto</button></div>
@@ -436,6 +440,7 @@ table.bag input[type=number]{width:72px;border:1px solid var(--line);background:
   <!-- SAC -->
   <section id="v-bag" hidden>
     <div class="page">
+      <button class="backbtn" type="button" data-home><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg><span>Retour à l’accueil</span></button>
       <div class="page-head">
         <div><span class="lbl">Composition</span><h2>Mon sac</h2></div>
         <div><span class="lbl">Clubs</span><span class="count" id="bagCount">14 / 14</span></div>
@@ -449,6 +454,7 @@ table.bag input[type=number]{width:72px;border:1px solid var(--line);background:
   <!-- STATS -->
   <section id="v-stats" hidden>
     <div class="page">
+      <button class="backbtn" type="button" data-home><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg><span>Retour à l’accueil</span></button>
       <div class="page-head"><div><span class="lbl">Bilan</span><h2>Statistiques</h2></div></div>
       <div class="kpis" id="kpis"></div>
       <div class="box">
@@ -466,6 +472,7 @@ table.bag input[type=number]{width:72px;border:1px solid var(--line);background:
   <!-- RÈGLES -->
   <section id="v-rules" hidden>
     <div class="page">
+      <button class="backbtn" type="button" data-home><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg><span>Retour à l’accueil</span></button>
       <div class="page-head"><div><span class="lbl">Carte verte</span><h2>Règles rencontrées</h2></div><span class="note" id="rulesCount"></span></div>
       <p class="note">Résumés rédigés pour le jeu, d’après les Règles de golf R&amp;A / USGA (édition 2023). Pour l’examen, référez-vous au texte officiel diffusé par la ffgolf.</p>
       <div class="rules" id="rulesList"></div>
@@ -475,6 +482,7 @@ table.bag input[type=number]{width:72px;border:1px solid var(--line);background:
   <!-- QUIZ -->
   <section id="v-quiz" hidden>
     <div class="page">
+      <button class="backbtn" type="button" data-home><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg><span>Retour à l’accueil</span></button>
       <div class="page-head"><div><span class="lbl">Carte verte</span><h2>Quiz des règles</h2></div><span class="note" id="quizBest"></span></div>
       <div class="quiz" id="quizBox"></div>
     </div>
@@ -483,6 +491,7 @@ table.bag input[type=number]{width:72px;border:1px solid var(--line);background:
   <!-- PROFIL -->
   <section id="v-profile" hidden>
     <div class="page">
+      <button class="backbtn" type="button" data-home><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg><span>Retour à l’accueil</span></button>
       <div class="page-head"><div><span class="lbl">Fichier joueur</span><h2>Profil</h2></div></div>
       <div class="savebox" id="profSaveInfo"></div>
       <div class="two">
@@ -1121,7 +1130,7 @@ function renderPanel(){
   {const u=norm(sub(G.aim||H.pin,G.ball));const al=dot(H.wind,u),cr=dot(H.wind,perpR(u));let t='';
     if(H.windKmh<3)t='calme';else{const a=Math.abs(al),b=Math.abs(cr);const f=al>0?'dans le dos':'de face',s=cr>0?'de gauche':'de droite';t=a>b*1.7?f:b>a*1.7?s:`${f}, ${s}`}$('#fWindRel').textContent=t}
   {const wr=$('#fWindReal');wr.hidden=!H.realWind;wr.textContent=H.realWind==='host'?'(vent réel chez l’hôte, faites avec)':'(vent réel de votre position actuelle, on n’y peut rien)'}
-  {const rf=$('#rainFx');rf.hidden=!H.rain;rf.style.opacity=H.rain>1?'.7':'.42'}
+  rainSet(H.rain,H.wind);
   // clubs
   const av=clubsAvail();const box=$('#clubs');box.innerHTML='';
   let selAdv=null;
@@ -1317,12 +1326,14 @@ $('#btnView').onclick=()=>{if(!G)return;G.viewAll=!G.viewAll;renderPanel()};
 
 /* ================= navigation et pages ================= */
 const VIEWS=['home','game','bag','stats','rules','quiz','profile'];
-function showView(v){if(v==='home'&&G)v='game';if(typeof SND!=='undefined'){SND.view=v;musicUpdate()}for(const k of VIEWS)$('#v-'+k).hidden=k!==v;
+function showView(v){if(v==='home'&&G)v='game';if(typeof SND!=='undefined'){SND.view=v;musicUpdate()}
+  document.querySelectorAll('[data-home] span').forEach(x=>x.textContent=G?(G.mode==='practice'?'Retour au practice':'Retour à la partie'):'Retour à l’accueil');if(v==='game'&&typeof RAIN!=='undefined'&&RAIN.lvl&&!RAIN.raf)requestAnimationFrame(t=>{RAIN.last=t;rainTick(t)});for(const k of VIEWS)$('#v-'+k).hidden=k!==v;
   document.querySelectorAll('#nav button').forEach(b=>b.setAttribute('aria-current',(b.dataset.view===v||(v==='game'&&b.dataset.view==='home'))?'page':'false'));
   renderSave();if(v==='home')renderHome();if(v==='bag')renderBag();if(v==='stats')renderStats();if(v==='rules')renderRules();if(v==='quiz')renderQuiz();if(v==='profile')renderProfile();
   if(v==='game'){requestAnimationFrame(()=>{resize();pad.draw();renderPanel()})}}
 document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{openMenu(false);if(b.dataset.view==='practice')return startPractice();showView(b.dataset.view)});
 $('#btnPractice').onclick=()=>startPractice();
+document.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('[data-home]'))showView('home')});
 function quitPractice(){if(!G||G.mode!=='practice')return;G=null;showView('home')}
 document.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('[data-quit-practice]'))quitPractice()});
 document.querySelectorAll('#pSurf .chipbtn').forEach(b=>b.onclick=()=>{if(!G||G.mode!=='practice')return;G.practice.surface=b.dataset.s;if(G.phase==='aim'){G.lie=b.dataset.s;G.club=autoClub();G.aimManual=false;setDefaultAim()}renderPractice();renderPanel()});
@@ -1577,7 +1588,7 @@ function renderSave(){const n=P.holesSinceExport||0,never=!P.lastExport,need=n>=
   pi.innerHTML=never?'<span class="h">Jamais enregistré</span><p>Enregistrez votre profil pour garder vos moyennes par club et vos statistiques, et les retrouver sur un autre appareil.</p>':`<span class="h" style="color:${need?'var(--warn)':'var(--green)'}">${need?'Sauvegarde conseillée':'Profil à jour'}</span><p>Dernier enregistrement : ${esc(new Date(P.lastExport).toLocaleString('fr-FR',{dateStyle:'medium',timeStyle:'short'}))}. ${n} trou${n>1?'s':''} joué${n>1?'s':''} depuis.</p>`}
 $('#saveChip').onclick=()=>doExport();$('#saveBoxBtn').onclick=()=>doExport();
 /* ================= sons ================= */
-const SND={ctx:null,buf:{},on:{fx:true,mus:true},music:null,unlocked:false,loading:null,view:'home',fadeT:null};
+const SND={ctx:null,buf:{},on:{fx:true,mus:true},armed:false,music:null,loading:null,view:'home',fadeT:null};
 const SND_FILES=['driver','bois','fers','wedges','bunker','splash','trou','applause','oh'];
 try{const o=JSON.parse(localStorage.getItem('ldi-sound')||'null');if(o)SND.on={fx:o.fx!==false,mus:o.mus!==false}}catch(e){}
 function sndSrc(n){return(window.SND_DATA&&window.SND_DATA[n])||('sons/'+n+'.mp3')}
@@ -1586,7 +1597,7 @@ function sndDecode(ab){return new Promise((ok,ko)=>{const r=SND.ctx.decodeAudioD
 function sndLoad(){if(SND.loading)return SND.loading;const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return Promise.resolve();
   try{SND.ctx=new AC()}catch(e){return Promise.resolve()}
   SND.loading=Promise.all(SND_FILES.map(async n=>{try{const src=sndSrc(n);const ab=src.startsWith('data:')?b64buf(src):await(await fetch(src)).arrayBuffer();SND.buf[n]=await sndDecode(ab)}catch(e){}}));return SND.loading}
-function sfx(n,vol=1,rate=1,delay=0){if(!SND.on.fx||!SND.ctx||!SND.buf[n])return;const c=SND.ctx;if(c.state==='suspended')c.resume();
+function sfx(n,vol=1,rate=1,delay=0){if(!SND.armed||!SND.on.fx||!SND.ctx||!SND.buf[n])return;const c=SND.ctx;if(c.state==='suspended')c.resume();
   const s=c.createBufferSource();s.buffer=SND.buf[n];s.playbackRate.value=rate;const g=c.createGain();g.gain.value=vol;s.connect(g);g.connect(c.destination);s.start(c.currentTime+delay)}
 function impactSfx(type,isDriver,lie){if(type==='putter')return sfx('fers',.16,1.8);
   if(lie==='bunker')return sfx('bunker',1);const v=lie==='rough'?.75:1;
@@ -1595,23 +1606,43 @@ function outcomeSfx(res){const H=G&&G.H;if(!H)return;
   if(res.holed){sfx('trou',1,1,.05);if(G.mode!=='practice'&&G.strokes<=H.par)sfx('applause',G.strokes<H.par?.9:.4,1,.9);return}
   if(res.water){sfx('splash');sfx('oh',.75,1,.45);return}
   if(!res.putt){const l=lieInfo(H,res.rest).lie;if(l==='hl')sfx('oh',.75);else if(l==='bunker')sfx('bunker',.45)}}
-function musicWanted(){return SND.on.mus&&SND.unlocked&&SND.view!=='game'}
+function musicWanted(){return SND.armed&&SND.on.mus&&SND.view!=='game'}
 function musicUpdate(){const want=musicWanted();
-  if(want&&!SND.music){try{SND.music=new Audio(sndSrc('musique-menu'));SND.music.loop=true;SND.music.volume=0}catch(e){return}}
+  if(want&&!SND.music){try{SND.music=new Audio(sndSrc('musique-menu'));SND.music.loop=true;SND.music.preload='auto';SND.music.volume=0}catch(e){return}}
   const m=SND.music;if(!m)return;clearInterval(SND.fadeT);const target=want?.32:0;
   if(want&&m.paused){const pr=m.play();if(pr&&pr.catch)pr.catch(()=>{})}
-  SND.fadeT=setInterval(()=>{const d=target-m.volume;if(Math.abs(d)<.02){m.volume=target;clearInterval(SND.fadeT);if(!target)m.pause();return}m.volume=Math.min(1,Math.max(0,m.volume+Math.sign(d)*.02))},40)}
-function sndRender(){const any=SND.on.fx||SND.on.mus;$('#sndBtn').setAttribute('aria-pressed',any?'true':'false');$('#sndWave').style.display=any?'':'none';$('#sndX').style.display=any?'none':'';$('#sndMus').checked=SND.on.mus;$('#sndFx').checked=SND.on.fx}
-function sndSave(){try{localStorage.setItem('ldi-sound',JSON.stringify(SND.on))}catch(e){}sndRender();musicUpdate()}
-function sndUnlock(e){const h=$('#sndBtn').classList.contains('hint');$('#sndBtn').classList.remove('hint');if(SND.unlocked)return;if(h&&e&&e.target&&e.target.closest&&e.target.closest('#sndBtn'))SND.justUnlocked=true;SND.unlocked=true;sndLoad();if(SND.ctx&&SND.ctx.state==='suspended')SND.ctx.resume();musicUpdate()}
-['pointerdown','keydown','touchstart'].forEach(ev=>window.addEventListener(ev,sndUnlock,{capture:true,passive:true}));
-$('#sndBtn').onclick=()=>{if(SND.justUnlocked){SND.justUnlocked=false;return}const any=SND.on.fx||SND.on.mus;SND.on={fx:!any,mus:!any};sndSave()};
-$('#sndMus').onchange=e=>{SND.on.mus=e.target.checked;sndSave()};$('#sndFx').onchange=e=>{SND.on.fx=e.target.checked;sndSave()};
-sndRender();
-function sndAutoplay(){if(!SND.on.mus)return;try{SND.music=new Audio(sndSrc('musique-menu'));SND.music.loop=true;SND.music.volume=.32}catch(e){return}
-  const pr=SND.music.play();const fail=()=>{if(!SND.unlocked)$('#sndBtn').classList.add('hint')};
-  if(pr&&pr.then)pr.then(()=>{SND.unlocked=true;sndLoad();musicUpdate()},fail);else fail()}
-sndAutoplay();
+  SND.fadeT=setInterval(()=>{const d=target-m.volume;if(Math.abs(d)<.03){try{m.volume=target}catch(e){}clearInterval(SND.fadeT);if(!target)m.pause();return}try{m.volume=Math.min(1,Math.max(0,m.volume+Math.sign(d)*.03))}catch(e){}},40)}
+function sndRender(){const live=SND.armed&&(SND.on.fx||SND.on.mus);const btn=$('#sndBtn');btn.setAttribute('aria-pressed',live?'true':'false');btn.title=live?'Couper le son':'Activer le son';
+  $('#sndWave').style.display=live?'':'none';$('#sndX').style.display=live?'none':'';$('#sndMus').checked=SND.armed&&SND.on.mus;$('#sndFx').checked=SND.armed&&SND.on.fx}
+function sndSave(){try{localStorage.setItem('ldi-sound',JSON.stringify(SND.on))}catch(e){}}
+function sndArm(){SND.armed=true;$('#sndBtn').classList.remove('hint');sndLoad();if(SND.ctx&&SND.ctx.state==='suspended')SND.ctx.resume()}
+$('#sndBtn').onclick=()=>{if(SND.armed&&(SND.on.fx||SND.on.mus)){SND.armed=false}else{if(!SND.on.fx&&!SND.on.mus)SND.on={fx:true,mus:true};sndArm();sndSave()}sndRender();musicUpdate()};
+$('#sndMus').onchange=e=>{if(e.target.checked&&!SND.armed){SND.on.fx=false;sndArm()}SND.on.mus=e.target.checked;sndSave();sndRender();musicUpdate()};
+$('#sndFx').onchange=e=>{if(e.target.checked&&!SND.armed){SND.on.mus=false;sndArm()}SND.on.fx=e.target.checked;sndSave();sndRender();musicUpdate()};
+$('#sndBtn').classList.add('hint');sndRender();
+/* ================= pluie ================= */
+const RAIN={lvl:0,drops:[],rip:[],raf:0,last:0,wx:0,wy:0};
+const rainCv=$('#rainFx'),rainReduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+function rainSet(lvl,wind){RAIN.lvl=lvl||0;const w=wind||V(0,0);RAIN.wx=clamp(w.x*9,-140,140);RAIN.wy=clamp(-w.y*4,-60,60);rainCv.hidden=!RAIN.lvl;
+  if(RAIN.lvl&&!RAIN.raf){RAIN.last=performance.now();RAIN.raf=requestAnimationFrame(rainTick)}}
+function newDrop(w,h,any){const sp=650+Math.random()*350;return{x:Math.random()*(w+200)-100,y:any?Math.random()*h:-20-Math.random()*60,vx:RAIN.wx+40,vy:sp+RAIN.wy,len:.018+Math.random()*.02,end:h*(.15+Math.random()*.95),a:.25+Math.random()*.45}}
+function rainTick(t){RAIN.raf=0;if(!RAIN.lvl||rainCv.hidden||!rainCv.getClientRects().length)return;
+  const w=rainCv.clientWidth,h=rainCv.clientHeight,d=window.devicePixelRatio||1;
+  if(rainCv.width!==Math.round(w*d)||rainCv.height!==Math.round(h*d)){rainCv.width=Math.round(w*d);rainCv.height=Math.round(h*d)}
+  const x=rainCv.getContext('2d');x.setTransform(d,0,0,d,0,0);x.clearRect(0,0,w,h);
+  const heavy=RAIN.lvl>1,dt=Math.min(.05,(t-RAIN.last)/1000||0);RAIN.last=t;
+  const g=x.createLinearGradient(0,0,0,h);g.addColorStop(0,heavy?'rgba(70,90,110,.30)':'rgba(70,90,110,.16)');g.addColorStop(1,heavy?'rgba(30,45,60,.20)':'rgba(30,45,60,.08)');x.fillStyle=g;x.fillRect(0,0,w,h);
+  const N=Math.round((heavy?.00055:.00022)*w*h);
+  while(RAIN.drops.length<N)RAIN.drops.push(newDrop(w,h,true));if(RAIN.drops.length>N)RAIN.drops.length=N;
+  x.lineCap='round';
+  for(let i=0;i<RAIN.drops.length;i++){const p=RAIN.drops[i];
+    if(!rainReduce){p.x+=p.vx*dt;p.y+=p.vy*dt}
+    if(p.y>=p.end){if(RAIN.rip.length<160)RAIN.rip.push({x:p.x,y:p.y,r:0,m:2.5+Math.random()*(heavy?6:4),a:p.a+.15});RAIN.drops[i]=newDrop(w,h,false);continue}
+    x.strokeStyle=`rgba(225,236,255,${p.a})`;x.lineWidth=heavy?1.3:1;x.beginPath();x.moveTo(p.x,p.y);x.lineTo(p.x-p.vx*p.len,p.y-p.vy*p.len);x.stroke()}
+  x.lineWidth=1;
+  for(let i=RAIN.rip.length-1;i>=0;i--){const r=RAIN.rip[i];r.r+=dt*(heavy?22:16);const k=1-r.r/r.m;if(k<=0){RAIN.rip.splice(i,1);continue}
+    x.strokeStyle=`rgba(220,235,255,${(r.a*k).toFixed(3)})`;x.beginPath();x.ellipse(r.x,r.y,r.r,r.r*.45,0,0,6.283);x.stroke()}
+  if(!rainReduce)RAIN.raf=requestAnimationFrame(rainTick)}
 /* ================= météo réelle ================= */
 const WX={real:false,data:null,denied:false,loading:false};
 const CARD=['du nord','du nord-est','de l’est','du sud-est','du sud','du sud-ouest','de l’ouest','du nord-ouest'];
