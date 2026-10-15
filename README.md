@@ -14,6 +14,7 @@ Ouvrir la page publiée par GitHub Pages, ou ouvrir `index.html` dans un navigat
 - Distances affichées = moyenne de vos 3 derniers coups pleins par club, practice compris. Un club jamais mesuré affiche « ? m ».
 - Clubs déconseillés signalés et pénalisés (driver en bunker, bois dans le rough…).
 - Météo réelle : avec votre accord, le vent et la pluie de votre position (Open-Meteo) s’appliquent au parcours.
+- Sons : impacts selon le club (driver, bois et hybrides, fers, wedges, bunker), balle au trou, plouf, réactions du public, musique au club-house. Coupure dans l’en-tête ou réglage fin dans le menu.
 - Quiz de 30 questions sur les règles, y compris celles que le jeu ne simule pas.
 - Profil (sac, statistiques, parties) enregistrable en `.json` et réimportable.
 
@@ -28,6 +29,10 @@ Ouvrir la page publiée par GitHub Pages, ou ouvrir `index.html` dans un navigat
 La connexion utilise WebRTC via [PeerJS](https://peerjs.com/) et son serveur public de mise en relation. Sur certains réseaux d'entreprise ou d'école, la connexion directe peut échouer faute de serveur relais (TURN).
 
 Tous les joueurs doivent utiliser la même version de la page : le parcours est généré à partir d'une graine commune.
+
+## Sons
+
+Fichiers dans `sons/`, fournis comme libres de droits. Musique du club-house : « Whiskey on the Mississippi ». Vérifier la licence exacte de chaque fichier avant toute diffusion commerciale.
 
 ## Avertissement
 

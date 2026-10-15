@@ -42,7 +42,9 @@ button,input,select,textarea{font:inherit;color:inherit}
 .menubtn .tees i{width:10px;height:10px}
 .savechip{background:var(--warn);color:#120A00;padding:9px 14px;font-family:var(--f-mono);font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.06em}
 .savechip svg{width:15px;height:15px}
-.t-orange{background:#F28C28}.t-white{background:#FFFFFF}.t-yellow{background:#F7D21E}.t-blue{background:#2F7FD0}.t-red{background:#E4572E}.t-green{background:#3FA45B}.t-black{background:#161616;box-shadow:0 0 0 2px var(--ink)!important}
+.t-orange{background:#F28C28}
+.sndbtn{display:inline-flex;align-items:center;justify-content:center;width:42px;height:40px;border:1px solid rgba(255,255,255,.18);background:transparent;color:var(--ink);cursor:pointer;transform:skewX(-12deg)}.sndbtn svg{width:20px;height:20px;transform:skewX(12deg)}.sndbtn[aria-pressed="false"]{color:var(--muted)}
+.snd-row{display:flex;gap:18px;flex-wrap:wrap;margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}.snd-row label{display:flex;gap:8px;align-items:center;cursor:pointer}.t-white{background:#FFFFFF}.t-yellow{background:#F7D21E}.t-blue{background:#2F7FD0}.t-red{background:#E4572E}.t-green{background:#3FA45B}.t-black{background:#161616;box-shadow:0 0 0 2px var(--ink)!important}
 
 /* Menu des départs */
 .menu-scrim{position:fixed;inset:0;background:rgba(4,9,6,.6);z-index:30}
@@ -266,6 +268,7 @@ table.bag input[type=number]{width:72px;border:1px solid var(--line);background:
     <div class="brand"><img id="logoImg" alt=""><span class="wordmark">Let’s Drive <em>It</em></span></div>
     <div class="top-actions">
       <button class="savechip" id="saveChip" type="button" hidden><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 19h16"/></svg>Profil à enregistrer</button>
+      <button class="sndbtn" id="sndBtn" type="button" aria-pressed="true" aria-label="Son" title="Couper ou remettre le son"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h4l5-4v14l-5-4H4z"/><path id="sndWave" d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/><path id="sndX" d="M17 9l5 6M22 9l-5 6" style="display:none"/></svg></button>
       <button class="menubtn" id="menuBtn" type="button" aria-expanded="false" aria-controls="menuPanel"><span class="tees" aria-hidden="true"><i class="t-white"></i><i class="t-yellow"></i><i class="t-blue"></i><i class="t-red"></i></span>Menu</button>
     </div>
   </header>
@@ -283,6 +286,7 @@ table.bag input[type=number]{width:72px;border:1px solid var(--line);background:
       <button class="tee-item" type="button" data-view="quiz"><i class="tee t-green"></i><span><b>Quiz</b><small>Séries de 10 questions sur les règles</small></span></button>
       <button class="tee-item" type="button" data-view="profile"><i class="tee t-black"></i><span><b>Profil</b><small>Enregistrer ou importer votre fichier joueur</small></span><span class="badge" id="menuSaveBadge" hidden>À enregistrer</span></button>
     </nav>
+    <div class="snd-row"><span class="lbl" style="width:100%">Son</span><label><input type="checkbox" id="sndMus" checked> Musique du club-house</label><label><input type="checkbox" id="sndFx" checked> Bruitages</label></div>
   </aside>
 
   <!-- CLUB-HOUSE -->
@@ -896,7 +900,7 @@ function onSwing(sw){
   if(!G||G.phase!=='aim'||ovBusy||(G.mp&&!mpMyTurn())||G.ranim)return;
   if(sw.aborted){feedback('Swing interrompu avant l’impact : ce n’est pas un coup, rien n’est compté.');ruleCard('coup');return}
   const H=G.H,c=cur(),A=V(G.ball.x,G.ball.y),dir=norm(sub(G.aim,A));
-  const lieAtStrike=G.lie,emb=G.embedded;G.strokes++;if(lieAtStrike==='green')G.putts++;G.lastA=V(A.x,A.y);G.embedded=false;G.lastSwing=sw;
+  const lieAtStrike=G.lie,emb=G.embedded;impactSfx(c.type,c.id==='DR',lieAtStrike);G.strokes++;if(lieAtStrike==='green')G.putts++;G.lastA=V(A.x,A.y);G.embedded=false;G.lastSwing=sw;
   let res;
   if(c.id==='PT'){
     const d=25*sw.power*sw.power;let v0=Math.sqrt(2*H.greenDecel*d)*(1+gauss()*.02);const u=rotR(dir,sw.err*3.2+gauss()*.35);
@@ -933,6 +937,7 @@ function finishAnim(res){
   if(res.stuck)msg='Le club a planté dans le sable : la balle a à peine bougé. '+msg;
   feedback(msg);
   if(!res.putt&&G.lastSwing&&G.lastSwing.power>=.85&&['depart','fairway','frange'].includes(res.lieAtStrike)&&!res.water&&!res.embedded&&!res.stuck)logClub(c.id,dist(res.A,res.rest));
+  outcomeSfx(res);
   if(G.mode==='practice'){practiceResult(res);return}
   if(G.prov){G.prov.res=res;G.prov.lo=res.putt||res.water||res.holed?{uncertain:false,status:'ok'}:lostOutcome(H,res.rest);return revealOriginal()}
   resolve(res,true);
@@ -1288,7 +1293,7 @@ let lastT=0;
 function frame(ts){const dt=Math.min(.05,(ts-lastT)/1000||0);lastT=ts;
   if(G&&!$('#v-game').hidden&&VW>0){
     const A=G.anim;if(A){if(A.stage==='flight'){A.t+=dt;if(A.t>=A.T){A.stage='roll';A.ri=0}}else{A.ri+=dt*60*A.speed;if(A.ri>=A.res.roll.path.length-1){G.camShot=null;finishAnim(A.res)}}}
-    const RA=G.ranim;if(RA){if(RA.stage==='flight'){RA.t+=dt;if(RA.t>=RA.T){RA.stage='roll';RA.ri=0}}else{RA.ri+=dt*60*RA.speed;if(RA.ri>=RA.roll.path.length-1){G.ranim=null;if(!G.anim)G.camShot=null;renderPanel()}}}
+    const RA=G.ranim;if(RA){if(RA.stage==='flight'){RA.t+=dt;if(RA.t>=RA.T){RA.stage='roll';RA.ri=0}}else{RA.ri+=dt*60*RA.speed;if(RA.ri>=RA.roll.path.length-1){{const e=RA.roll.path[RA.roll.path.length-1];if(e&&dist(e,G.H.pin)<.08)sfx('trou')}G.ranim=null;if(!G.anim)G.camShot=null;renderPanel()}}}
     stepCam(dt);draw()}
   if(G&&G.mp&&(++mpTick%8===0)){mpPublish();mpCheckNext()}
   requestAnimationFrame(frame)}
@@ -1310,7 +1315,7 @@ $('#btnView').onclick=()=>{if(!G)return;G.viewAll=!G.viewAll;renderPanel()};
 
 /* ================= navigation et pages ================= */
 const VIEWS=['home','game','bag','stats','rules','quiz','profile'];
-function showView(v){if(v==='home'&&G)v='game';for(const k of VIEWS)$('#v-'+k).hidden=k!==v;
+function showView(v){if(v==='home'&&G)v='game';if(typeof SND!=='undefined'){SND.view=v;musicUpdate()}for(const k of VIEWS)$('#v-'+k).hidden=k!==v;
   document.querySelectorAll('#nav button').forEach(b=>b.setAttribute('aria-current',(b.dataset.view===v||(v==='game'&&b.dataset.view==='home'))?'page':'false'));
   renderSave();if(v==='home')renderHome();if(v==='bag')renderBag();if(v==='stats')renderStats();if(v==='rules')renderRules();if(v==='quiz')renderQuiz();if(v==='profile')renderProfile();
   if(v==='game'){requestAnimationFrame(()=>{resize();pad.draw();renderPanel()})}}
@@ -1503,6 +1508,7 @@ function mpAnimate(peer,sh){
   if(sh.k==='f'&&Array.isArray(sh.u)&&Array.isArray(sh.land)){const u=norm(V(+sh.u[0],+sh.u[1])),D=mul(u,+sh.c||0),Dv=mul(perpR(u),+sh.d||0),ap=clamp(+sh.ap||25,0,60);const pp=sh.t==='wood'?.6:sh.t==='wedge'?.52:.57,pe=Math.log(.5)/Math.log(pp);
     plan={carry:+sh.c||0,apex:ap,club:{s:String(sh.cl||'').slice(0,4)},T:clamp(+sh.T||2,.5,6),groundAt:t=>V(A.x+D.x*t+Dv.x*t*t,A.y+D.y*t+Dv.y*t*t),heightAt:t=>ap*Math.sin(Math.PI*Math.pow(clamp(t,0,1),pe))};start=V(+sh.land[0],+sh.land[1])}
   const roll=(Math.abs(v.x)+Math.abs(v.y)>0)?rollSim(H,start,v):{path:[start]};roll.path.push(rest);
+  impactSfx(sh.k==='f'?(sh.t||'iron'):'putter',/^dr/i.test(String(sh.cl||'')),null);
   G.ranim={peer,stage:plan?'flight':'roll',t:0,T:plan?plan.T:0,ri:0,speed:plan?1.5:1.15,plan,roll};
   G.camShot=fitBox([A,rest].concat(plan?[plan.groundAt(.5)]:[]),plan?24:2.5,plan?60:10);renderPanel()}
 $('#mpCreate').onclick=()=>{const c=Array.from({length:5},()=>'abcdefghjkmnpqrstuvwxyz23456789'[Math.floor(Math.random()*31)]).join('');mpJoin(c,true)};
@@ -1566,6 +1572,38 @@ function renderSave(){const n=P.holesSinceExport||0,never=!P.lastExport,need=n>=
   const pi=$('#profSaveInfo');pi.style.borderLeftColor=need||never?'var(--warn)':'var(--green)';
   pi.innerHTML=never?'<span class="h">Jamais enregistré</span><p>Enregistrez votre profil pour garder vos moyennes par club et vos statistiques, et les retrouver sur un autre appareil.</p>':`<span class="h" style="color:${need?'var(--warn)':'var(--green)'}">${need?'Sauvegarde conseillée':'Profil à jour'}</span><p>Dernier enregistrement : ${esc(new Date(P.lastExport).toLocaleString('fr-FR',{dateStyle:'medium',timeStyle:'short'}))}. ${n} trou${n>1?'s':''} joué${n>1?'s':''} depuis.</p>`}
 $('#saveChip').onclick=()=>doExport();$('#saveBoxBtn').onclick=()=>doExport();
+/* ================= sons ================= */
+const SND={ctx:null,buf:{},on:{fx:true,mus:true},music:null,unlocked:false,loading:null,view:'home',fadeT:null};
+const SND_FILES=['driver','bois','fers','wedges','bunker','splash','trou','applause','oh'];
+try{const o=JSON.parse(localStorage.getItem('ldi-sound')||'null');if(o)SND.on={fx:o.fx!==false,mus:o.mus!==false}}catch(e){}
+function sndSrc(n){return(window.SND_DATA&&window.SND_DATA[n])||('sons/'+n+'.mp3')}
+function b64buf(u){const b=atob(u.slice(u.indexOf(',')+1)),a=new Uint8Array(b.length);for(let i=0;i<b.length;i++)a[i]=b.charCodeAt(i);return a.buffer}
+function sndDecode(ab){return new Promise((ok,ko)=>{const r=SND.ctx.decodeAudioData(ab,ok,ko);if(r&&r.then)r.then(ok,ko)})}
+function sndLoad(){if(SND.loading)return SND.loading;const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return Promise.resolve();
+  try{SND.ctx=new AC()}catch(e){return Promise.resolve()}
+  SND.loading=Promise.all(SND_FILES.map(async n=>{try{const src=sndSrc(n);const ab=src.startsWith('data:')?b64buf(src):await(await fetch(src)).arrayBuffer();SND.buf[n]=await sndDecode(ab)}catch(e){}}));return SND.loading}
+function sfx(n,vol=1,rate=1,delay=0){if(!SND.on.fx||!SND.ctx||!SND.buf[n])return;const c=SND.ctx;if(c.state==='suspended')c.resume();
+  const s=c.createBufferSource();s.buffer=SND.buf[n];s.playbackRate.value=rate;const g=c.createGain();g.gain.value=vol;s.connect(g);g.connect(c.destination);s.start(c.currentTime+delay)}
+function impactSfx(type,isDriver,lie){if(type==='putter')return sfx('fers',.16,1.8);
+  if(lie==='bunker')return sfx('bunker',1);const v=lie==='rough'?.75:1;
+  if(isDriver)return sfx('driver',v);if(type==='wood'||type==='hybrid')return sfx('bois',v);if(type==='wedge')return sfx('wedges',v);sfx('fers',v)}
+function outcomeSfx(res){const H=G&&G.H;if(!H)return;
+  if(res.holed){sfx('trou',1,1,.05);if(G.mode!=='practice'&&G.strokes<=H.par)sfx('applause',G.strokes<H.par?.9:.4,1,.9);return}
+  if(res.water){sfx('splash');sfx('oh',.75,1,.45);return}
+  if(!res.putt){const l=lieInfo(H,res.rest).lie;if(l==='hl')sfx('oh',.75);else if(l==='bunker')sfx('bunker',.45)}}
+function musicWanted(){return SND.on.mus&&SND.unlocked&&SND.view!=='game'}
+function musicUpdate(){const want=musicWanted();
+  if(want&&!SND.music){try{SND.music=new Audio(sndSrc('musique-menu'));SND.music.loop=true;SND.music.volume=0}catch(e){return}}
+  const m=SND.music;if(!m)return;clearInterval(SND.fadeT);const target=want?.32:0;
+  if(want&&m.paused){const pr=m.play();if(pr&&pr.catch)pr.catch(()=>{})}
+  SND.fadeT=setInterval(()=>{const d=target-m.volume;if(Math.abs(d)<.02){m.volume=target;clearInterval(SND.fadeT);if(!target)m.pause();return}m.volume=Math.min(1,Math.max(0,m.volume+Math.sign(d)*.02))},40)}
+function sndRender(){const any=SND.on.fx||SND.on.mus;$('#sndBtn').setAttribute('aria-pressed',any?'true':'false');$('#sndWave').style.display=any?'':'none';$('#sndX').style.display=any?'none':'';$('#sndMus').checked=SND.on.mus;$('#sndFx').checked=SND.on.fx}
+function sndSave(){try{localStorage.setItem('ldi-sound',JSON.stringify(SND.on))}catch(e){}sndRender();musicUpdate()}
+function sndUnlock(){if(SND.unlocked)return;SND.unlocked=true;sndLoad();if(SND.ctx&&SND.ctx.state==='suspended')SND.ctx.resume();musicUpdate()}
+['pointerdown','keydown','touchstart'].forEach(ev=>window.addEventListener(ev,sndUnlock,{capture:true,passive:true}));
+$('#sndBtn').onclick=()=>{const any=SND.on.fx||SND.on.mus;SND.on={fx:!any,mus:!any};sndSave()};
+$('#sndMus').onchange=e=>{SND.on.mus=e.target.checked;sndSave()};$('#sndFx').onchange=e=>{SND.on.fx=e.target.checked;sndSave()};
+sndRender();
 /* ================= météo réelle ================= */
 const WX={real:false,data:null,denied:false,loading:false};
 const CARD=['du nord','du nord-est','de l’est','du sud-est','du sud','du sud-ouest','de l’ouest','du nord-ouest'];
