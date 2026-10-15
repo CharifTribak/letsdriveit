@@ -14,6 +14,7 @@ Ouvrir la page publiée par GitHub Pages, ou ouvrir `index.html` dans un navigat
 - Distances affichées = moyenne de vos 3 derniers coups pleins par club, practice compris. Un club jamais mesuré affiche « ? m ».
 - Clubs déconseillés signalés et pénalisés (driver en bunker, bois dans le rough…).
 - Météo réelle : avec votre accord, le vent et la pluie de votre position (Open-Meteo) s’appliquent au parcours.
+- Course de voiturettes : 3 tours sur le chemin d’un trou généré, contre l’IA (3 niveaux). Le rough freine, bunker ou eau = hors course. Flèches ou ZQSD au clavier, boutons à l’écran sur téléphone. Records dans le profil.
 - Sons : impacts selon le club (driver, bois et hybrides, fers, wedges, bunker), balle au trou, plouf, réactions du public, musique au club-house. Coupure dans l’en-tête ou réglage fin dans le menu.
 - Quiz de 30 questions sur les règles, y compris celles que le jeu ne simule pas.
 - Profil (sac, statistiques, parties) enregistrable en `.json` et réimportable.
