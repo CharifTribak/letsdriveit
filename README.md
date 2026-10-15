@@ -10,6 +10,9 @@ Ouvrir la page publiée par GitHub Pages, ou ouvrir `index.html` dans un navigat
 - Coup : choix du club et de la cible, swing à la souris ou au doigt (barre Espace au clavier), dispersion selon le lie, le vent et la pente.
 - Putting avec lecture de pente et vitesse de green (stimp).
 - Règles simulées : hors limites, balle perdue, balle provisoire, zones à pénalité jaunes et rouges, balle injouable, obstructions et terrain en réparation, balle enfoncée, score maximum, règle locale E-5 en option.
+- Distances affichées = moyenne de vos 3 derniers coups pleins par club (estimation prudente tant qu’un club n’est pas mesuré).
+- Clubs déconseillés signalés et pénalisés (driver en bunker, bois dans le rough…).
+- Météo réelle : avec votre accord, le vent et la pluie de votre position (Open-Meteo) s’appliquent au parcours.
 - Quiz de 30 questions sur les règles, y compris celles que le jeu ne simule pas.
 - Profil (sac, statistiques, parties) enregistrable en `.json` et réimportable.
 
@@ -31,4 +34,4 @@ Les fiches de règles et le quiz sont des résumés rédigés pour le jeu, d'apr
 
 ## Technique
 
-Un seul fichier `index.html`, sans étape de construction. Les textures et illustrations sont embarquées. Dépendances chargées depuis un CDN : polices Google Fonts, PeerJS 1.5.4 (seulement en multijoueur).
+Un seul fichier `index.html`, sans étape de construction. Les textures et illustrations sont embarquées. Dépendances chargées depuis un CDN : polices Google Fonts, PeerJS 1.5.4 (seulement en multijoueur). Météo : API publique Open-Meteo, appelée avec une position arrondie à 0,01°.
