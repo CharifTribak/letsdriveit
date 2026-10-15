@@ -43,6 +43,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .savechip{background:var(--warn);color:#120A00;padding:9px 14px;font-family:var(--f-mono);font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.06em}
 .savechip svg{width:15px;height:15px}
 .t-orange{background:#F28C28}
+.pquit{pointer-events:auto;cursor:pointer;border:0;background:#F28C28;color:#120A00;padding:6px 14px;font-family:var(--f-display);font-weight:800;font-size:16px;text-transform:uppercase;transform:skewX(-12deg);margin-top:4px}.pquit:hover{background:#FFA64D}
 .sndbtn{display:inline-flex;align-items:center;justify-content:center;width:42px;height:40px;border:1px solid rgba(255,255,255,.18);background:transparent;color:var(--ink);cursor:pointer;transform:skewX(-12deg)}.sndbtn svg{width:20px;height:20px;transform:skewX(12deg)}.sndbtn[aria-pressed="false"]{color:var(--muted)}
 .snd-row{display:flex;gap:18px;flex-wrap:wrap;margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}.snd-row label{display:flex;gap:8px;align-items:center;cursor:pointer}.t-white{background:#FFFFFF}.t-yellow{background:#F7D21E}.t-blue{background:#2F7FD0}.t-red{background:#E4572E}.t-green{background:#3FA45B}.t-black{background:#161616;box-shadow:0 0 0 2px var(--ink)!important}
 
@@ -1137,7 +1138,7 @@ function renderPanel(){
   else{G.pred=null;pl.textContent=''}
   // hud
   let turnPill='';if(G.mp){const t=mpTurn();turnPill=G.waitNext?'<span class="pill">En attente des autres joueurs</span>':t?(t.peer===MP.me?'<span class="pill turn">À vous de jouer</span>':`<span class="pill turn">Au tour de ${esc(mpName(t.peer))}</span>`):''}
-  const hud=$('#hud');hud.innerHTML=(H.range?`<span class="pill hole">Practice</span><span class="pill">Surface : ${G.practice.surface==='depart'?'tapis':LIE[G.practice.surface].toLowerCase()}</span>`:`<span class="pill hole">Trou ${G.idx+1}</span><span class="pill">Par ${H.par} · ${Math.round(H.L)} m</span>`)+(H.rain?`<span class="pill">Pluie ${H.rain>1?'soutenue':'fine'}</span>`:'')+turnPill+(G.prov?'<span class="pill prov">Balle provisoire</span>':'')+(G.lie==='green'&&G.phase==='aim'?`<span class="pill">Lecture : flèches = sens de la pente</span>`:'');
+  const hud=$('#hud');hud.innerHTML=(H.range?`<span class="pill hole">Practice</span><span class="pill">Surface : ${G.practice.surface==='depart'?'tapis':LIE[G.practice.surface].toLowerCase()}</span><button class="pquit" type="button" data-quit-practice>Quitter le practice</button>`:`<span class="pill hole">Trou ${G.idx+1}</span><span class="pill">Par ${H.par} · ${Math.round(H.L)} m</span>`)+(H.rain?`<span class="pill">Pluie ${H.rain>1?'soutenue':'fine'}</span>`:'')+turnPill+(G.prov?'<span class="pill prov">Balle provisoire</span>':'')+(G.lie==='green'&&G.phase==='aim'?`<span class="pill">Lecture : flèches = sens de la pente</span>`:'');
   $('#btnView').textContent=G.viewAll?'Vue de jeu':'Vue du trou';
   pad.setEnabled(G.phase==='aim'&&!ovBusy&&!G.ranim&&(!G.mp||mpMyTurn()),isPutt());
   updatePower(null);
@@ -1321,6 +1322,8 @@ function showView(v){if(v==='home'&&G)v='game';if(typeof SND!=='undefined'){SND.
   if(v==='game'){requestAnimationFrame(()=>{resize();pad.draw();renderPanel()})}}
 document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{openMenu(false);if(b.dataset.view==='practice')return startPractice();showView(b.dataset.view)});
 $('#btnPractice').onclick=()=>startPractice();
+function quitPractice(){if(!G||G.mode!=='practice')return;G=null;showView('home')}
+document.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('[data-quit-practice]'))quitPractice()});
 document.querySelectorAll('#pSurf .chipbtn').forEach(b=>b.onclick=()=>{if(!G||G.mode!=='practice')return;G.practice.surface=b.dataset.s;if(G.phase==='aim'){G.lie=b.dataset.s;G.club=autoClub();G.aimManual=false;setDefaultAim()}renderPractice();renderPanel()});
 $('#pWind').addEventListener('change',e=>{if(!G||G.mode!=='practice')return;G.practice.wind=e.target.checked;const H=G.H;if(e.target.checked){H.wind=H.windOn.w;H.windKmh=H.windOn.k}else{H.wind=V(0,0);H.windKmh=0}renderPanel()});
 function openMenu(o){$('#menuPanel').hidden=!o;$('#menuScrim').hidden=!o;$('#menuBtn').setAttribute('aria-expanded',o?'true':'false');if(o){const f=$('#menuPanel').querySelector('[aria-current="page"]')||$('#menuClose');f.focus()}else if(document.activeElement&&$('#menuPanel').contains(document.activeElement))$('#menuBtn').focus()}
