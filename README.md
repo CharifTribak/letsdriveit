@@ -10,7 +10,8 @@ Ouvrir la page publiée par GitHub Pages, ou ouvrir `index.html` dans un navigat
 - Coup : choix du club et de la cible, swing à la souris ou au doigt (barre Espace au clavier), dispersion selon le lie, le vent et la pente.
 - Putting avec lecture de pente et vitesse de green (stimp).
 - Règles simulées : hors limites, balle perdue, balle provisoire, zones à pénalité jaunes et rouges, balle injouable, obstructions et terrain en réparation, balle enfoncée, score maximum, règle locale E-5 en option.
-- Distances affichées = moyenne de vos 3 derniers coups pleins par club (estimation prudente tant qu’un club n’est pas mesuré).
+- Practice : 8 cibles de 50 à 260 m, tapis, fairway, rough ou bunker, vent activable. Tous les clubs se testent.
+- Distances affichées = moyenne de vos 3 derniers coups pleins par club, practice compris. Un club jamais mesuré affiche « ? m ».
 - Clubs déconseillés signalés et pénalisés (driver en bunker, bois dans le rough…).
 - Météo réelle : avec votre accord, le vent et la pluie de votre position (Open-Meteo) s’appliquent au parcours.
 - Quiz de 30 questions sur les règles, y compris celles que le jeu ne simule pas.

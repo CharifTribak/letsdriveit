@@ -6,6 +6,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Racing+Sans+One&family=Saira+Extra+Condensed:wght@600;700;800;900&family=Chivo:wght@400;600;800&family=Chivo+Mono:wght@500;700&display=swap">
 <style>
+[hidden]{display:none!important}
 /* Mise en page : habillage de retransmission TV. Bandeaux biseautés, nuit vert profond, accent vert électrique. Thème sombre unique, assumé. */
 :root{
   --paper:#08120D; --card:#0F1D16; --card2:#13241B; --ink:#F2F6EF; --muted:#93A598; --dim:#617166; --line:#22352A;
@@ -41,7 +42,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .menubtn .tees i{width:10px;height:10px}
 .savechip{background:var(--warn);color:#120A00;padding:9px 14px;font-family:var(--f-mono);font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.06em}
 .savechip svg{width:15px;height:15px}
-.t-white{background:#FFFFFF}.t-yellow{background:#F7D21E}.t-blue{background:#2F7FD0}.t-red{background:#E4572E}.t-green{background:#3FA45B}.t-black{background:#161616;box-shadow:0 0 0 2px var(--ink)!important}
+.t-orange{background:#F28C28}.t-white{background:#FFFFFF}.t-yellow{background:#F7D21E}.t-blue{background:#2F7FD0}.t-red{background:#E4572E}.t-green{background:#3FA45B}.t-black{background:#161616;box-shadow:0 0 0 2px var(--ink)!important}
 
 /* Menu des départs */
 .menu-scrim{position:fixed;inset:0;background:rgba(4,9,6,.6);z-index:30}
@@ -84,8 +85,8 @@ h3{font-size:24px;text-transform:uppercase;letter-spacing:.02em}
 .hero-text{position:relative;z-index:1;max-width:640px;display:flex;flex-direction:column;gap:18px}
 .live{display:flex;align-items:center;gap:10px;font-family:var(--f-mono);font-weight:700;font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:#B9C6BC}
 .live i{width:10px;height:10px;border-radius:50%;background:var(--green);box-shadow:0 0 0 4px rgba(198,244,50,.22)}
-.bomb{font-family:var(--f-title);font-weight:400;font-size:clamp(76px,11vw,140px);line-height:.9;text-transform:uppercase;display:flex;flex-direction:column;transform:skewX(-4deg)}
-.bomb .r{text-align:right}
+.bomb{font-family:var(--f-title);font-weight:400;font-size:clamp(60px,9vw,120px);line-height:.9;text-transform:uppercase;display:flex;flex-direction:column;transform:skewX(-4deg)}
+.bomb .l1{text-align:right}.bomb .l2{text-align:center}.bomb .l3{text-align:left}
 .bomb em{font-style:normal;color:var(--green)}
 .tagline{margin:0;font-size:18px;line-height:1.5;color:#C3CEC6;max-width:46ch}
 .who{display:flex;gap:22px;flex-wrap:wrap}
@@ -152,19 +153,23 @@ legend{padding:0;margin-bottom:8px}
 .facts small.fun{font-size:10.5px;color:var(--dim);font-style:italic;min-height:0}
 .facts svg{width:20px;height:20px;flex:none;color:var(--green)}
 .club-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:10px}
-.clubs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
-.club{position:relative;text-align:left;border:1px solid rgba(255,255,255,.15);background:transparent;color:var(--ink);cursor:pointer;padding:17px 8px 7px;min-width:0}
-.club b{display:block;font-family:var(--f-display);font-weight:900;font-size:24px;line-height:1}
-.club span{display:block;margin-top:3px;font-family:var(--f-mono);font-weight:700;font-size:11.5px;color:#B9C6BC;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.clubs{display:grid;grid-template-columns:repeat(auto-fill,minmax(54px,1fr));gap:5px}
+.club{position:relative;text-align:left;border:1px solid rgba(255,255,255,.15);background:transparent;color:var(--ink);cursor:pointer;padding:5px 6px 4px;min-width:0}
+.club b{display:block;font-family:var(--f-display);font-weight:900;font-size:19px;line-height:1}
+.club span{display:block;margin-top:2px;font-family:var(--f-mono);font-weight:700;font-size:10.5px;color:#B9C6BC;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .club span.est{font-style:italic;font-weight:500;color:var(--dim)}
 .club.est-card{border-style:dashed}
 .club[aria-pressed="true"]{background:var(--green);color:var(--green-ink);border-color:var(--green)}
 .club[aria-pressed="true"] span{color:var(--green-ink)}
-.club .tag{margin:0;position:absolute;left:-1px;right:-1px;top:-1px;padding:2px 5px;font-family:var(--f-mono);font-weight:700;font-size:9.5px;letter-spacing:.03em;text-transform:uppercase;color:#120A00;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.club .tag{margin:0;position:absolute;top:4px;right:4px;width:9px;height:9px;border-radius:50%;font-size:0;line-height:0;padding:0;overflow:hidden}
 .club.warn{border-color:var(--warn)}.club.warn .tag{background:var(--warn)}
 .club.bad{border-color:var(--bad);background:rgba(255,77,61,.07)}.club.bad .tag{background:var(--bad)}
+.chipbtn{border:1px solid rgba(255,255,255,.18);background:transparent;color:var(--ink);padding:6px 12px;cursor:pointer;font-family:var(--f-display);font-weight:800;font-size:17px;text-transform:uppercase;transform:skewX(-12deg)}
+.chipbtn[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.pshots{width:100%;border-collapse:collapse;font-family:var(--f-mono);font-size:12px;margin-top:8px}.pshots th,.pshots td{padding:4px 6px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}.pshots th:first-child,.pshots td:first-child{text-align:left}.pshots th{color:var(--muted);font-weight:700;font-size:10.5px;text-transform:uppercase;letter-spacing:.08em}
 .advice{margin-top:10px;border-left:4px solid var(--warn);background:rgba(255,159,28,.08);padding:9px 12px;font-size:13.5px;line-height:1.45}
 .advice.bad{border-color:var(--bad);background:rgba(255,77,61,.08)}
+.advice.info{border-color:var(--green);background:rgba(198,244,50,.07)}
 .advice b{display:block;font-family:var(--f-display);font-weight:900;font-size:18px;text-transform:uppercase}
 .plays{font-family:var(--f-mono);font-size:12px;margin-top:10px;color:var(--muted)}
 .plays b{color:var(--ink);font-weight:700}
@@ -271,6 +276,7 @@ table.bag input[type=number]{width:72px;border:1px solid var(--line);background:
     <p class="note" style="margin:0 0 6px">Chaque rubrique a la couleur d’une marque de départ.</p>
     <nav id="nav">
       <button class="tee-item" type="button" data-view="home" aria-current="page"><i class="tee t-white"></i><span><b>Partie</b><small>Trou unique, parcours, défi du jour, salon multi</small></span></button>
+      <button class="tee-item" type="button" data-view="practice"><i class="tee t-orange"></i><span><b>Practice</b><small>Testez chaque club sur les cibles, mesurez vos distances</small></span></button>
       <button class="tee-item" type="button" data-view="bag"><i class="tee t-yellow"></i><span><b>Mon sac</b><small>Vos clubs et leurs moyennes mesurées</small></span></button>
       <button class="tee-item" type="button" data-view="stats"><i class="tee t-blue"></i><span><b>Statistiques</b><small>Fairways, greens en régulation, putts, pénalités</small></span></button>
       <button class="tee-item" type="button" data-view="rules"><i class="tee t-red"></i><span><b>Règles</b><small>Les fiches carte verte rencontrées en jeu</small></span></button>
@@ -285,7 +291,7 @@ table.bag input[type=number]{width:72px;border:1px solid var(--line);background:
       <img class="driver" id="heroImg" alt="Driver à couronne verte gravée d’un plan de trou à l’or">
       <div class="hero-text">
         <div class="live"><i></i>En direct du départ du 1</div>
-        <h1 class="bomb"><span class="r">Bombe</span><span>au <em>départ</em></span></h1>
+        <h1 class="bomb"><span class="l1">Fais-moi</span><span class="l2">chanter</span><span class="l3">ce <em>driver</em></span></h1>
         <p class="tagline">Le practice ne ferme jamais : révisez vos règles, affûtez votre swing et chargez le driver en attendant votre prochain départ !</p>
         <div class="who">
           <div><span class="lbl">Joueur</span><b id="hName">Joueur</b></div>
@@ -328,7 +334,7 @@ table.bag input[type=number]{width:72px;border:1px solid var(--line);background:
         </fieldset>
         <label class="field" id="fsSeed"><span class="lbl">Graine du parcours (facultatif)</span><input id="seed" inputmode="numeric" placeholder="ex. 48213, pour rejouer le même parcours"></label>
         <p class="note" id="dailyNote" hidden>Défi du jour : 9 trous en difficulté Moyen, identiques pour tous les joueurs aujourd’hui. Score maximum : double par.</p>
-        <div><button class="btn primary big" type="submit">Aller au départ</button></div>
+        <div class="actions" style="align-items:center;gap:16px"><button class="btn primary big" type="submit">Aller au départ</button><button class="btn" id="btnPractice" type="button">Aller au practice</button></div>
       </form>
       <div class="side-col">
         <div class="savebox" id="saveBox" hidden>
@@ -370,7 +376,7 @@ table.bag input[type=number]{width:72px;border:1px solid var(--line);background:
         <div class="box">
           <div class="hole-head">
             <div>
-              <div class="hole-no">Trou <span id="gNo">1</span><small id="gOf">/1</small></div>
+              <div class="hole-no" id="holeNo">Trou <span id="gNo">1</span><small id="gOf">/1</small></div><div class="hole-no" id="pracNo" hidden>Practice</div>
               <div class="hole-meta"><span id="gPar">Par 4</span><span id="gLen">0 m</span><span id="gDiff">Moyen</span><span id="gSeed"></span></div>
             </div>
             <div class="tot"><small>Total</small><span id="gTot">E</span></div>
@@ -407,7 +413,16 @@ table.bag input[type=number]{width:72px;border:1px solid var(--line);background:
             <div class="actions"><button class="btn small primary" id="quitYes" type="button">Abandonner</button><button class="btn small" id="quitNo" type="button">Continuer</button></div>
           </div>
         </div>
-        <div class="box cardwrap"><span class="lbl">Carte de score</span><div id="scorecard"></div></div>
+        <div class="box" id="practiceBox" hidden>
+          <span class="lbl">Surface du coup</span>
+          <div class="actions" id="pSurf" style="margin-top:8px">
+            <button class="chipbtn" type="button" data-s="depart">Tapis</button><button class="chipbtn" type="button" data-s="fairway">Fairway</button><button class="chipbtn" type="button" data-s="rough">Rough</button><button class="chipbtn" type="button" data-s="bunker">Bunker</button>
+          </div>
+          <label style="display:flex;gap:8px;align-items:center;margin-top:10px"><input type="checkbox" id="pWind" checked> <span>Vent sur le practice</span></label>
+          <p class="note" style="margin:8px 0 0">Seuls les coups pleins (élan ≥ 85 %) depuis le tapis ou le fairway alimentent vos moyennes par club.</p>
+          <div class="cardwrap"><table class="pshots" id="pShots"></table></div>
+        </div>
+        <div class="box cardwrap" id="scoreBox"><span class="lbl">Carte de score</span><div id="scorecard"></div></div>
       </aside>
     </div>
   </section>
@@ -816,12 +831,32 @@ function startRound(mode,diff,par,seedIn){
   showView('game');startHole();
 }
 function startHole(){
-  const H=genHole(G.seed*31+G.idx*7919+17,G.diff,G.pars[G.idx],G.lenScale);applyWx(H);buildRasters(H);if(!texReady)texP.then(()=>{if(G&&G.H===H)buildRasters(H)});
+  const prac=G.mode==='practice';const H=prac?genRange(G.seed):genHole(G.seed*31+G.idx*7919+17,G.diff,G.pars[G.idx],G.lenScale);applyWx(H);H.windOn={w:H.wind,k:H.windKmh};if(prac&&!G.practice.wind){H.wind=V(0,0);H.windKmh=0}buildRasters(H);if(!texReady)texP.then(()=>{if(G&&G.H===H)buildRasters(H)});
   Object.assign(G,{H,ball:H.tee,lie:'depart',strokes:0,putts:0,pen:0,fw:null,teePending:true,gir:false,girSet:false,greenSeen:false,drive:0,tracks:[],hidden:null,prov:null,anim:null,phase:'aim',aimManual:false,viewAll:false,lastPlan:null,lastPlanFull:null,zoom:1,embedded:false,lastA:null,mpActing:false,waitNext:false,ranim:null,mpMsg:''});
+  if(prac)G.lie=G.practice.surface;
   G.club=autoClub();setDefaultAim();cam.ok=false;
-  renderPanel();renderScorecard();
-  ruleCard('depart');
+  renderPanel();renderScorecard();if(prac)renderPractice();
+  if(!prac)ruleCard('depart');
 }
+function genRange(seed){const R=mulberry32(seed>>>0);const H={par:4,dk:'facile',seed,range:true};buildPath(H,[V(0,0),V(0,330)]);
+  H.fw=46;H.rw=26;H.ph1=0;H.ph2=0;H.cart=null;H.tr=[];H.water=[];H.gB=14;H.gA=12;H.green={c:V(0,330),u:V(0,1),ra:14,rb:12};H.fs0=-5;H.fs1=316;H.pin=V(0,330);
+  H.waves=[{kx:.02,ky:.012,ph:1,a:.4}];H.tilt=V(0,.008);H.gw=[];H.stimp=10;H.greenDecel=1.83*1.83/(2*10*.3048);H.firm=1;H.rainSim=0;
+  H.windKmh=4+R()*12;const an=R()*6.283;H.wind=mul(V(Math.cos(an),Math.sin(an)),H.windKmh/3.6);
+  H.targets=[50,80,110,140,170,200,230,260].map((d,i)=>({c:V((i%2?1:-1)*(4+R()*16),d),r:d<100?5:d<180?7:9,d}));
+  H.bunkers=[{c:V(H.targets[3].c.x+12,140),u:V(0,1),ra:5,rb:3},{c:V(H.targets[5].c.x-14,200),u:V(0,1),ra:6,rb:3.5}];
+  H.bb={x0:-110,y0:-40,x1:110,y1:380};H.trees=[];for(let y=-20;y<370;y+=11)for(const sd of[-1,1]){if(R()<.3)continue;H.trees.push({c:V(sd*(74+R()*26),y),r:3+R()*3.5})}
+  H.tee=V(0,-2);return H}
+function startPractice(){if(G){toast(G.mode==='practice'?'Vous êtes déjà au practice':'Terminez ou abandonnez la partie en cours');if(G.mode==='practice')showView('game');return}
+  G={mode:'practice',diff:'facile',seed:(Date.now()%900000)+1,pars:[4],idx:0,cards:[],lenScale:1,practice:{surface:'depart',wind:true,shots:[]}};showView('game');startHole()}
+function renderPractice(){if(!G||G.mode!=='practice')return;document.querySelectorAll('#pSurf .chipbtn').forEach(b=>b.setAttribute('aria-pressed',b.dataset.s===G.practice.surface?'true':'false'));
+  const t=$('#pShots'),sh=G.practice.shots;t.innerHTML=sh.length?'<tr><th>Club</th><th>Porté</th><th>Total</th><th>Écart</th><th>Cible</th></tr>'+sh.map(x=>`<tr><td>${esc(x.club)}${x.counted?'':' <span class="muted">·</span>'}</td><td>${Math.round(x.carry)} m</td><td>${Math.round(x.total)} m</td><td>${Math.abs(x.off)<1?'droit':`${Math.round(Math.abs(x.off))} m ${x.off>0?'D':'G'}`}</td><td>${x.tgt?`${fr(x.tgt.e,1)} m de la ${x.tgt.d}`:'–'}</td></tr>`).join(''):'<tr><td class="muted" style="text-align:left">Choisissez un club, visez une cible, swinguez.</td></tr>'}
+function practiceResult(res){const H=G.H,c=res.club,A=res.A,rest=res.rest;const u=norm(sub(G.aim||add(A,V(0,1)),A));
+  const off=dot(sub(rest,A),perpR(u));let best=null;if(H.targets)for(const t of H.targets){const e=dist(rest,t.c);if(!best||e<best.e)best={e,d:t.d+' m'}}
+  const counted=!res.putt&&G.lastSwing&&G.lastSwing.power>=.85&&['depart','fairway'].includes(res.lieAtStrike)&&!res.stuck;
+  G.practice.shots.unshift({club:c.s,carry:res.plan?res.plan.carry:dist(A,rest),total:dist(A,rest),off,tgt:best&&best.e<25?best:null,counted});G.practice.shots=G.practice.shots.slice(0,12);
+  if(G.tracks.length>6)G.tracks=G.tracks.slice(-6);renderPractice();
+  if(counted){const k=knownTotal(c.id);showFeedback(($('#feedback').textContent||'')+` Moyenne ${c.name.toLowerCase()} : ${Math.round(k.v)} m sur ${k.n} coup${k.n>1?'s':''}.`)}
+  G.ball=V(H.tee.x,H.tee.y);G.lie=G.practice.surface;G.strokes=0;G.phase='aim';G.hidden=null;G.zoom=1;setDefaultAim();renderPanel()}
 function cur(){return bagClubs().find(c=>c.id===G.club)||bagClubs()[0]}
 function clubsAvail(){return bagClubs()}
 const HCP54=.68;
@@ -898,6 +933,7 @@ function finishAnim(res){
   if(res.stuck)msg='Le club a planté dans le sable : la balle a à peine bougé. '+msg;
   feedback(msg);
   if(!res.putt&&G.lastSwing&&G.lastSwing.power>=.85&&['depart','fairway','frange'].includes(res.lieAtStrike)&&!res.water&&!res.embedded&&!res.stuck)logClub(c.id,dist(res.A,res.rest));
+  if(G.mode==='practice'){practiceResult(res);return}
   if(G.prov){G.prov.res=res;G.prov.lo=res.putt||res.water||res.holed?{uncertain:false,status:'ok'}:lostOutcome(H,res.rest);return revealOriginal()}
   resolve(res,true);
 }
@@ -1066,12 +1102,13 @@ function renderPanel(){
   const hid=G.phase==='decision'&&G.hidden;
   $('#fLie').textContent=hid?'?':LIE[G.lie]+(G.embedded?' (enfoncée)':'');
   $('#btnUnplay').hidden=!(G.phase==='aim'&&G.lie!=='green'&&G.strokes>0);$('#btnRelief').hidden=!(G.phase==='aim'&&(G.lie==='chemin'||G.lie==='tr'));
+  const prac=G.mode==='practice';$('#practiceBox').hidden=!prac;$('#scoreBox').hidden=prac;$('#holeNo').hidden=prac;$('#pracNo').hidden=!prac;$('#btnQuit').textContent=prac?'Quitter le practice':'Abandonner';if(prac){$('#btnUnplay').hidden=true;$('#btnRelief').hidden=true}
   let sl='';if(!hid&&G.lie!=='green'&&G.lie!=='depart'&&G.phase==='aim'){const g=terrGrad(H,G.ball),u=norm(sub(G.aim,G.ball));const up=dot(g,u)*100,sd=dot(g,perpR(u))*100;
     const a=[];if(Math.abs(up)>=1.5)a.push(`${up>0?'montante':'descendante'} ${fr(Math.abs(up),0)} %`);if(Math.abs(sd)>=1.5)a.push(`balle ${sd>0?'au-dessus':'au-dessous'} des pieds`);sl=a.join(', ')}
   if(G.lie==='green'&&!hid){const g=greenGrad(H,G.ball);sl=`pente ${fr(len(g)*100,1)} % · stimp ${fr(H.stimp,1)}`}
   $('#fSlope').textContent=sl;
-  const dp=dist(G.ball,H.pin);$('#fDist').textContent=hid?'?':(dp<30?fr(dp,1):Math.round(dp))+' m';
-  {const c=H.green.c,u=H.green.u,front=add(c,mul(u,-H.gB)),back=add(c,mul(u,H.gB));$('#fGreen').textContent=hid||G.lie==='green'?'':`avant ${Math.round(dist(G.ball,front))} · fond ${Math.round(dist(G.ball,back))}`}
+  const dp=dist(G.ball,H.pin);$('#fDist').textContent=hid?'?':(dp<30?fr(dp,1):Math.round(dp))+' m';if(H.range){$('#fDist').textContent='50–260 m'}
+  {const c=H.green.c,u=H.green.u,front=add(c,mul(u,-H.gB)),back=add(c,mul(u,H.gB));$('#fGreen').textContent=H.range?'8 cibles':hid||G.lie==='green'?'':`avant ${Math.round(dist(G.ball,front))} · fond ${Math.round(dist(G.ball,back))}`}
   $('#fWindV').textContent=Math.round(H.windKmh)+' km/h';
   const wa=Math.atan2(-H.wind.y,H.wind.x)*180/Math.PI;$('#windArrow').style.transform=`rotate(${wa}deg)`;
   {const u=norm(sub(G.aim||H.pin,G.ball));const al=dot(H.wind,u),cr=dot(H.wind,perpR(u));let t='';
@@ -1083,10 +1120,10 @@ function renderPanel(){
   let selAdv=null;
   for(const c of av){const adv=G.phase==='aim'?clubAdvice(c,G.lie,dp):null;const k=c.id==='PT'?null:knownTotal(c.id);if(c.id===G.club)selAdv=adv;
     const b=document.createElement('button');b.type='button';b.className='club'+(adv?' '+adv.lvl:'')+(k&&k.est?' est-card':'');b.setAttribute('aria-pressed',c.id===G.club);
-    b.innerHTML=(adv?`<span class="tag">${adv.lvl==='bad'?'Mauvais choix':'Déconseillé'}</span>`:'')+`<b>${c.s}</b>`+(c.id==='PT'?'<span>putt</span>':k.est?`<span class="est">estim. ${k.v} m</span>`:`<span>Ø ${Math.round(k.v)} m</span>`);
-    b.title=c.name+(k?(k.est?' · estimation prudente, pas encore mesuré':` · moyenne de ${k.n} coup${k.n>1?'s':''} plein${k.n>1?'s':''}`):'')+(adv?' · '+adv.t:'');
+    b.innerHTML=(adv?`<span class="tag">${adv.lvl==='bad'?'Mauvais choix':'Déconseillé'}</span>`:'')+`<b>${c.s}</b>`+(c.id==='PT'?'<span>putt</span>':k.est?`<span class="est">? m</span>`:`<span>Ø ${Math.round(k.v)} m</span>`);
+    b.title=c.name+(k?(k.est?' · distance inconnue : entraînez-vous au practice sur ce club':` · moyenne de ${k.n} coup${k.n>1?'s':''} plein${k.n>1?'s':''}`):'')+(adv?' · '+adv.t:'');
     b.onclick=()=>{if(G.phase!=='aim')return;G.club=c.id;if(!G.aimManual)setDefaultAim();renderPanel()};box.appendChild(b)}
-  {const ad=$('#advice');ad.hidden=!selAdv;if(selAdv){ad.className='advice'+(selAdv.lvl==='bad'?' bad':'');ad.innerHTML=`<b>${esc(selAdv.t)}</b>${esc(selAdv.w)}`}}
+  {const ad=$('#advice');const sc=cur();const unk=G.phase==='aim'&&sc.id!=='PT'&&knownTotal(sc.id).est;ad.hidden=!selAdv&&!unk;if(selAdv){ad.className='advice'+(selAdv.lvl==='bad'?' bad':'');ad.innerHTML=`<b>${esc(selAdv.t)}</b>${esc(selAdv.w)}`}else if(unk){ad.className='advice info';ad.innerHTML=`<b>Distance inconnue</b>Vous n’avez pas encore mesuré votre ${esc(sc.name.toLowerCase())} : l’aperçu utilise une estimation prudente. Entraînez-vous au practice sur ce club.`}}
   // plays
   const pl=$('#plays');
   if(G.phase==='aim'&&!isPutt()){const pr=predict();G.pred=pr;
@@ -1095,7 +1132,7 @@ function renderPanel(){
   else{G.pred=null;pl.textContent=''}
   // hud
   let turnPill='';if(G.mp){const t=mpTurn();turnPill=G.waitNext?'<span class="pill">En attente des autres joueurs</span>':t?(t.peer===MP.me?'<span class="pill turn">À vous de jouer</span>':`<span class="pill turn">Au tour de ${esc(mpName(t.peer))}</span>`):''}
-  const hud=$('#hud');hud.innerHTML=`<span class="pill hole">Trou ${G.idx+1}</span><span class="pill">Par ${H.par} · ${Math.round(H.L)} m</span>`+(H.rain?`<span class="pill">Pluie ${H.rain>1?'soutenue':'fine'}</span>`:'')+turnPill+(G.prov?'<span class="pill prov">Balle provisoire</span>':'')+(G.lie==='green'&&G.phase==='aim'?`<span class="pill">Lecture : flèches = sens de la pente</span>`:'');
+  const hud=$('#hud');hud.innerHTML=(H.range?`<span class="pill hole">Practice</span><span class="pill">Surface : ${G.practice.surface==='depart'?'tapis':LIE[G.practice.surface].toLowerCase()}</span>`:`<span class="pill hole">Trou ${G.idx+1}</span><span class="pill">Par ${H.par} · ${Math.round(H.L)} m</span>`)+(H.rain?`<span class="pill">Pluie ${H.rain>1?'soutenue':'fine'}</span>`:'')+turnPill+(G.prov?'<span class="pill prov">Balle provisoire</span>':'')+(G.lie==='green'&&G.phase==='aim'?`<span class="pill">Lecture : flèches = sens de la pente</span>`:'');
   $('#btnView').textContent=G.viewAll?'Vue de jeu':'Vue du trou';
   pad.setEnabled(G.phase==='aim'&&!ovBusy&&!G.ranim&&(!G.mp||mpMyTurn()),isPutt());
   updatePower(null);
@@ -1191,6 +1228,8 @@ function draw(){
     for(let i=0;i<n;i++){const a=i/n*6.2832;const q=add(w.c,add(mul(w.u,Math.cos(a)*(w.ra+.6)),mul(perpL(w.u),Math.sin(a)*(w.rb+.6))));if(lieInfo(H,q).lie==='hl')continue;circle(w2s(q),Math.max(1.6,cam.s*.25),col,'rgba(0,0,0,.4)',1)}}
   // terrain en réparation : ligne blanche
   for(const t of H.tr){const q=w2s(t.c);const an=Math.atan2(-t.u.y,t.u.x);ctx.save();ctx.translate(q.x,q.y);ctx.rotate(an);ctx.setLineDash([4,3]);ctx.strokeStyle='rgba(255,255,255,.9)';ctx.lineWidth=1.5;ctx.beginPath();ctx.ellipse(0,0,t.ra*cam.s,t.rb*cam.s,0,0,7);ctx.stroke();ctx.restore();ctx.setLineDash([])}
+  if(H.targets)for(const t of H.targets){const q=w2s(t.c),rr=Math.max(5,t.r*cam.s);ctx.fillStyle='rgba(255,255,255,.13)';ctx.strokeStyle='rgba(255,255,255,.85)';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(q.x,q.y,rr,0,7);ctx.fill();ctx.stroke();ctx.beginPath();ctx.arc(q.x,q.y,rr*.45,0,7);ctx.stroke();
+    ctx.strokeStyle='#F4F4EE';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(q.x,q.y);ctx.lineTo(q.x,q.y-18);ctx.stroke();ctx.fillStyle='#C6F432';ctx.beginPath();ctx.moveTo(q.x,q.y-18);ctx.lineTo(q.x+10,q.y-14.5);ctx.lineTo(q.x,q.y-11);ctx.fill();label(q,t.d+' m',14)}
   // marques de départ et plaques de distance
   for(const sd of[-4,4]){const q=w2s(V(sd,0));circle(q,Math.max(2.5,cam.s*.35),'#F2F2EE','rgba(0,0,0,.5)',1)}
   if(H.par>3)for(const [m,col] of[[100,'#D2342A'],[150,'#F2F2EE'],[200,'#2E66B8']]){const s=H.L-m;if(s<H.fs0)continue;const q=w2s(pointAt(H,s).p);circle(q,Math.max(2.4,cam.s*.6),col,'rgba(0,0,0,.5)',1)}
@@ -1275,7 +1314,10 @@ function showView(v){if(v==='home'&&G)v='game';for(const k of VIEWS)$('#v-'+k).h
   document.querySelectorAll('#nav button').forEach(b=>b.setAttribute('aria-current',(b.dataset.view===v||(v==='game'&&b.dataset.view==='home'))?'page':'false'));
   renderSave();if(v==='home')renderHome();if(v==='bag')renderBag();if(v==='stats')renderStats();if(v==='rules')renderRules();if(v==='quiz')renderQuiz();if(v==='profile')renderProfile();
   if(v==='game'){requestAnimationFrame(()=>{resize();pad.draw();renderPanel()})}}
-document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{openMenu(false);showView(b.dataset.view)});
+document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{openMenu(false);if(b.dataset.view==='practice')return startPractice();showView(b.dataset.view)});
+$('#btnPractice').onclick=()=>startPractice();
+document.querySelectorAll('#pSurf .chipbtn').forEach(b=>b.onclick=()=>{if(!G||G.mode!=='practice')return;G.practice.surface=b.dataset.s;if(G.phase==='aim'){G.lie=b.dataset.s;G.club=autoClub();G.aimManual=false;setDefaultAim()}renderPractice();renderPanel()});
+$('#pWind').addEventListener('change',e=>{if(!G||G.mode!=='practice')return;G.practice.wind=e.target.checked;const H=G.H;if(e.target.checked){H.wind=H.windOn.w;H.windKmh=H.windOn.k}else{H.wind=V(0,0);H.windKmh=0}renderPanel()});
 function openMenu(o){$('#menuPanel').hidden=!o;$('#menuScrim').hidden=!o;$('#menuBtn').setAttribute('aria-expanded',o?'true':'false');if(o){const f=$('#menuPanel').querySelector('[aria-current="page"]')||$('#menuClose');f.focus()}else if(document.activeElement&&$('#menuPanel').contains(document.activeElement))$('#menuBtn').focus()}
 $('#menuBtn').onclick=()=>openMenu(true);$('#menuClose').onclick=()=>openMenu(false);$('#menuScrim').onclick=()=>openMenu(false);
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#menuPanel').hidden){e.preventDefault();openMenu(false)}});
@@ -1287,7 +1329,7 @@ function updateSetup(){const f=$('#setup');const m=f.mode.value;$('#fsPar').hidd
 $('#setup').addEventListener('change',updateSetup);
 $('#setup').addEventListener('submit',e=>{e.preventDefault();const f=e.target;const sd=parseInt(String(f.seed.value).replace(/\D/g,''),10);startRound(f.mode.value,f.diff.value,+f.par.value,isFinite(sd)&&sd>0?sd:0)});
 $('#btnResume').onclick=()=>showView('game');
-$('#btnQuit').onclick=()=>{$('#quitConfirm').hidden=false};$('#quitNo').onclick=()=>{$('#quitConfirm').hidden=true};
+$('#btnQuit').onclick=()=>{if(G&&G.mode==='practice'){G=null;showView('home');return}$('#quitConfirm').hidden=false};$('#quitNo').onclick=()=>{$('#quitConfirm').hidden=true};
 $('#quitYes').onclick=()=>{$('#quitConfirm').hidden=true;if(G&&G.cards.length){const c=G.cards;P.rounds.unshift({date:new Date().toISOString(),mode:G.mode,diff:G.diff,seed:G.seed,strokes:c.reduce((a,x)=>a+x.score,0),par:c.reduce((a,x)=>a+x.par,0),stb:c.reduce((a,x)=>a+Math.max(0,2+x.par-x.score),0),holes:c,abandoned:true});saveProfile()}
   OQ.length=0;$('#overlay').hidden=true;ovBusy=false;if(G&&G.mp)mpLeave();G=null;showView('home')};
 
