@@ -45,6 +45,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .t-orange{background:#F28C28}
 .pquit{pointer-events:auto;cursor:pointer;border:0;background:#F28C28;color:#120A00;padding:6px 14px;font-family:var(--f-display);font-weight:800;font-size:16px;text-transform:uppercase;transform:skewX(-12deg);margin-top:4px}.pquit:hover{background:#FFA64D}
 .sndbtn{display:inline-flex;align-items:center;justify-content:center;width:42px;height:40px;border:1px solid rgba(255,255,255,.18);background:transparent;color:var(--ink);cursor:pointer;transform:skewX(-12deg)}.sndbtn svg{width:20px;height:20px;transform:skewX(12deg)}.sndbtn[aria-pressed="false"]{color:var(--muted)}
+.sndbtn{position:relative}.sndbtn.hint{border-color:var(--green);color:var(--green);animation:sndp 1.4s ease-in-out infinite}.sndbtn.hint::after{content:"Son";position:absolute;top:calc(100% + 6px);left:50%;transform:translateX(-50%) skewX(12deg);background:var(--green);color:#08120D;font-family:var(--f-mono);font-weight:700;font-size:10.5px;padding:2px 6px;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;pointer-events:none}@keyframes sndp{0%,100%{box-shadow:0 0 0 0 rgba(198,244,50,.5)}50%{box-shadow:0 0 0 6px rgba(198,244,50,0)}}@media (prefers-reduced-motion:reduce){.sndbtn.hint{animation:none}}
 .snd-row{display:flex;gap:18px;flex-wrap:wrap;margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}.snd-row label{display:flex;gap:8px;align-items:center;cursor:pointer}.t-white{background:#FFFFFF}.t-yellow{background:#F7D21E}.t-blue{background:#2F7FD0}.t-red{background:#E4572E}.t-green{background:#3FA45B}.t-black{background:#161616;box-shadow:0 0 0 2px var(--ink)!important}
 
 /* Menu des départs */
@@ -1602,11 +1603,15 @@ function musicUpdate(){const want=musicWanted();
   SND.fadeT=setInterval(()=>{const d=target-m.volume;if(Math.abs(d)<.02){m.volume=target;clearInterval(SND.fadeT);if(!target)m.pause();return}m.volume=Math.min(1,Math.max(0,m.volume+Math.sign(d)*.02))},40)}
 function sndRender(){const any=SND.on.fx||SND.on.mus;$('#sndBtn').setAttribute('aria-pressed',any?'true':'false');$('#sndWave').style.display=any?'':'none';$('#sndX').style.display=any?'none':'';$('#sndMus').checked=SND.on.mus;$('#sndFx').checked=SND.on.fx}
 function sndSave(){try{localStorage.setItem('ldi-sound',JSON.stringify(SND.on))}catch(e){}sndRender();musicUpdate()}
-function sndUnlock(){if(SND.unlocked)return;SND.unlocked=true;sndLoad();if(SND.ctx&&SND.ctx.state==='suspended')SND.ctx.resume();musicUpdate()}
+function sndUnlock(e){const h=$('#sndBtn').classList.contains('hint');$('#sndBtn').classList.remove('hint');if(SND.unlocked)return;if(h&&e&&e.target&&e.target.closest&&e.target.closest('#sndBtn'))SND.justUnlocked=true;SND.unlocked=true;sndLoad();if(SND.ctx&&SND.ctx.state==='suspended')SND.ctx.resume();musicUpdate()}
 ['pointerdown','keydown','touchstart'].forEach(ev=>window.addEventListener(ev,sndUnlock,{capture:true,passive:true}));
-$('#sndBtn').onclick=()=>{const any=SND.on.fx||SND.on.mus;SND.on={fx:!any,mus:!any};sndSave()};
+$('#sndBtn').onclick=()=>{if(SND.justUnlocked){SND.justUnlocked=false;return}const any=SND.on.fx||SND.on.mus;SND.on={fx:!any,mus:!any};sndSave()};
 $('#sndMus').onchange=e=>{SND.on.mus=e.target.checked;sndSave()};$('#sndFx').onchange=e=>{SND.on.fx=e.target.checked;sndSave()};
 sndRender();
+function sndAutoplay(){if(!SND.on.mus)return;try{SND.music=new Audio(sndSrc('musique-menu'));SND.music.loop=true;SND.music.volume=.32}catch(e){return}
+  const pr=SND.music.play();const fail=()=>{if(!SND.unlocked)$('#sndBtn').classList.add('hint')};
+  if(pr&&pr.then)pr.then(()=>{SND.unlocked=true;sndLoad();musicUpdate()},fail);else fail()}
+sndAutoplay();
 /* ================= météo réelle ================= */
 const WX={real:false,data:null,denied:false,loading:false};
 const CARD=['du nord','du nord-est','de l’est','du sud-est','du sud','du sud-ouest','de l’ouest','du nord-ouest'];
