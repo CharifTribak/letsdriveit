@@ -454,7 +454,7 @@ table.bag input[type=number]{width:72px;border:1px solid var(--line);background:
       <button class="backbtn" type="button" data-home><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg><span>Retour à l’accueil</span></button>
       <div class="race-hero"><img id="raceHero" alt="Deux voiturettes de golf, une verte et une orange, au coude-à-coude sur le chemin d’un parcours au coucher du soleil"></div>
       <div class="page-head"><div><span class="lbl">Mini-jeu</span><h2>Course de voiturettes</h2></div></div>
-      <p style="margin:0;max-width:66ch">Trois tours de chemin autour d’un trou généré, contre une voiturette pilotée par l’IA. Le chemin est la voie rapide. Le fairway passe, le rough freine fort. Une roue dans un bunker ou dans l’eau, et la course est finie.</p>
+      <p style="margin:0;max-width:66ch">Un tour de chemin qui serpente autour de trois trous générés, avec ses lignes droites et ses virages, contre une voiturette pilotée par l’IA. Le chemin est la voie rapide. Le fairway passe, le rough freine fort. Une roue dans un bunker ou dans l’eau, et la course est finie.</p>
       <div><span class="lbl">Adversaire</span><div class="actions" id="raceLv" style="margin-top:8px"><button class="chipbtn" type="button" data-lv="facile">Facile</button><button class="chipbtn" type="button" data-lv="moyen">Moyen</button><button class="chipbtn" type="button" data-lv="difficile">Difficile</button></div></div>
       <div class="race-rec" id="raceRec"></div>
       <p class="note" style="margin:0">Clavier : flèches ou ZQSD, H ou Espace pour klaxonner. Sur téléphone, boutons à l’écran. Vos records sont enregistrés dans votre profil.</p>
@@ -1686,7 +1686,7 @@ function rainTick(t){RAIN.raf=0;if(!RAIN.lvl||rainCv.hidden||!rainCv.getClientRe
   if(!rainReduce)RAIN.raf=requestAnimationFrame(rainTick)}
 /* ================= course de voiturettes ================= */
 const RACE_LV={facile:{v:.82,a:4.6,l:'Facile'},moyen:{v:.92,a:5.6,l:'Moyen'},difficile:{v:1,a:6.6,l:'Difficile'}};
-const RCK={VMAX:13.5,ACC:5.4,BRAKE:11,REV:-4.5,LAT:7.4,STEP:2,W:5.4,RES:.16,LAPS:3,CART:3.4};
+const RCK={VMAX:13.5,ACC:5.4,BRAKE:11,REV:-4.5,LAT:7.4,STEP:2,W:5.4,RES:.16,LAPS:1,CART:3.4};
 const RC={state:'off',keys:{},raf:0,level:(P.race&&P.race.level)||'moyen'};
 const CART_IMG={g:new Image(),o:new Image()};CART_IMG.g.src=IMG.cartG;CART_IMG.o.src=IMG.cartO;
 const rcv=$('#rcv'),rctx=rcv.getContext('2d'),rmini=$('#rMini'),rStage=$('#rStage');
@@ -1695,55 +1695,97 @@ const fmtT=ms=>{if(ms==null||!isFinite(ms))return'–';const t=Math.max(0,ms)/10
 function chaikin(pts,it){let p=pts;for(let k=0;k<it;k++){const q=[];for(let i=0;i<p.length;i++){const a=p[i],b=p[(i+1)%p.length];q.push(V(a.x*.75+b.x*.25,a.y*.75+b.y*.25),V(a.x*.25+b.x*.75,a.y*.25+b.y*.75))}p=q}return p}
 function resampleLoop(pts,step){const out=[];const n=pts.length;let carry=0;
   for(let i=0;i<n;i++){const a=pts[i],b=pts[(i+1)%n],l=dist(a,b);let t=carry;while(t<l){out.push(V(a.x+(b.x-a.x)*t/l,a.y+(b.y-a.y)*t/l));t+=step}carry=t-l}return out}
-function buildTrack(seed){
-  const H=genHole(seed,'moyen',3,1);H.cart=null;
-  const off=s=>fwHalf(H,s)+roughW(H,s)*.45,sA=6,sB=H.L-2,L=[],R=[];
-  for(let s=sA;s<=sB;s+=4){const {p,u}=pointAt(H,s),n=perpL(u),o=off(s);L.push(add(p,mul(n,o)));R.push(add(p,mul(n,-o)))}
-  const arc=(s,dep,f0,f1)=>{const {p,u}=pointAt(H,s),n=perpL(u),o=off(s),out=[];for(let k=1;k<16;k++){const f=f0+(f1-f0)*k/16;out.push(add(p,add(mul(n,o*Math.cos(f)),mul(u,dep*Math.abs(Math.sin(f))*(f1>Math.PI+.1?-1:1)))))}return out};
-  let loop=resampleLoop(chaikin(L.concat(arc(sB,H.gB+10,0,Math.PI),R.reverse(),arc(sA,16,Math.PI,2*Math.PI)),2),RCK.STEP);
-  // le départ : sur le côté gauche, 24 m après le coin du départ
-  const ref=L[5]||L[0];let k0=0,bd=1e9;loop.forEach((q,i)=>{const d=dist(q,ref);if(d<bd){bd=d;k0=i}});loop=loop.slice(k0).concat(loop.slice(0,k0));
+/* ---- trois trous, un chemin ---- */
+const RT=32;
+function hx(h,p){const c=Math.cos(h.r),s=Math.sin(h.r);return V(h.o.x+p.x*c-p.y*s,h.o.y+p.x*s+p.y*c)}
+function hlo(h,p){const c=Math.cos(h.r),s=Math.sin(h.r),dx=p.x-h.o.x,dy=p.y-h.o.y;return V(dx*c+dy*s,-dx*s+dy*c)}
+const LIE_RANK={eau:9,bunker:8,green:7,frange:6,depart:5,fairway:4,premier:3,tr:2,rough:1,hl:0};
+function worldLie(TR,p){let best=null;for(const h of TR.holes){const q=hlo(h,p),b=h.H.bb;if(q.x<b.x0||q.x>b.x1||q.y<b.y0||q.y>b.y1)continue;const li=lieInfo(h.H,q),r=LIE_RANK[li.lie]??0;if(!best||r>best.r)best={r,li,q,h}}
+  if(!best){const h=TR.holes[0],q=hlo(h,p);best={r:0,li:{lie:'hl',s:q.y,d:q.x},q,h}}return best}
+function segX(a,b,c,d){const r=(b.x-a.x)*(d.y-c.y)-(b.y-a.y)*(d.x-c.x);if(Math.abs(r)<1e-9)return false;const t=((c.x-a.x)*(d.y-c.y)-(c.y-a.y)*(d.x-c.x))/r,u=((c.x-a.x)*(b.y-a.y)-(c.y-a.y)*(b.x-a.x))/r;return t>0&&t<1&&u>0&&u<1}
+function tryLayout(seed){const R=mulberry32(seed>>>0);const holes=[];let o=V(0,0),a=Math.PI/2;
+  for(let k=0;k<3;k++){let par,ls;
+    if(k<2){par=R()<.5?3:4;ls=par===3?1:.44+R()*.1}
+    else{a=-Math.PI/2+(R()-.5)*.16;const D=o.y-30;if(D<125)return null;par=D<185?3:4;ls=par===3?1:clamp(D/345,.4,.75)}
+    const H=genHole((seed*7+k*1013)>>>0,'moyen',par,ls);H.cart=null;const h={H,o,r:a-Math.PI/2,a,k};holes.push(h);
+    const lu=H.seg[H.seg.length-1].u,gw=hx(h,H.green.c),ld=sub(hx(h,add(H.green.c,lu)),gw);
+    const an=a-Math.PI/2+(R()-.5)*.24;o=add(add(gw,mul(ld,H.gB+30)),V(Math.cos(an)*14,Math.sin(an)*14));a=an}
+  // aucun fairway ne doit en chevaucher un autre
+  for(const hi of holes)for(const hj of holes){if(hi===hj)continue;for(let s=0;s<=hi.H.L+hi.H.gB;s+=8){const w=hx(hi,pointAt(hi.H,s).p),q=hlo(hj,w),pr=project(hj.H,q);
+    if(pr.s>-4&&pr.s<hj.H.L+hj.H.gB&&Math.abs(pr.d)<fwHalf(hj.H,pr.s)+fwHalf(hi.H,s)+8)return null}}
+  const pts=[];
+  for(const h of holes){const H=h.H,ph=R()*6.28,ph2=R()*6.28,amp=.22+R()*.12;const off=s=>fwHalf(H,s)+4+roughW(H,s)*clamp(.42+amp*1.6*Math.sin(s/15+ph)+.12*Math.sin(s/37+ph2),.06,.9);
+    if(h.k===0)pts.push(hx(h,V(-6,-30)));
+    for(let s=-8;s<=H.L;s+=6){const {p,u}=pointAt(H,s);pts.push(hx(h,add(p,mul(perpL(u),off(s)))))}
+    const {p:pe,u:ue}=pointAt(H,H.L),ne=perpL(ue),oe=off(H.L),dep=H.gB+13;
+    for(let f=.3;f<=1.65;f+=.3)pts.push(hx(h,add(pe,add(mul(ne,oe*Math.cos(f)),mul(ue,dep*Math.sin(f))))))}
+  {const h=holes[0],A=pts[pts.length-1],B=hx(h,V(16,-34)),ab=sub(B,A),nn=perpL(norm(ab)),sg=R()<.5?1:-1;
+    for(const [t,o] of[[.18,0],[.32,14*sg],[.46,-12*sg],[.6,0],[.82,10*sg]])pts.push(add(add(A,mul(ab,t)),mul(nn,o)));pts.push(B)}
+  let loop=resampleLoop(chaikin(pts,3),RCK.STEP);const n0=loop.length;
+  for(let i=0;i<n0;i+=2)for(let j=i+6;j<n0;j+=2){if(i===0&&j>n0-8)continue;if(segX(loop[i],loop[(i+2)%n0],loop[j],loop[(j+2)%n0]))return null}
+  // le chemin ne doit pas frôler un autre bout de lui-même
+  for(let i=0;i<n0;i+=3)for(let j=i+40;j<n0-(i<40?40-i:0);j+=3)if(dist(loop[i],loop[j])<RCK.W+5)return null;
+  return{holes,loop}}
+function buildTrack(seed){let L=null,sd=seed;for(let k=0;k<40&&!L;k++,sd=(sd*16807+11)%2147483647)L=tryLayout(sd);
+  if(!L)throw new Error('circuit');const {holes}=L;let loop=L.loop;
+  const ref=hx(holes[0],add(pointAt(holes[0].H,26).p,mul(perpL(pointAt(holes[0].H,26).u),fwHalf(holes[0].H,26)+roughW(holes[0].H,26)*.42)));
+  let k0=0,bd=1e9;loop.forEach((q,i)=>{const d=dist(q,ref);if(d<bd){bd=d;k0=i}});loop=loop.slice(k0).concat(loop.slice(0,k0));
   const n=loop.length,T=[],K=[],S=[];let acc=0;
   for(let i=0;i<n;i++){T.push(norm(sub(loop[(i+1)%n],loop[(i-1+n)%n])));S.push(acc);acc+=dist(loop[i],loop[(i+1)%n])}
   for(let i=0;i<n;i++){const a=T[(i-2+n)%n],b=T[(i+2)%n];K.push(Math.abs(wrapA(Math.atan2(b.y,b.x)-Math.atan2(a.y,a.x)))/(4*RCK.STEP))}
-  let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;for(const q of loop){x0=Math.min(x0,q.x);y0=Math.min(y0,q.y);x1=Math.max(x1,q.x);y1=Math.max(y1,q.y)}
-  const M=50;x0-=M;y0-=M;x1+=M;y1+=M;
-  const ras=rasterize(H,x0,y0,x1,y1,RCK.RES,false);
-  const TR={H,P:loop,T,K,S,len:acc,n,ras,seed,bridge:[]};
-  for(let i=0;i<n;i++){const li=lieInfo(H,loop[i]).lie;TR.bridge.push(li==='eau')}
-  paintTrack(TR);
+  let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;const ext=q=>{x0=Math.min(x0,q.x);y0=Math.min(y0,q.y);x1=Math.max(x1,q.x);y1=Math.max(y1,q.y)};loop.forEach(ext);
+  for(const h of holes)for(let s=-10;s<=h.H.L+h.H.gB;s+=10){const {p,u}=pointAt(h.H,s),w=fwHalf(h.H,s)+roughW(h.H,s);ext(hx(h,add(p,mul(perpL(u),w))));ext(hx(h,add(p,mul(perpL(u),-w))))}
+  const M=45;x0-=M;y0-=M;x1+=M;y1+=M;
+  const TR={holes,P:loop,T,K,S,len:acc,n,seed:sd,bb:{x0,y0,x1,y1},tiles:new Map(),bridge:[],trees:[]};
+  for(let i=0;i<n;i++)TR.bridge.push(worldLie(TR,loop[i]).li.lie==='eau');
+  for(const h of holes)for(const t of h.H.trees){const c=hx(h,t.c);if(worldLie(TR,c).r>0)continue;let ok=true;for(let i=0;i<n;i+=2)if(dist(c,loop[i])<RCK.W/2+t.r+1.5){ok=false;break}if(ok)TR.trees.push({c,r:t.r})}
+  TR.pins=holes.map(h=>hx(h,h.H.pin));
+  // fond basse résolution
+  const r=1,bw=Math.ceil((x1-x0)/r),bh=Math.ceil((y1-y0)/r),bc=document.createElement('canvas');bc.width=bw;bc.height=bh;const bx=bc.getContext('2d'),img=bx.createImageData(bw,bh),dd=img.data;
+  for(let j=0;j<bh;j++){const y=y1-(j+.5)*r;for(let i=0;i<bw;i++){const x=x0+(i+.5)*r,w=worldLie(TR,{x,y}),col=shadeColor(w.h.H,w.li,w.q,i,j,false),o=(j*bw+i)*4;dd[o]=col[0];dd[o+1]=col[1];dd[o+2]=col[2];dd[o+3]=255}}
+  bx.putImageData(img,0,0);paintScene(TR,bx,x0,y1,r);TR.base={cv:bc,x0,y1,r};
   // mini-carte
-  const mc=document.createElement('canvas');mc.width=300;mc.height=300;const m=mc.getContext('2d');const sc=Math.min(260/(x1-x0),260/(y1-y0));
-  TR.mini={sc,ox:150-(x0+x1)/2*sc,oy:150+(y0+y1)/2*sc,cv:mc};
-  m.lineJoin='round';m.strokeStyle='rgba(242,246,239,.85)';m.lineWidth=7;m.beginPath();loop.forEach((q,i)=>{const X=TR.mini.ox+q.x*sc,Y=TR.mini.oy-q.y*sc;i?m.lineTo(X,Y):m.moveTo(X,Y)});m.closePath();m.stroke();
-  for(const w of H.water){m.fillStyle='rgba(60,140,210,.8)';m.beginPath();m.ellipse(TR.mini.ox+w.c.x*sc,TR.mini.oy-w.c.y*sc,w.ra*sc,w.rb*sc,-Math.atan2(w.u.y,w.u.x),0,7);m.fill()}
-  for(const b of H.bunkers){m.fillStyle='rgba(230,214,160,.85)';m.beginPath();m.ellipse(TR.mini.ox+b.c.x*sc,TR.mini.oy-b.c.y*sc,b.ra*sc,b.rb*sc,-Math.atan2(b.u.y,b.u.x),0,7);m.fill()}
-  const sl=loop[0],st=perpL(T[0]);m.strokeStyle='#C6F432';m.lineWidth=4;m.beginPath();m.moveTo(TR.mini.ox+(sl.x+st.x*6)*sc,TR.mini.oy-(sl.y+st.y*6)*sc);m.lineTo(TR.mini.ox+(sl.x-st.x*6)*sc,TR.mini.oy-(sl.y-st.y*6)*sc);m.stroke();
+  const mc=document.createElement('canvas');mc.width=300;mc.height=300;const m=mc.getContext('2d');const sc=Math.min(270/(x1-x0),270/(y1-y0));
+  TR.mini={sc,ox:150-(x0+x1)/2*sc,oy:150+(y0+y1)/2*sc,cv:mc};const MX=q=>TR.mini.ox+q.x*sc,MY=q=>TR.mini.oy-q.y*sc;
+  for(const h of holes){m.strokeStyle='rgba(120,190,90,.55)';m.lineCap='round';m.lineWidth=Math.max(3,fwHalf(h.H,50)*2*sc);m.beginPath();for(let s=0;s<=h.H.L;s+=8){const q=hx(h,pointAt(h.H,s).p);s?m.lineTo(MX(q),MY(q)):m.moveTo(MX(q),MY(q))}m.stroke();
+    for(const w of h.H.water){const c=hx(h,w.c),an=Math.atan2(w.u.y,w.u.x)+h.r;m.fillStyle='rgba(60,140,210,.85)';m.beginPath();m.ellipse(MX(c),MY(c),w.ra*sc,w.rb*sc,-an,0,7);m.fill()}}
+  m.lineJoin='round';m.strokeStyle='rgba(242,246,239,.9)';m.lineWidth=4;m.beginPath();loop.forEach((q,i)=>i?m.lineTo(MX(q),MY(q)):m.moveTo(MX(q),MY(q)));m.closePath();m.stroke();
+  TR.pins.forEach((q,i)=>{m.fillStyle='#08120D';m.beginPath();m.arc(MX(q),MY(q),11,0,7);m.fill();m.fillStyle='#C6F432';m.font='700 15px "Chivo Mono", monospace';m.textAlign='center';m.textBaseline='middle';m.fillText(String(i+1),MX(q),MY(q)+1)});
+  const sl=loop[0],st=perpL(T[0]);m.strokeStyle='#FF9F1C';m.lineWidth=5;m.beginPath();m.moveTo(MX(add(sl,mul(st,9))),MY(add(sl,mul(st,9))));m.lineTo(MX(add(sl,mul(st,-9))),MY(add(sl,mul(st,-9))));m.stroke();
   return TR}
-function paintTrack(TR){const {cv,x0,y1}=TR.ras,c=cv.getContext('2d'),r=RCK.RES,P=TR.P,n=TR.n;
-  const X=q=>(q.x-x0)/r,Y=q=>(y1-q.y)/r,W=RCK.W/r;
+function paintScene(TR,c,x0,y1,r){const P=TR.P,n=TR.n,X=q=>(q.x-x0)/r,Y=q=>(y1-q.y)/r,W=RCK.W/r;
+  for(const t of TR.trees){const px=X(t.c),py=Y(t.c),rr=t.r/r;if(px<-rr*2||py<-rr*2||px>c.canvas.width+rr*2||py>c.canvas.height+rr*2)continue;
+    c.fillStyle='rgba(0,0,0,.25)';c.beginPath();c.arc(px+rr*.25,py+rr*.25,rr,0,7);c.fill();c.fillStyle='#2C4A2A';c.beginPath();c.arc(px,py,rr,0,7);c.fill();c.fillStyle='#3B6036';c.beginPath();c.arc(px-rr*.28,py-rr*.28,rr*.55,0,7);c.fill()}
   const path=()=>{c.beginPath();P.forEach((q,i)=>i?c.lineTo(X(q),Y(q)):c.moveTo(X(q),Y(q)));c.closePath()};
   c.lineJoin='round';c.lineCap='round';
   c.strokeStyle='rgba(0,0,0,.28)';c.lineWidth=W+1.6/r;path();c.stroke();
   c.strokeStyle='#C9C3AE';c.lineWidth=W+.7/r;path();c.stroke();
   c.strokeStyle='#5A5E58';c.lineWidth=W;path();c.stroke();
   c.strokeStyle='rgba(0,0,0,.08)';c.lineWidth=W*.55;path();c.stroke();
-  // ponts de bois au-dessus de l'eau
-  for(let i=0;i<n;i++){if(!TR.bridge[i]&&!TR.bridge[(i+1)%n])continue;const q=P[i],t=TR.T[i],nn=perpL(t);
+  for(let i=0;i<n;i++){if(!TR.bridge[i]&&!TR.bridge[(i+1)%n]&&!TR.bridge[(i-1+n)%n])continue;const q=P[i],t=TR.T[i];
     c.save();c.translate(X(q),Y(q));c.rotate(-Math.atan2(t.y,t.x));
     c.fillStyle='#8A6A45';c.fillRect(-RCK.STEP/r*.6,-(W/2+.5/r),RCK.STEP/r*1.2,W+1/r);
-    c.strokeStyle='rgba(40,25,10,.55)';c.lineWidth=.08/r;for(let k=-1;k<=1;k++){c.beginPath();c.moveTo(k*.6/r,-(W/2+.5/r));c.lineTo(k*.6/r,W/2+.5/r);c.stroke()}
+    c.strokeStyle='rgba(40,25,10,.55)';c.lineWidth=Math.max(.5,.08/r);for(let k=-1;k<=1;k++){c.beginPath();c.moveTo(k*.6/r,-(W/2+.5/r));c.lineTo(k*.6/r,W/2+.5/r);c.stroke()}
     c.fillStyle='#F2EDE0';c.fillRect(-RCK.STEP/r*.6,-(W/2+.6/r),RCK.STEP/r*1.2,.22/r);c.fillRect(-RCK.STEP/r*.6,W/2+.38/r,RCK.STEP/r*1.2,.22/r);c.restore()}
-  // ligne médiane
   c.setLineDash([2/r,2.6/r]);c.strokeStyle='rgba(255,255,255,.38)';c.lineWidth=.16/r;path();c.stroke();c.setLineDash([]);
-  // damier de départ
   const q=P[0],t=TR.T[0];c.save();c.translate(X(q),Y(q));c.rotate(-Math.atan2(t.y,t.x));const sq=.68/r,cols=Math.ceil(W/sq);
   for(let a=0;a<2;a++)for(let b=0;b<cols;b++){c.fillStyle=(a+b)%2?'#111':'#F4F4EE';c.fillRect(-sq+a*sq,-W/2+b*sq,sq,Math.min(sq,W/2-(-W/2+b*sq)))}c.restore()}
+function tileJob(TR,ix,iy){const key=ix+','+iy;let t=TR.tiles.get(key);if(t)return t;const N=Math.round(RT/RCK.RES),cv=document.createElement('canvas');cv.width=N;cv.height=N;
+  t={key,ix,iy,x0:ix*RT,y1:(iy+1)*RT,N,cv,img:cv.getContext('2d').createImageData(N,N),row:0,ready:false};TR.tiles.set(key,t);return t}
+function tileWork(TR,t,until){const r=RCK.RES,N=t.N,d=t.img.data;
+  while(t.row<N){const j=t.row,y=t.y1-(j+.5)*r;for(let i=0;i<N;i++){const x=t.x0+(i+.5)*r,w=worldLie(TR,{x,y}),g=w.li.lie==='green'||w.li.lie==='frange',col=shadeColor(w.h.H,w.li,w.q,t.ix*N+i,-t.iy*N+j,g),o=(j*N+i)*4;d[o]=col[0];d[o+1]=col[1];d[o+2]=col[2];d[o+3]=255}
+    t.row++;if(performance.now()>until)return false}
+  const c=t.cv.getContext('2d');c.putImageData(t.img,0,0);t.img=null;paintScene(TR,c,t.x0,t.y1,r);t.ready=true;return true}
+function tilesPump(budget,force){const TR=RC.tr;if(!TR)return;const until=performance.now()+budget,want=[];
+  const s=RC.scale||10,cx=RC.cam?RC.cam.x:RC.p.x,cy=RC.cam?RC.cam.y:RC.p.y,hw=(RC.W||800)/2/s+4,hh=(RC.H||600)/2/s+4;
+  for(let iy=Math.floor((cy-hh)/RT);iy<=Math.floor((cy+hh)/RT);iy++)for(let ix=Math.floor((cx-hw)/RT);ix<=Math.floor((cx+hw)/RT);ix++)want.push([ix,iy]);
+  const p=RC.p;if(!force)for(let k=0;k<110;k+=6){const q=TR.P[(p.idx+k)%TR.n];for(const dx of[-1,0,1])for(const dy of[-1,0,1])want.push([Math.floor(q.x/RT)+dx,Math.floor(q.y/RT)+dy])}
+  for(const [ix,iy] of want){const t=tileJob(TR,ix,iy);if(t.ready)continue;if(!tileWork(TR,t,force?Infinity:until)&&!force)return;if(!force&&performance.now()>until)return}}
 function nearestIdx(c){const n=RC.tr.n,P=RC.tr.P;let best=c.idx,bd=1e9;for(let k=-14;k<=30;k++){const i=(c.idx+k+n)%n,d=dist(P[i],c);if(d<bd){bd=d;best=i}}
   if(bd>25){for(let i=0;i<n;i++){const d=dist(P[i],c);if(d<bd){bd=d;best=i}}}return{i:best,d:bd}}
 function raceLie(c){const nr=nearestIdx(c);const P=RC.tr.P,n=RC.tr.n;
   let dmin=nr.d;for(const j of[nr.i-1,nr.i]){const a=P[(j+n)%n],b=P[(j+1+n)%n],ab=sub(b,a),l=len(ab);if(!l)continue;const t=clamp(dot(sub(c,a),ab)/(l*l),0,1);dmin=Math.min(dmin,dist(c,add(a,mul(ab,t))))}
-  return{idx:nr.i,onPath:dmin<=RCK.W/2+.25,lie:dmin<=RCK.W/2+.25?'path':lieInfo(RC.tr.H,c).lie}}
+  return{idx:nr.i,onPath:dmin<=RCK.W/2+.25,lie:dmin<=RCK.W/2+.25?'path':worldLie(RC.tr,c).li.lie}}
 const SURF_CAP={path:1,fairway:.78,premier:.72,green:.8,frange:.78,depart:.8,tr:.65,chemin:1,rough:.48,hl:.32};
 function newCart(ai,off){const tr=RC.tr,i=3,q=tr.P[i],t=tr.T[i],nn=perpL(t);const p=add(q,mul(nn,off));
   return{x:p.x,y:p.y,th:Math.atan2(t.y,t.x),v:0,idx:i,wraps:0,ai,alive:true,fin:null,lapStart:0,best:null,lie:'path',onPath:true,fade:1,img:ai?CART_IMG.o:CART_IMG.g,crashT:0}}
@@ -1756,7 +1798,7 @@ function physCart(c,thr,brk,st,dt,vm){
   const lat=RCK.LAT*(c.onPath?1:.78),wmax=Math.min(2.5,lat/Math.max(1,Math.abs(c.v)));
   const w=st*wmax*Math.min(1,Math.abs(c.v)/2.2)*(c.v<0?-1:1);c.th=wrapA(c.th+w*dt);
   c.x+=Math.cos(c.th)*c.v*dt;c.y+=Math.sin(c.th)*c.v*dt}
-function collideTrees(c){const H=RC.tr.H;for(const t of H.trees){const dx=c.x-t.c.x,dy=c.y-t.c.y,d=Math.hypot(dx,dy),m=t.r*.8+1.1;if(d<m&&d>0){c.x=t.c.x+dx/d*m;c.y=t.c.y+dy/d*m;if(Math.abs(c.v)>2&&!c.ai)sfx('choc',Math.min(1,Math.abs(c.v)/9));c.v*=-.25}}}
+function collideTrees(c){for(const t of RC.tr.trees){const dx=c.x-t.c.x,dy=c.y-t.c.y,d=Math.hypot(dx,dy),m=t.r*.8+1.1;if(d<m&&d>0){c.x=t.c.x+dx/d*m;c.y=t.c.y+dy/d*m;if(Math.abs(c.v)>2&&!c.ai)sfx('choc',Math.min(1,Math.abs(c.v)/9));c.v*=-.25}}}
 function collideCarts(a,b){if(!a.alive||!b.alive)return;const dx=b.x-a.x,dy=b.y-a.y,d=Math.hypot(dx,dy),m=2.3;if(d>=m||d===0)return;
   const nx=dx/d,ny=dy/d,push=(m-d)/2;a.x-=nx*push;a.y-=ny*push;b.x+=nx*push;b.y+=ny*push;
   const va=a.v*(Math.cos(a.th)*nx+Math.sin(a.th)*ny),vb=b.v*(Math.cos(b.th)*nx+Math.sin(b.th)*ny),rel=va-vb;
@@ -1792,7 +1834,7 @@ function raceGoAsync(seed){const o=$('#rOver');$('#raceIntro').hidden=true;$('#r
 function raceStart(seed){raceStop();RC.tr=buildTrack(seed==null?(Date.now()%900000)+11:seed);
   RC.p=newCart(false,1.5);RC.ai=newCart(true,-1.5);RC.t0=performance.now();RC.t=-3000;RC.state='count';RC.parts=[];RC.msg='';RC.keys={};
   RC.cam={x:RC.p.x,y:RC.p.y};$('#raceIntro').hidden=true;$('#raceWrap').hidden=false;$('#rOver').hidden=true;
-  P.race.played++;saveProfile();raceResize();sfx('bips',.9);RC.lastBeep=-1;RC.last=performance.now();RC.raf=requestAnimationFrame(raceTick)}
+  P.race.played++;saveProfile();raceResize();RC.scale=clamp(Math.min(RC.W||800,RC.H||600)/50,7,12);tilesPump(0,true);sfx('bips',.9);RC.lastBeep=-1;RC.last=performance.now();RC.raf=requestAnimationFrame(raceTick)}
 function raceStop(){if(RC.raf)cancelAnimationFrame(RC.raf);RC.raf=0;raceAudioStop();if(RC.state!=='off')RC.state='off'}
 function raceResize(){const r=rStage.getBoundingClientRect();if(!r.width)return;const d=window.devicePixelRatio||1;RC.W=r.width;RC.H=r.height;RC.d=d;rcv.width=Math.round(r.width*d);rcv.height=Math.round(r.height*d);
   const md=window.devicePixelRatio||1;rmini.width=Math.round(rmini.clientWidth*md);rmini.height=Math.round(rmini.clientHeight*md)}
@@ -1810,18 +1852,20 @@ function raceTick(now){RC.raf=0;if(RC.state==='off')return;if($('#v-race').hidde
     if(p.alive&&RC.state==='race')progress(p,t);if(a.alive)progress(a,t);
     for(const c of[p,a])if(c.alive&&!c.onPath&&Math.abs(c.v)>2.5&&Math.random()<.6){const back=V(c.x-Math.cos(c.th)*1.4,c.y-Math.sin(c.th)*1.4);RC.parts.push({x:back.x+(Math.random()-.5),y:back.y+(Math.random()-.5),l:1,c:c.lie==='rough'||c.lie==='hl'?'rgba(70,110,50,':'rgba(150,170,110,'})}}
   for(let i=RC.parts.length-1;i>=0;i--){RC.parts[i].l-=dt*1.6;if(RC.parts[i].l<=0)RC.parts.splice(i,1)}
-  raceAudioTick();raceDraw();raceHud();
+  tilesPump(RC.state==='count'?12:5);raceAudioTick();raceDraw();raceHud();
   RC.raf=requestAnimationFrame(raceTick)}
 function raceDraw(){const W=RC.W,Hh=RC.H,d=RC.d,c=rctx,tr=RC.tr,p=RC.p;if(!W)return;
   const s=clamp(Math.min(W,Hh)/50,7,12);
   const tx=p.x+Math.cos(p.th)*p.v*.8,ty=p.y+Math.sin(p.th)*p.v*.8;RC.cam.x+=(tx-RC.cam.x)*.08;RC.cam.y+=(ty-RC.cam.y)*.08;const cx=RC.cam.x,cy=RC.cam.y;
   const ws=q=>({x:W/2+(q.x-cx)*s,y:Hh/2-(q.y-cy)*s});
   c.setTransform(d,0,0,d,0,0);c.fillStyle='rgb(38,58,34)';c.fillRect(0,0,W,Hh);
-  const R=tr.ras,res=RCK.RES;let sx=(cx-W/2/s-R.x0)/res,sy=(R.y1-(cy+Hh/2/s))/res,sw=W/s/res,sh=Hh/s/res;
-  const cx0=Math.max(0,sx),cy0=Math.max(0,sy),cx1=Math.min(R.cv.width,sx+sw),cy1=Math.min(R.cv.height,sy+sh);
-  if(cx1>cx0&&cy1>cy0){c.imageSmoothingEnabled=true;c.drawImage(R.cv,cx0,cy0,cx1-cx0,cy1-cy0,(cx0-sx)*res*s,(cy0-sy)*res*s,(cx1-cx0)*res*s,(cy1-cy0)*res*s)}
-  // drapeau
-  {const q=ws(tr.H.pin);c.fillStyle='#0b0f0c';c.beginPath();c.arc(q.x,q.y,Math.max(2.5,s*.2),0,7);c.fill();c.strokeStyle='#F4F4EE';c.lineWidth=2;c.beginPath();c.moveTo(q.x,q.y);c.lineTo(q.x,q.y-s*2.6);c.stroke();c.fillStyle='#C6F432';c.beginPath();c.moveTo(q.x,q.y-s*2.6);c.lineTo(q.x+s*1.3,q.y-s*2.15);c.lineTo(q.x,q.y-s*1.7);c.fill()}
+  RC.scale=s;{const B=tr.base,res=B.r;let sx=(cx-W/2/s-B.x0)/res,sy=(B.y1-(cy+Hh/2/s))/res,sw=W/s/res,sh=Hh/s/res;
+    const a0=Math.max(0,sx),b0=Math.max(0,sy),a1=Math.min(B.cv.width,sx+sw),b1=Math.min(B.cv.height,sy+sh);c.imageSmoothingEnabled=true;
+    if(a1>a0&&b1>b0)c.drawImage(B.cv,a0,b0,a1-a0,b1-b0,(a0-sx)*res*s,(b0-sy)*res*s,(a1-a0)*res*s,(b1-b0)*res*s)}
+  {const hw=W/2/s,hh=Hh/2/s;for(let iy=Math.floor((cy-hh)/RT);iy<=Math.floor((cy+hh)/RT);iy++)for(let ix=Math.floor((cx-hw)/RT);ix<=Math.floor((cx+hw)/RT);ix++){const t=tr.tiles.get(ix+','+iy);if(!t||!t.ready)continue;
+    const X0=Math.floor(W/2+(ix*RT-cx)*s),Y0=Math.floor(Hh/2-((iy+1)*RT-cy)*s),X1=Math.ceil(W/2+((ix+1)*RT-cx)*s),Y1=Math.ceil(Hh/2-(iy*RT-cy)*s);c.drawImage(t.cv,X0,Y0,X1-X0+1,Y1-Y0+1)}}
+  tr.pins.forEach((pin,i)=>{const q=ws(pin);c.fillStyle='#0b0f0c';c.beginPath();c.arc(q.x,q.y,Math.max(2.5,s*.2),0,7);c.fill();c.strokeStyle='#F4F4EE';c.lineWidth=2;c.beginPath();c.moveTo(q.x,q.y);c.lineTo(q.x,q.y-s*2.8);c.stroke();
+    c.fillStyle='#C6F432';c.beginPath();c.moveTo(q.x,q.y-s*2.8);c.lineTo(q.x+s*1.6,q.y-s*2.25);c.lineTo(q.x,q.y-s*1.7);c.fill();c.fillStyle='#08120D';c.font=`800 ${Math.round(s*.9)}px "Chivo Mono", monospace`;c.textAlign='center';c.textBaseline='middle';c.fillText(String(i+1),q.x+s*.6,q.y-s*2.25)});
   for(const pt of RC.parts){const q=ws(pt);c.fillStyle=pt.c+(pt.l*.55).toFixed(2)+')';c.beginPath();c.arc(q.x,q.y,s*(.25+(1-pt.l)*.5),0,7);c.fill()}
   for(const k of[RC.ai,p]){const q=ws(k);let al=1,sc=1;if(!k.alive){const e=(RC.t-k.crashT)/1000;al=Math.max(0,1-e*.8);sc=k.crash==='eau'?Math.max(.4,1-e*.5):1}
     if(al<=0)continue;const L=RCK.CART*s*sc,Wd=L*(k.img.naturalWidth||115)/(k.img.naturalHeight||200);
@@ -1838,24 +1882,24 @@ function raceDraw(){const W=RC.W,Hh=RC.H,d=RC.d,c=rctx,tr=RC.tr,p=RC.p;if(!W)ret
   const cd=$('#rCount');if(RC.state==='count'){const n=Math.ceil(-RC.t/1000);cd.hidden=false;cd.textContent=String(Math.max(1,n))}else if(RC.state==='race'&&RC.t<800){cd.hidden=false;cd.textContent='Go !'}else cd.hidden=true}
 function racePos(){const p=RC.p,a=RC.ai,n=RC.tr.n;if(!a.alive)return 1;if(a.fin!=null&&(p.fin==null||a.fin<p.fin))return 2;if(p.fin!=null)return 1;return(p.wraps*n+p.idx)>=(a.wraps*n+a.idx)?1:2}
 function raceHud(){const now=performance.now();if(RC.hudT&&now-RC.hudT<90)return;RC.hudT=now;const p=RC.p;
-  const lap=Math.min(RCK.LAPS,Math.max(1,p.wraps+1)),pos=racePos();
-  const h=`<span class="pill hole">Tour ${lap}/${RCK.LAPS}</span><span class="pill">${pos===1?'1re':'2e'} place</span><span class="pill mono">${fmtT(p.fin!=null?p.fin:Math.max(0,RC.t))}</span>${p.best!=null?`<span class="pill">Meilleur tour ${fmtT(p.best)}</span>`:''}${RC.msg&&RC.t-RC.msgT<3500?`<span class="pill" style="background:#FF9F1C;color:#08120D">${esc(RC.msg)}</span>`:''}${!p.onPath&&p.alive&&RC.state==='race'?`<span class="pill" style="color:#FF9F1C">${p.lie==='rough'||p.lie==='hl'?'Rough : ça freine':'Hors du chemin'}</span>`:''}`;
+  const pct=p.fin!=null?100:Math.max(0,Math.min(99,Math.round((p.wraps>=1?1:p.idx/RC.tr.n)*100))),pos=racePos();
+  const h=`<span class="pill hole">Parcours ${pct} %</span><span class="pill">${pos===1?'1re':'2e'} place</span><span class="pill mono">${fmtT(p.fin!=null?p.fin:Math.max(0,RC.t))}</span>${RC.msg&&RC.t-RC.msgT<3500?`<span class="pill" style="background:#FF9F1C;color:#08120D">${esc(RC.msg)}</span>`:''}${!p.onPath&&p.alive&&RC.state==='race'?`<span class="pill" style="color:#FF9F1C">${p.lie==='rough'||p.lie==='hl'?'Rough : ça freine':'Hors du chemin'}</span>`:''}`;
   if(h!==RC.hudH){RC.hudH=h;$('#rPills').innerHTML=h}}
 function raceEnd(why){if(RC.state==='done')return;RC.state='done';RC.keys={};const p=RC.p,a=RC.ai,R=P.race;let title,sub,rec='';
   if(why==='fin'){const pos=racePos();const total=p.fin;
-    if(pos===1)R.wins++;if(R.best==null||total<R.best){R.best=total;rec='Nouveau record du circuit en 3 tours !'}if(p.best!=null&&(R.bestLap==null||p.best<R.bestLap)){R.bestLap=p.best;rec=rec||'Nouveau meilleur tour !'}
+    if(pos===1)R.wins++;if(R.best==null||total<R.best){R.best=total;rec='Nouveau meilleur temps !'}
     sfx('jingle',.9);if(pos===1)sfx('applause',.7,1,.6);
-    title=pos===1?'Victoire !':'2e place';sub=`Temps total ${fmtT(total)} · meilleur tour ${fmtT(p.best)}`+(a.fin!=null&&pos===2?` · l’IA a bouclé en ${fmtT(a.fin)}`:'')}
+    title=pos===1?'Victoire !':'2e place';sub=`Votre temps : ${fmtT(total)}`+(a.fin!=null?` · l’IA : ${fmtT(a.fin)}`:'')+` · circuit de ${Math.round(RC.tr.len)} m`}
   else{R.dnf++;title='Hors course';sub=why==='eau'?'Votre voiturette a fini à l’eau. Restez sur le chemin !':'Votre voiturette s’est ensablée dans le bunker. Restez sur le chemin !'}
   saveProfile();
   setTimeout(()=>{const o=$('#rOver');o.hidden=false;o.innerHTML=`<div class="ov-card"><span class="lbl">Course de voiturettes · ${RACE_LV[RC.level].l}</span><h3 style="font-size:40px;margin:6px 0">${title}</h3><p style="margin:0">${sub}</p>${rec?`<p style="margin:8px 0 0;color:var(--green);font-weight:700">${rec}</p>`:''}
-    <p class="note" style="margin:10px 0 0">Records : ${fmtT(R.best)} en 3 tours · meilleur tour ${fmtT(R.bestLap)} · ${R.wins} victoire${R.wins>1?'s':''} sur ${R.played} course${R.played>1?'s':''}</p>
+    <p class="note" style="margin:10px 0 0">Meilleur temps : ${fmtT(R.best)} · ${R.wins} victoire${R.wins>1?'s':''} sur ${R.played} course${R.played>1?'s':''}</p>
     <div class="actions" style="margin-top:14px"><button class="btn primary" type="button" id="rAgain">Revanche</button><button class="btn" type="button" id="rNew">Nouveau circuit</button><button class="btn" type="button" id="rOut">Quitter</button></div></div>`;
     $('#rAgain').onclick=()=>raceGoAsync(RC.tr.seed);$('#rNew').onclick=()=>raceGoAsync();$('#rOut').onclick=raceQuit},why==='fin'?900:1600)}
 function raceQuit(){raceStop();$('#raceWrap').hidden=true;$('#raceIntro').hidden=false;renderRaceIntro()}
 function renderRaceIntro(){const R=P.race;
   $('#raceLv').querySelectorAll('.chipbtn').forEach(b=>b.setAttribute('aria-pressed',b.dataset.lv===RC.level?'true':'false'));
-  $('#raceRec').innerHTML=`<div><span class="lbl">Record 3 tours</span><b>${fmtT(R.best)}</b></div><div><span class="lbl">Meilleur tour</span><b>${fmtT(R.bestLap)}</b></div><div><span class="lbl">Victoires</span><b>${R.wins} / ${R.played}</b></div><div><span class="lbl">Hors course</span><b>${R.dnf}</b></div>`}
+  $('#raceRec').innerHTML=`<div><span class="lbl">Meilleur temps</span><b>${fmtT(R.best)}</b></div><div><span class="lbl">Courses</span><b>${R.played}</b></div><div><span class="lbl">Victoires</span><b>${R.wins}</b></div><div><span class="lbl">Hors course</span><b>${R.dnf}</b></div>`}
 $('#raceHero').src=IMG.raceHero;
 $('#raceLv').querySelectorAll('.chipbtn').forEach(b=>b.onclick=()=>{RC.level=b.dataset.lv;P.race.level=RC.level;saveProfile();renderRaceIntro()});
 $('#raceGo').onclick=()=>raceGoAsync();
