@@ -703,8 +703,10 @@ function project(H,p){let best=null;const n=H.seg.length;
     if(!best||dd<best.dist){const cr=g.u.x*(p.y-g.a.y)-g.u.y*(p.x-g.a.x);best={dist:dd,s:g.S+tc,d:cr>=0?dd:-dd}}}
   return best}
 function pointAt(H,s){const n=H.seg.length;let g=H.seg[n-1];for(let i=0;i<n;i++){if(s<=H.seg[i].S+H.seg[i].l){g=H.seg[i];break}}return{p:add(g.a,mul(g.u,s-g.S)),u:g.u}}
-const fwHalf=(H,s)=>H.fw*(1+.14*Math.sin(s/31+H.ph1));
-const roughW=(H,s)=>H.rw*(1+.18*Math.sin(s/47+H.ph2));
+const fwHalf=(H,s)=>H.fw*(1+.12*Math.sin(s/31+H.ph1)+.05*Math.sin(s/12.7+H.ph1*2.3));
+const roughW=(H,s)=>H.rw*(1+.15*Math.sin(s/47+H.ph2)+.08*Math.sin(s/17.3+H.ph2*1.9)+.04*Math.sin(s/7.9+H.ph1));
+const capK=(s,a,b,r)=>{const e=s<a?(a-s)/r:s>b?(s-b)/r:0;return e>=1?0:Math.sqrt(1-e*e)};
+const bhSide=(H,s,sd)=>(fwHalf(H,s)+roughW(H,s))*(1+.08*Math.sin(s/9.7+sd*2.3+H.ph2)+.04*Math.sin(s/4.6+sd*1.1+H.ph1))*capK(s,-14,H.L+H.gB+20,24);
 function ellVal(e,p,grow=0){const dx=p.x-e.c.x,dy=p.y-e.c.y;const a=(dx*e.u.x+dy*e.u.y)/(e.ra+grow);const b=(-dx*e.u.y+dy*e.u.x)/(e.rb+grow);return a*a+b*b}
 function terrGrad(H,p){let gx=0,gy=0;for(const w of H.waves){const c=w.a*Math.cos(w.kx*p.x+w.ky*p.y+w.ph);gx+=c*w.kx;gy+=c*w.ky}return V(gx,gy)}
 function terrH(H,p){let h=0;for(const w of H.waves)h+=w.a*Math.sin(w.kx*p.x+w.ky*p.y+w.ph);return h}
@@ -722,11 +724,11 @@ function lieInfo(H,p){
   const ad=Math.abs(pr.d);
   if(pr.s>-10&&pr.s<2&&ad<5)return{lie:'depart',s:pr.s,d:pr.d};
   const fw=fwHalf(H,pr.s);
-  if(H.par>3&&pr.s>H.fs0&&pr.s<H.fs1&&ad<fw)return{lie:'fairway',s:pr.s,d:pr.d};
+  if(H.par>3&&ad<fw*capK(pr.s,H.fs0,H.fs1,10))return{lie:'fairway',s:pr.s,d:pr.d};
   if(pr.s>H.L-H.gB-16&&pr.s<H.L&&ad<fw*.75)return{lie:'fairway',s:pr.s,d:pr.d};
-  const bh=fw+roughW(H,pr.s);
-  if(pr.s<-14||pr.s>H.L+H.gB+20||ad>bh)return{lie:'hl',s:pr.s,d:pr.d};
-  if(H.par===3?ad<fw*.85&&pr.s>14:(ad<fw+4&&pr.s>H.fs0-12))return{lie:'premier',s:pr.s,d:pr.d};
+  const bh=bhSide(H,pr.s,pr.d>=0?1:-1);
+  if(ad>=bh)return{lie:'hl',s:pr.s,d:pr.d};
+  if(H.par===3?ad<fw*.85*capK(pr.s,14,1e9,9):ad<(fw+4)*capK(pr.s,H.fs0-12,1e9,9))return{lie:'premier',s:pr.s,d:pr.d};
   return{lie:'rough',s:pr.s,d:pr.d};
 }
 
@@ -781,8 +783,8 @@ function genHole(seed,dk,par,lenScale){
   for(let s=-16;s<=H.L+H.gB+24;s+=5){const {p,u}=pointAt(H,s);const bh=fwHalf(H,s)+roughW(H,s);
     for(const sd of[-1,1]){const q=add(p,mul(perpL(u),sd*(bh+34)));x0=Math.min(x0,q.x);x1=Math.max(x1,q.x);y0=Math.min(y0,q.y);y1=Math.max(y1,q.y)}}
   H.bb={x0:x0-6,y0:y0-30,x1:x1+6,y1:y1+30};
-  for(let s=-20;s<=H.L+H.gB+30;s+=rr(8,15)){const {p,u}=pointAt(H,s);const bh=fwHalf(H,s)+roughW(H,s);
-    for(const sd of[-1,1]){if(R()<.25)continue;const q=add(p,mul(perpL(u),sd*(bh+rr(5,24))));if(lieInfo(H,q).lie==='hl')H.trees.push({c:q,r:rr(3,6.5)})}}
+  for(let s=-40;s<=H.L+H.gB+46;s+=rr(7,13)){const {p,u}=pointAt(H,s);
+    for(const sd of[-1,1]){if(R()<.2)continue;const bh=Math.max(bhSide(H,s,sd),6);const q=add(p,mul(perpL(u),sd*(bh+rr(3,22))));if(lieInfo(H,q).lie==='hl')H.trees.push({c:q,r:rr(3,6.5)})}}
   for(let i=0;i<10;i++){const q=add(H.green.c,mul(rot(last.u,rr(-1.2,1.2)),H.gB+rr(28,40)));if(lieInfo(H,q).lie==='hl')H.trees.push({c:q,r:rr(3,6)})}
   H.rainSim=R()<.12?(R()<.65?1:2):0;
   H.tee=V(0,-2);
@@ -888,7 +890,7 @@ function rollSim(H,p,v){
 }
 function lostOutcome(H,rest){
   const li=lieInfo(H,rest);if(li.lie==='hl')return{uncertain:true,status:'hl'};
-  if(li.lie==='rough'){const fw=fwHalf(H,li.s),bh=fw+roughW(H,li.s),ad=Math.abs(li.d);
+  if(li.lie==='rough'){const fw=fwHalf(H,li.s),bh=Math.max(fw+1,bhSide(H,li.s,li.d>=0?1:-1)),ad=Math.abs(li.d);
     const near=ad>bh-6,depth=clamp((ad-fw-8)/Math.max(1,bh-fw-8),0,1),pl=DIFF[H.dk].lost*depth;
     if(near||pl>.06)return{uncertain:true,status:Math.random()<pl?'perdue':'ok'}}
   return{uncertain:false,status:'ok'};
@@ -1302,15 +1304,18 @@ function camForShot(res){const pts=[res.A,res.rest].concat(res.track.filter((_,i
 function w2s(p){return{x:VW/2+(p.x-cam.cx)*cam.s,y:VH/2-(p.y-cam.cy)*cam.s}}
 function s2w(x,y){return V(cam.cx+(x-VW/2)/cam.s,cam.cy-(y-VH/2)/cam.s)}
 function stepCam(dt){const t=camTarget();if(!cam.ok){Object.assign(cam,t,{ok:true});return}const k=1-Math.exp(-dt*4);cam.cx+=(t.cx-cam.cx)*k;cam.cy+=(t.cy-cam.cy)*k;cam.s*=Math.pow(t.s/cam.s,k)}
+let FOREST_CV=null;function forestCanvas(){if(FOREST_CV)return FOREST_CV;if(typeof texReady!=='undefined'&&!texReady)return null;const N=160,cv=document.createElement('canvas');cv.width=cv.height=N;const x=cv.getContext('2d'),img=x.createImageData(N,N),d=img.data,DH={waves:[]};
+  for(let j=0;j<N;j++)for(let i=0;i<N;i++){const p={x:i*.5,y:-j*.5},col=shadeColor(DH,{lie:'hl',s:p.y,d:p.x},p,i,j,false),o=(j*N+i)*4;d[o]=col[0];d[o+1]=col[1];d[o+2]=col[2];d[o+3]=255}x.putImageData(img,0,0);return FOREST_CV=cv}
+const FPAT=new WeakMap();function fillForest(c,W,Hh,cx,cy,s){const fc=forestCanvas();if(!fc){c.fillStyle='rgb(38,58,34)';c.fillRect(0,0,W,Hh);return}let pt=FPAT.get(c);if(!pt){pt=c.createPattern(fc,'repeat');FPAT.set(c,pt)}const sc=s*.5;pt.setTransform(new DOMMatrix([sc,0,0,sc,W/2-cx*s,Hh/2+cy*s]));c.fillStyle=pt;c.fillRect(0,0,W,Hh)}
 function drawRaster(r){const a=w2s(V(r.x0,r.y1));ctx.drawImage(r.cv,a.x,a.y,(r.x1-r.x0)*cam.s,(r.y1-r.y0)*cam.s)}
 function circle(p,r,fill,stroke,lw){ctx.beginPath();ctx.arc(p.x,p.y,r,0,7);if(fill){ctx.fillStyle=fill;ctx.fill()}if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=lw||1;ctx.stroke()}}
 function label(p,txt,dy){ctx.font='600 12px "IBM Plex Mono", monospace';const w=ctx.measureText(txt).width+10;ctx.fillStyle='rgba(12,20,14,.82)';ctx.fillRect(p.x-w/2,p.y+dy-9,w,18);ctx.fillStyle='#F2F6EF';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(txt,p.x,p.y+dy)}
 function draw(){
-  const H=G.H;ctx.setTransform(DPR,0,0,DPR,0,0);ctx.fillStyle='rgb(56,84,52)';ctx.fillRect(0,0,VW,VH);ctx.imageSmoothingEnabled=true;
+  const H=G.H;ctx.setTransform(DPR,0,0,DPR,0,0);fillForest(ctx,VW,VH,cam.cx,cam.cy,cam.s);ctx.imageSmoothingEnabled=true;
   drawRaster(H.raster);drawRaster(H.graster);
   // piquets blancs
   const sp=Math.max(10,22/cam.s*3);
-  for(let s=-14;s<=H.L+H.gB+20;s+=sp){const {p,u}=pointAt(H,s);const bh=fwHalf(H,s)+roughW(H,s);for(const sd of[-1,1]){const q=w2s(add(p,mul(perpL(u),sd*bh)));if(q.x<-5||q.y<-5||q.x>VW+5||q.y>VH+5)continue;circle(q,Math.max(1.6,cam.s*.25),'#F5F5F0','rgba(0,0,0,.45)',1)}}
+  for(let s=-38;s<=H.L+H.gB+44;s+=sp){const {p,u}=pointAt(H,s);for(const sd of[-1,1]){const bh=bhSide(H,s,sd);if(bh<1)continue;const q=w2s(add(p,mul(perpL(u),sd*bh)));if(q.x<-5||q.y<-5||q.x>VW+5||q.y>VH+5)continue;circle(q,Math.max(1.6,cam.s*.25),'#F5F5F0','rgba(0,0,0,.45)',1)}}
   // piquets de zone à pénalité
   for(const w of H.water){const col=w.color==='rouge'?'#D2342A':'#E8C51A';const per=Math.PI*(w.ra+w.rb);const n=Math.max(8,Math.round(per/12));
     for(let i=0;i<n;i++){const a=i/n*6.2832;const q=add(w.c,add(mul(w.u,Math.cos(a)*(w.ra+.6)),mul(perpL(w.u),Math.sin(a)*(w.rb+.6))));if(lieInfo(H,q).lie==='hl')continue;circle(w2s(q),Math.max(1.6,cam.s*.25),col,'rgba(0,0,0,.4)',1)}}
@@ -1705,7 +1710,7 @@ function rainTick(t){RAIN.raf=0;if(!RAIN.lvl||rainCv.hidden||!rainCv.getClientRe
   const w=rainCv.clientWidth,h=rainCv.clientHeight,d=window.devicePixelRatio||1;
   if(rainCv.width!==Math.round(w*d)||rainCv.height!==Math.round(h*d)){rainCv.width=Math.round(w*d);rainCv.height=Math.round(h*d)}
   const x=rainCv.getContext('2d');x.setTransform(d,0,0,d,0,0);x.clearRect(0,0,w,h);
-  const heavy=RAIN.lvl>1,dt=Math.min(.05,(t-RAIN.last)/1000||0);RAIN.last=t;
+  const heavy=RAIN.lvl>1,dt=clamp((t-RAIN.last)/1000||0,0,.05);RAIN.last=t;
   const g=x.createLinearGradient(0,0,0,h);g.addColorStop(0,heavy?'rgba(70,90,110,.30)':'rgba(70,90,110,.16)');g.addColorStop(1,heavy?'rgba(30,45,60,.20)':'rgba(30,45,60,.08)');x.fillStyle=g;x.fillRect(0,0,w,h);
   const N=Math.round((heavy?.00055:.00022)*w*h);
   while(RAIN.drops.length<N)RAIN.drops.push(newDrop(w,h,true));if(RAIN.drops.length>N)RAIN.drops.length=N;
@@ -1716,10 +1721,10 @@ function rainTick(t){RAIN.raf=0;if(!RAIN.lvl||rainCv.hidden||!rainCv.getClientRe
     x.strokeStyle=`rgba(225,236,255,${p.a})`;x.lineWidth=heavy?1.3:1;x.beginPath();x.moveTo(p.x,p.y);x.lineTo(p.x-p.vx*p.len,p.y-p.vy*p.len);x.stroke()}
   x.lineWidth=1;
   for(let i=RAIN.rip.length-1;i>=0;i--){const r=RAIN.rip[i];r.r+=dt*(heavy?22:16);const k=1-r.r/r.m;if(k<=0){RAIN.rip.splice(i,1);continue}
-    x.strokeStyle=`rgba(220,235,255,${(r.a*k).toFixed(3)})`;x.beginPath();x.ellipse(r.x,r.y,r.r,r.r*.45,0,0,6.283);x.stroke()}
+    x.strokeStyle=`rgba(220,235,255,${(r.a*k).toFixed(3)})`;x.beginPath();x.ellipse(r.x,r.y,Math.max(.1,r.r),Math.max(.1,r.r*.45),0,0,6.283);x.stroke()}
   if(!rainReduce)RAIN.raf=requestAnimationFrame(rainTick)}
 /* ================= course de voiturettes ================= */
-const RACE_LV={facile:{v:.82,a:5.8,l:'Facile'},moyen:{v:.92,a:7.1,l:'Moyen'},difficile:{v:1,a:8.4,l:'Difficile'}};
+const RACE_LV={facile:{v:.94,a:7.8,rb:1.06,l:'Facile'},moyen:{v:1.04,a:9,rb:1.12,l:'Moyen'},difficile:{v:1.1,a:9.4,rb:1.18,l:'Difficile'}};
 const RCK={VMAX:16.5,ACC:6.8,BRAKE:12,REV:-4.5,LAT:9.4,STEP:2,W:5.4,RES:.16,LAPS:1,CART:3.4};
 const RC={state:'off',keys:{},raf:0,level:(P.race&&P.race.level)||'moyen'};
 const CART_IMG={g:new Image(),o:new Image()};CART_IMG.g.src=IMG.cartG;CART_IMG.o.src=IMG.cartO;
@@ -1772,6 +1777,7 @@ function buildTrack(seed){let L=null,sd=seed;for(let k=0;k<40&&!L;k++,sd=(sd*168
   const M=45;x0-=M;y0-=M;x1+=M;y1+=M;
   const TR={holes,P:loop,T,K,S,len:acc,n,seed:sd,bb:{x0,y0,x1,y1},tiles:new Map(),bridge:[],trees:[]};
   for(let i=0;i<n;i++)TR.bridge.push(worldLie(TR,loop[i]).li.lie==='eau');
+  {const raw=loop.map(q=>worldLie(TR,q).r===0),cov=new Array(n).fill(false);for(let st=0;st<n;st++){if(!raw[st]||raw[(st-1+n)%n])continue;let e=st;while(raw[(e+1)%n]&&e-st<n)e++;if(e-st+1>=10)for(let k=st;k<=e;k++)cov[k%n]=true}TR.cover=cov}
   for(const h of holes)for(const t of h.H.trees){const c=hx(h,t.c);if(worldLie(TR,c).r>0)continue;let ok=true;for(let i=0;i<n;i+=2)if(dist(c,loop[i])<RCK.W/2+t.r+1.5){ok=false;break}if(ok)TR.trees.push({c,r:t.r})}
   TR.pins=holes.map(h=>hx(h,h.H.pin));
   // fond basse résolution
@@ -1790,7 +1796,8 @@ function buildTrack(seed){let L=null,sd=seed;for(let k=0;k<40&&!L;k++,sd=(sd*168
 function paintScene(TR,c,x0,y1,r){const P=TR.P,n=TR.n,X=q=>(q.x-x0)/r,Y=q=>(y1-q.y)/r,W=RCK.W/r;
   for(const t of TR.trees){const px=X(t.c),py=Y(t.c),rr=t.r/r;if(px<-rr*2||py<-rr*2||px>c.canvas.width+rr*2||py>c.canvas.height+rr*2)continue;
     c.fillStyle='rgba(0,0,0,.25)';c.beginPath();c.arc(px+rr*.25,py+rr*.25,rr,0,7);c.fill();c.fillStyle='#2C4A2A';c.beginPath();c.arc(px,py,rr,0,7);c.fill();c.fillStyle='#3B6036';c.beginPath();c.arc(px-rr*.28,py-rr*.28,rr*.55,0,7);c.fill()}
-  const path=()=>{c.beginPath();P.forEach((q,i)=>i?c.lineTo(X(q),Y(q)):c.moveTo(X(q),Y(q)));c.closePath()};
+  const cov=TR.cover||[],path=()=>{c.beginPath();let pen=false;for(let i=0;i<=n;i++){const k=i%n,q=P[k];if(!(cov[k]&&cov[(k+1)%n]&&cov[(k-1+n)%n])){pen?c.lineTo(X(q),Y(q)):c.moveTo(X(q),Y(q));pen=true}else pen=false}};
+  if(cov.length){c.save();c.globalAlpha=.5;c.strokeStyle='#D8D2BA';c.lineWidth=Math.max(1,W*.14);c.setLineDash([1.6/r,2.4/r]);c.beginPath();let pen=false;for(let i=0;i<=n;i++){const k=i%n,q=P[k];if(cov[k]){pen?c.lineTo(X(q),Y(q)):c.moveTo(X(q),Y(q));pen=true}else pen=false}c.stroke();c.restore()}
   c.lineJoin='round';c.lineCap='round';
   c.strokeStyle='rgba(0,0,0,.28)';c.lineWidth=W+1.6/r;path();c.stroke();
   c.strokeStyle='#C9C3AE';c.lineWidth=W+.7/r;path();c.stroke();
@@ -1841,7 +1848,7 @@ function aiDrive(c,dt){const tr=RC.tr,n=tr.n,lv=RACE_LV[RC.level];
   const look=Math.round((5+Math.abs(c.v)*.7)/RCK.STEP),tg=tr.P[(c.idx+look)%n];
   const des=Math.atan2(tg.y-c.y,tg.x-c.x),diff=wrapA(des-c.th);const st=clamp(diff*2.4,-1,1);
   let k=0;for(let j=1;j<36/RCK.STEP;j++)k=Math.max(k,tr.K[(c.idx+j)%n]);
-  const pl=RC.p,gap=(c.wraps*n+c.idx)-(pl.wraps*n+pl.idx);let rb=1;if(pl.alive){if(gap>30)rb=.93;else if(gap<-30)rb=1.05}
+  const pl=RC.p,gap=(c.wraps*n+c.idx)-(pl.wraps*n+pl.idx);let rb=1;if(pl.alive){if(gap>45&&RC.level==='facile')rb=.94;else if(gap<-12)rb=Math.min(lv.rb,1-gap*.004)}
   const vt=Math.min(RCK.VMAX*lv.v*rb,Math.sqrt(lv.a/Math.max(k,1e-3)));
   const thr=c.v<vt-.25?1:0,brk=c.v>vt+1?.8:0;physCart(c,thr,brk,st,dt,lv.v*rb>1?lv.v*rb:1)}
 function progress(c,t){const r=raceLie(c),n=RC.tr.n,old=c.idx;c.lie=r.lie;c.onPath=r.onPath;
@@ -1892,7 +1899,7 @@ function raceDraw(){const W=RC.W,Hh=RC.H,d=RC.d,c=rctx,tr=RC.tr,p=RC.p;if(!W)ret
   const s=clamp(Math.min(W,Hh)/50,7,12);
   const tx=p.x+Math.cos(p.th)*p.v*.8,ty=p.y+Math.sin(p.th)*p.v*.8;RC.cam.x+=(tx-RC.cam.x)*.08;RC.cam.y+=(ty-RC.cam.y)*.08;const cx=RC.cam.x,cy=RC.cam.y;
   const ws=q=>({x:W/2+(q.x-cx)*s,y:Hh/2-(q.y-cy)*s});
-  c.setTransform(d,0,0,d,0,0);c.fillStyle='rgb(38,58,34)';c.fillRect(0,0,W,Hh);
+  c.setTransform(d,0,0,d,0,0);fillForest(c,W,Hh,cx,cy,s);
   RC.scale=s;{const B=tr.base,res=B.r;let sx=(cx-W/2/s-B.x0)/res,sy=(B.y1-(cy+Hh/2/s))/res,sw=W/s/res,sh=Hh/s/res;
     const a0=Math.max(0,sx),b0=Math.max(0,sy),a1=Math.min(B.cv.width,sx+sw),b1=Math.min(B.cv.height,sy+sh);c.imageSmoothingEnabled=true;
     if(a1>a0&&b1>b0)c.drawImage(B.cv,a0,b0,a1-a0,b1-b0,(a0-sx)*res*s,(b0-sy)*res*s,(a1-a0)*res*s,(b1-b0)*res*s)}
@@ -1901,14 +1908,15 @@ function raceDraw(){const W=RC.W,Hh=RC.H,d=RC.d,c=rctx,tr=RC.tr,p=RC.p;if(!W)ret
   tr.pins.forEach((pin,i)=>{const q=ws(pin);c.fillStyle='#0b0f0c';c.beginPath();c.arc(q.x,q.y,Math.max(2.5,s*.2),0,7);c.fill();c.strokeStyle='#F4F4EE';c.lineWidth=2;c.beginPath();c.moveTo(q.x,q.y);c.lineTo(q.x,q.y-s*2.8);c.stroke();
     c.fillStyle='#C6F432';c.beginPath();c.moveTo(q.x,q.y-s*2.8);c.lineTo(q.x+s*1.6,q.y-s*2.25);c.lineTo(q.x,q.y-s*1.7);c.fill();c.fillStyle='#08120D';c.font=`800 ${Math.round(s*.9)}px "Chivo Mono", monospace`;c.textAlign='center';c.textBaseline='middle';c.fillText(String(i+1),q.x+s*.6,q.y-s*2.25)});
   for(const pt of RC.parts){const q=ws(pt);c.fillStyle=pt.c+(pt.l*.55).toFixed(2)+')';c.beginPath();c.arc(q.x,q.y,s*(.25+(1-pt.l)*.5),0,7);c.fill()}
-  for(const k of[RC.ai,p]){const q=ws(k);let al=1,sc=1;if(!k.alive){const e=(RC.t-k.crashT)/1000;al=Math.max(0,1-e*.8);sc=k.crash==='eau'?Math.max(.4,1-e*.5):1}
+  for(const k of[RC.ai,p]){const q=ws(k);let al=1,sc=1;if(!k.alive){const e=(RC.t-k.crashT)/1000;al=Math.max(0,1-e*.8);sc=k.crash==='eau'?Math.max(.4,1-e*.5):1}const hid=k.alive&&k.onPath&&tr.cover&&tr.cover[k.idx];if(hid)al*=k.ai?.07:.28;
     if(al<=0)continue;const L=RCK.CART*s*sc,Wd=L*(k.img.naturalWidth||115)/(k.img.naturalHeight||200);
     c.save();c.globalAlpha=al;c.translate(q.x,q.y);c.rotate(Math.PI/2-k.th);
     c.fillStyle='rgba(0,0,0,.32)';c.beginPath();c.ellipse(L*.08,L*.08,Wd*.55,L*.52,0,0,7);c.fill();
     if(k.img.complete&&k.img.naturalWidth)c.drawImage(k.img,-Wd/2,-L/2,Wd,L);else{c.fillStyle=k.ai?'#E06A1B':'#1E6B3A';c.fillRect(-Wd/2,-L/2,Wd,L)}
     c.restore();
     if(!k.alive&&k.crash==='eau'){c.strokeStyle=`rgba(220,235,255,${al*.7})`;c.lineWidth=1.5;for(let r=1;r<=3;r++){c.beginPath();c.ellipse(q.x,q.y,s*(.8+r*.9)*(2-al),s*(.5+r*.55)*(2-al),0,0,7);c.stroke()}}
-    if(k.ai&&k.alive){c.font='700 11px "Chivo Mono", monospace';c.textAlign='center';c.fillStyle='rgba(8,18,13,.85)';c.fillRect(q.x-12,q.y-L*.75-15,24,14);c.fillStyle='#FF9F1C';c.fillText('IA',q.x,q.y-L*.75-4)}}
+    if(hid&&!k.ai){c.strokeStyle='rgba(198,244,50,.9)';c.lineWidth=2;c.setLineDash([4,3]);c.beginPath();c.arc(q.x,q.y,L*.5,0,7);c.stroke();c.setLineDash([])}
+    if(k.ai&&k.alive&&!hid){c.font='700 11px "Chivo Mono", monospace';c.textAlign='center';c.fillStyle='rgba(8,18,13,.85)';c.fillRect(q.x-12,q.y-L*.75-15,24,14);c.fillStyle='#FF9F1C';c.fillText('IA',q.x,q.y-L*.75-4)}}
   // mini-carte
   const m=rmini.getContext('2d'),mw=rmini.width,mh=rmini.height;if(mw){m.setTransform(1,0,0,1,0,0);m.clearRect(0,0,mw,mh);m.drawImage(tr.mini.cv,0,0,mw,mh);const f=mw/300;
     for(const k of[RC.ai,p]){if(!k.alive)continue;m.fillStyle=k.ai?'#FF9F1C':'#C6F432';m.strokeStyle='#08120D';m.lineWidth=2;m.beginPath();m.arc((tr.mini.ox+k.x*tr.mini.sc)*f,(tr.mini.oy-k.y*tr.mini.sc)*f,6*f+2,0,7);m.fill();m.stroke()}}
@@ -2081,7 +2089,7 @@ function pfDraw(){const W=PF.W,Hh=PF.Hh,d=PF.d,c=pfx,m=PF.m;if(!W||!m)return;con
   let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;for(const p of pts){x0=Math.min(x0,p.x);y0=Math.min(y0,p.y);x1=Math.max(x1,p.x);y1=Math.max(y1,p.y)}
   const mg=m.done?.6:1.5,tw=Math.max(m.done?1.6:5,x1-x0+mg*2),th=Math.max(m.done?1.6:5,y1-y0+mg*2),ts=clamp(Math.min(W/tw,Hh/th),14,420),tx=(x0+x1)/2,ty=(y0+y1)/2;
   if(!PF.cam)PF.cam={x:tx,y:ty,s:ts};const cm=PF.cam,k=m.anim?.06:.1;cm.x+=(tx-cm.x)*k;cm.y+=(ty-cm.y)*k;cm.s+=(ts-cm.s)*k*.8;
-  c.setTransform(d,0,0,d,0,0);c.fillStyle='rgb(38,58,34)';c.fillRect(0,0,W,Hh);pfScene(c,cm,W,Hh,false);
+  c.setTransform(d,0,0,d,0,0);fillForest(c,W,Hh,cm.x,cm.y,cm.s);pfScene(c,cm,W,Hh,false);
   // loupe sur le cochonnet
   if(j&&!j.dead&&m.jackOk&&!m.done&&cm.s<160){const iw=Math.min(240,W*.36),ih=iw,ix=W-iw-12,iy=Hh-ih-12;const jv=j.vis?V(j.vis[0],j.vis[1]):j;
     c.save();c.translate(ix,iy);c.beginPath();c.rect(0,0,iw,ih);c.clip();c.fillStyle='rgb(38,58,34)';c.fillRect(0,0,iw,ih);pfScene(c,{x:jv.x,y:jv.y,s:iw/2.2},iw,ih,true);c.restore();
