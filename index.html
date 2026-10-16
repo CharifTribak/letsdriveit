@@ -461,6 +461,10 @@ table.bag input[type=number]{width:72px;border:1px solid var(--line);background:
       <p style="margin:0;max-width:66ch">Un tour de chemin qui serpente autour de trois trous générés, avec ses lignes droites et ses virages, contre une voiturette pilotée par l’IA. Le chemin est la voie rapide. Le fairway passe, le rough freine fort. Une roue dans un bunker ou dans l’eau, et la course est finie.</p>
       <div><span class="lbl">Adversaire</span><div class="actions" id="raceLv" style="margin-top:8px"><button class="chipbtn" type="button" data-lv="facile">Facile</button><button class="chipbtn" type="button" data-lv="moyen">Moyen</button><button class="chipbtn" type="button" data-lv="difficile">Difficile</button></div></div>
       <div class="race-rec" id="raceRec"></div>
+      <div class="box" style="max-width:640px"><span class="lbl">Duel en ligne</span>
+        <div id="rDuelIdle"><p style="margin:6px 0 10px">Jouez contre un ami, chacun sur son écran, comme le salon multi du golf.</p>
+          <div class="actions"><button class="btn" type="button" data-du="new" data-g="race">Créer un duel</button><input class="inp mono" id="rDuelCode" placeholder="Code du duel" aria-label="Code du duel" style="width:150px" autocomplete="off"><button class="btn" type="button" data-du="join" data-g="race">Rejoindre</button></div></div>
+        <div id="rDuelInfo"></div></div>
       <p class="note" style="margin:0">Clavier : flèches ou ZQSD, H ou Espace pour klaxonner. Sur téléphone, boutons à l’écran. Vos records sont enregistrés dans votre profil.</p>
       <div><button class="btn primary big" type="button" id="raceGo">Prendre le volant</button></div>
     </div>
@@ -492,13 +496,17 @@ table.bag input[type=number]{width:72px;border:1px solid var(--line);background:
       <div><span class="lbl">Adversaire</span><div class="actions" id="pfLv" style="margin-top:8px"><button class="chipbtn" type="button" data-lv="facile">Facile</button><button class="chipbtn" type="button" data-lv="moyen">Moyen</button><button class="chipbtn" type="button" data-lv="difficile">Difficile</button></div></div>
       <div><span class="lbl">Partie en</span><div class="actions" id="pfTg" style="margin-top:8px"><button class="chipbtn" type="button" data-t="7">7 points</button><button class="chipbtn" type="button" data-t="13">13 points</button></div></div>
       <div class="race-rec" id="pfRec"></div>
+      <div class="box" style="max-width:640px"><span class="lbl">Duel en ligne</span>
+        <div id="pfDuelIdle"><p style="margin:6px 0 10px">Jouez contre un ami, chacun sur son écran, comme le salon multi du golf.</p>
+          <div class="actions"><button class="btn" type="button" data-du="new" data-g="petolf">Créer un duel</button><input class="inp mono" id="pfDuelCode" placeholder="Code du duel" aria-label="Code du duel" style="width:150px" autocomplete="off"><button class="btn" type="button" data-du="join" data-g="petolf">Rejoindre</button></div></div>
+        <div id="pfDuelInfo"></div></div>
       <div><button class="btn primary big" type="button" id="pfGo">Lancer la partie</button></div>
     </div>
     <div id="pfWrap" hidden>
       <div class="game">
         <div class="stage" id="pfStage"><canvas id="pfcv" aria-label="Terrain de Pétolf vu du dessus. Cliquez pour viser."></canvas><div class="hud" id="pfHud"></div><div class="overlay" id="pfOver" hidden></div></div>
         <aside class="panel">
-          <div class="box"><div class="pf-score"><div><span class="lbl">Vous</span><b id="pfSMe">0</b><i id="pfBMe" class="me"></i></div><div><span class="lbl">IA</span><b id="pfSAi">0</b><i id="pfBAi" class="ai"></i></div></div>
+          <div class="box"><div class="pf-score"><div><span class="lbl">Vous</span><b id="pfSMe">0</b><i id="pfBMe" class="me"></i></div><div><span class="lbl" id="pfOppLbl">IA</span><b id="pfSAi">0</b><i id="pfBAi" class="ai"></i></div></div>
             <p id="pfMsg" style="margin:10px 0 0"></p><div style="margin-top:10px"><button class="btn primary" type="button" id="pfNext" hidden>Mène suivante</button></div></div>
           <div class="box"><span class="lbl">Putter</span><div class="pad" id="pfPad" style="margin-top:8px"><canvas></canvas></div>
             <p class="note" id="pfAimInfo" style="margin:8px 0 0"></p><p class="note" style="margin:4px 0 0">Cliquez sur le terrain pour viser, puis faites votre putt dans la zone : tirez vers le bas, remontez d’un geste. Le repère orange donne l’élan pour la distance visée sur terrain plat. Espace au clavier.</p></div>
@@ -1777,7 +1785,7 @@ function buildTrack(seed){let L=null,sd=seed;for(let k=0;k<40&&!L;k++,sd=(sd*168
   const M=45;x0-=M;y0-=M;x1+=M;y1+=M;
   const TR={holes,P:loop,T,K,S,len:acc,n,seed:sd,bb:{x0,y0,x1,y1},tiles:new Map(),bridge:[],trees:[]};
   for(let i=0;i<n;i++)TR.bridge.push(worldLie(TR,loop[i]).li.lie==='eau');
-  {const raw=loop.map(q=>worldLie(TR,q).r===0),cov=new Array(n).fill(false);for(let st=0;st<n;st++){if(!raw[st]||raw[(st-1+n)%n])continue;let e=st;while(raw[(e+1)%n]&&e-st<n)e++;if(e-st+1>=10)for(let k=st;k<=e;k++)cov[k%n]=true}TR.cover=cov}
+  {const raw=loop.map(q=>worldLie(TR,q).r===0),cov=new Array(n).fill(false);for(let st=0;st<n;st++){if(!raw[st]||raw[(st-1+n)%n])continue;let e=st;while(raw[(e+1)%n]&&e-st<n)e++;if(e-st+1>=10)for(let k=st;k<=e;k++)cov[k%n]=true}for(let k=-14;k<=16;k++)cov[(k+n)%n]=false;TR.cover=cov}
   for(const h of holes)for(const t of h.H.trees){const c=hx(h,t.c);if(worldLie(TR,c).r>0)continue;let ok=true;for(let i=0;i<n;i+=2)if(dist(c,loop[i])<RCK.W/2+t.r+1.5){ok=false;break}if(ok)TR.trees.push({c,r:t.r})}
   TR.pins=holes.map(h=>hx(h,h.H.pin));
   // fond basse résolution
@@ -1797,7 +1805,7 @@ function paintScene(TR,c,x0,y1,r){const P=TR.P,n=TR.n,X=q=>(q.x-x0)/r,Y=q=>(y1-q
   for(const t of TR.trees){const px=X(t.c),py=Y(t.c),rr=t.r/r;if(px<-rr*2||py<-rr*2||px>c.canvas.width+rr*2||py>c.canvas.height+rr*2)continue;
     c.fillStyle='rgba(0,0,0,.25)';c.beginPath();c.arc(px+rr*.25,py+rr*.25,rr,0,7);c.fill();c.fillStyle='#2C4A2A';c.beginPath();c.arc(px,py,rr,0,7);c.fill();c.fillStyle='#3B6036';c.beginPath();c.arc(px-rr*.28,py-rr*.28,rr*.55,0,7);c.fill()}
   const cov=TR.cover||[],path=()=>{c.beginPath();let pen=false;for(let i=0;i<=n;i++){const k=i%n,q=P[k];if(!(cov[k]&&cov[(k+1)%n]&&cov[(k-1+n)%n])){pen?c.lineTo(X(q),Y(q)):c.moveTo(X(q),Y(q));pen=true}else pen=false}};
-  if(cov.length){c.save();c.globalAlpha=.5;c.strokeStyle='#D8D2BA';c.lineWidth=Math.max(1,W*.14);c.setLineDash([1.6/r,2.4/r]);c.beginPath();let pen=false;for(let i=0;i<=n;i++){const k=i%n,q=P[k];if(cov[k]){pen?c.lineTo(X(q),Y(q)):c.moveTo(X(q),Y(q));pen=true}else pen=false}c.stroke();c.restore()}
+  if(cov.length){const cpath=()=>{c.beginPath();let pen=false;for(let i=0;i<=n;i++){const k=i%n,q=P[k];if(cov[k]){pen?c.lineTo(X(q),Y(q)):c.moveTo(X(q),Y(q));pen=true}else pen=false}};c.save();c.lineJoin='round';c.lineCap='round';c.globalAlpha=.42;c.strokeStyle='#8F8A76';c.lineWidth=W+.7/r;cpath();c.stroke();c.strokeStyle='#3E433D';c.lineWidth=W;cpath();c.stroke();c.globalAlpha=.3;c.strokeStyle='#0B1A0C';c.lineWidth=W+1.2/r;cpath();c.stroke();c.restore()}
   c.lineJoin='round';c.lineCap='round';
   c.strokeStyle='rgba(0,0,0,.28)';c.lineWidth=W+1.6/r;path();c.stroke();
   c.strokeStyle='#C9C3AE';c.lineWidth=W+.7/r;path();c.stroke();
@@ -1873,7 +1881,7 @@ function raceAudioTick(){if(!RC.au){if(RC.state==='race'||RC.state==='count')rac
 /* ---- boucle ---- */
 function raceGoAsync(seed){const o=$('#rOver');$('#raceIntro').hidden=true;$('#raceWrap').hidden=false;o.hidden=false;o.innerHTML='<div class="ov-card" style="text-align:center"><span class="lbl">Course de voiturettes</span><h3 style="margin:8px 0 0">Préparation du circuit…</h3></div>';setTimeout(()=>raceStart(seed),50)}
 function raceStart(seed){raceStop();RC.tr=buildTrack(seed==null?(Date.now()%900000)+11:seed);
-  RC.p=newCart(false,1.5);RC.ai=newCart(true,-1.5);RC.t0=performance.now();RC.t=-3000;RC.state='count';RC.parts=[];RC.msg='';RC.keys={};
+  {const sd=RC.duel&&!DU.host?-1.5:1.5;RC.p=newCart(false,sd);RC.ai=newCart(true,-sd);RC.ai.remote=!!RC.duel;RC.oppGone=false;RC.sentT=0}RC.t0=performance.now();RC.t=-3000;RC.state='count';RC.parts=[];RC.msg='';RC.keys={};
   RC.cam={x:RC.p.x,y:RC.p.y};$('#raceIntro').hidden=true;$('#raceWrap').hidden=false;$('#rOver').hidden=true;
   P.race.played++;saveProfile();raceResize();RC.scale=clamp(Math.min(RC.W||800,RC.H||600)/50,7,12);tilesPump(0,true);sfx('bips',.9);RC.lastBeep=-1;RC.last=performance.now();RC.raf=requestAnimationFrame(raceTick)}
 function raceStop(){if(RC.raf)cancelAnimationFrame(RC.raf);RC.raf=0;raceAudioStop();if(RC.state!=='off')RC.state='off'}
@@ -1888,9 +1896,9 @@ function raceTick(now){RC.raf=0;if(RC.state==='off')return;if($('#v-race').hidde
   if(run){const steps=Math.ceil(dt/(1/120)),h=dt/steps,p=RC.p,a=RC.ai,k=RC.keys;
     for(let s=0;s<steps;s++){
       if(p.alive&&RC.state==='race')physCart(p,k.up?1:0,k.down?1:0,(k.left?1:0)-(k.right?1:0),h,1);else if(p.alive)physCart(p,0,p.v>.4?1:0,0,h,1);
-      if(a.alive){if(a.fin!=null||RC.state==='done')physCart(a,0,a.v>.4?.6:0,0,h,1);else aiDrive(a,h)}
-      collideTrees(p);collideTrees(a);collideCarts(p,a)}
-    if(p.alive&&RC.state==='race')progress(p,t);if(a.alive)progress(a,t);
+      if(a.remote){if(a.alive)raceRemoteStep(a,h)}else if(a.alive){if(a.fin!=null||RC.state==='done')physCart(a,0,a.v>.4?.6:0,0,h,1);else aiDrive(a,h)}
+      collideTrees(p);if(!a.remote){collideTrees(a);collideCarts(p,a)}}
+    if(p.alive&&RC.state==='race')progress(p,t);if(a.alive&&!a.remote)progress(a,t);raceSend();
     for(const c of[p,a])if(c.alive&&!c.onPath&&Math.abs(c.v)>2.5&&Math.random()<.6){const back=V(c.x-Math.cos(c.th)*1.4,c.y-Math.sin(c.th)*1.4);RC.parts.push({x:back.x+(Math.random()-.5),y:back.y+(Math.random()-.5),l:1,c:c.lie==='rough'||c.lie==='hl'?'rgba(70,110,50,':'rgba(150,170,110,'})}}
   for(let i=RC.parts.length-1;i>=0;i--){RC.parts[i].l-=dt*1.6;if(RC.parts[i].l<=0)RC.parts.splice(i,1)}
   tilesPump(RC.state==='count'?12:5);raceAudioTick();raceDraw();raceHud();
@@ -1916,7 +1924,7 @@ function raceDraw(){const W=RC.W,Hh=RC.H,d=RC.d,c=rctx,tr=RC.tr,p=RC.p;if(!W)ret
     c.restore();
     if(!k.alive&&k.crash==='eau'){c.strokeStyle=`rgba(220,235,255,${al*.7})`;c.lineWidth=1.5;for(let r=1;r<=3;r++){c.beginPath();c.ellipse(q.x,q.y,s*(.8+r*.9)*(2-al),s*(.5+r*.55)*(2-al),0,0,7);c.stroke()}}
     if(hid&&!k.ai){c.strokeStyle='rgba(198,244,50,.9)';c.lineWidth=2;c.setLineDash([4,3]);c.beginPath();c.arc(q.x,q.y,L*.5,0,7);c.stroke();c.setLineDash([])}
-    if(k.ai&&k.alive&&!hid){c.font='700 11px "Chivo Mono", monospace';c.textAlign='center';c.fillStyle='rgba(8,18,13,.85)';c.fillRect(q.x-12,q.y-L*.75-15,24,14);c.fillStyle='#FF9F1C';c.fillText('IA',q.x,q.y-L*.75-4)}}
+    if(k.ai&&k.alive&&!hid){c.font='700 11px "Chivo Mono", monospace';c.textAlign='center';c.fillStyle='rgba(8,18,13,.85)';c.fillRect(q.x-(RC.duel?40:12),q.y-L*.75-15,RC.duel?80:24,14);c.fillStyle='#FF9F1C';c.fillText(RC.duel?(RC.oppName||'Adv.').slice(0,10):'IA',q.x,q.y-L*.75-4)}}
   // mini-carte
   const m=rmini.getContext('2d'),mw=rmini.width,mh=rmini.height;if(mw){m.setTransform(1,0,0,1,0,0);m.clearRect(0,0,mw,mh);m.drawImage(tr.mini.cv,0,0,mw,mh);const f=mw/300;
     for(const k of[RC.ai,p]){if(!k.alive)continue;m.fillStyle=k.ai?'#FF9F1C':'#C6F432';m.strokeStyle='#08120D';m.lineWidth=2;m.beginPath();m.arc((tr.mini.ox+k.x*tr.mini.sc)*f,(tr.mini.oy-k.y*tr.mini.sc)*f,6*f+2,0,7);m.fill();m.stroke()}}
@@ -1934,9 +1942,10 @@ function raceEnd(why){if(RC.state==='done')return;RC.state='done';RC.keys={};con
     title=pos===1?'Victoire !':'2e place';sub=`Votre temps : ${fmtT(total)}`+(a.fin!=null?` · l’IA : ${fmtT(a.fin)}`:'')+` · circuit de ${Math.round(RC.tr.len)} m`}
   else{R.dnf++;title='Hors course';sub=why==='eau'?'Votre voiturette a fini à l’eau. Restez sur le chemin !':'Votre voiturette s’est ensablée dans le bunker. Restez sur le chemin !'}
   saveProfile();
-  setTimeout(()=>{const o=$('#rOver');o.hidden=false;o.innerHTML=`<div class="ov-card"><span class="lbl">Course de voiturettes · ${RACE_LV[RC.level].l}</span><h3 style="font-size:40px;margin:6px 0">${title}</h3><p style="margin:0">${sub}</p>${rec?`<p style="margin:8px 0 0;color:var(--green);font-weight:700">${rec}</p>`:''}
+  setTimeout(()=>{const o=$('#rOver');o.hidden=false;o.innerHTML=`<div class="ov-card"><span class="lbl">Course de voiturettes · ${RC.duel?'duel contre '+esc(RC.oppName||''):RACE_LV[RC.level].l}</span><h3 style="font-size:40px;margin:6px 0">${title}</h3><p style="margin:0">${sub}</p>${rec?`<p style="margin:8px 0 0;color:var(--green);font-weight:700">${rec}</p>`:''}
     <p class="note" style="margin:10px 0 0">Meilleur temps : ${fmtT(R.best)} · ${R.wins} victoire${R.wins>1?'s':''} sur ${R.played} course${R.played>1?'s':''}</p>
     <div class="actions" style="margin-top:14px"><button class="btn primary" type="button" id="rAgain">Revanche</button><button class="btn" type="button" id="rNew">Nouveau circuit</button><button class="btn" type="button" id="rOut">Quitter</button></div></div>`;
+    if(RC.duel){const ac=o.querySelector('.actions');ac.innerHTML=(DU.host?'<button class="btn primary" type="button" data-du="go">Nouvelle course</button>':'<span class="note">L’hôte peut relancer une course.</span>')+'<button class="btn" type="button" id="rOut">Quitter</button>';const pp=document.createElement('p');pp.id='rOppT';pp.style.margin='8px 0 0';pp.textContent=RC.ai.fin!=null?`${RC.oppName} : ${fmtT(RC.ai.fin)}`:RC.ai.alive?`${RC.oppName} : toujours en course`:`${RC.oppName} : hors course`;ac.before(pp);$('#rOut').onclick=raceQuit;return}
     $('#rAgain').onclick=()=>raceGoAsync(RC.tr.seed);$('#rNew').onclick=()=>raceGoAsync();$('#rOut').onclick=raceQuit},why==='fin'?900:1600)}
 function raceQuit(){raceStop();$('#raceWrap').hidden=true;$('#raceIntro').hidden=false;renderRaceIntro()}
 function renderRaceIntro(){const R=P.race;
@@ -1944,7 +1953,7 @@ function renderRaceIntro(){const R=P.race;
   $('#raceRec').innerHTML=`<div><span class="lbl">Meilleur temps</span><b>${fmtT(R.best)}</b></div><div><span class="lbl">Courses</span><b>${R.played}</b></div><div><span class="lbl">Victoires</span><b>${R.wins}</b></div><div><span class="lbl">Hors course</span><b>${R.dnf}</b></div>`}
 $('#raceHero').src=IMG.raceHero;
 $('#raceLv').querySelectorAll('.chipbtn').forEach(b=>b.onclick=()=>{RC.level=b.dataset.lv;P.race.level=RC.level;saveProfile();renderRaceIntro()});
-$('#raceGo').onclick=()=>raceGoAsync();
+$('#raceGo').onclick=()=>{RC.duel=false;raceGoAsync()};
 const RKEY={ArrowUp:'up',ArrowDown:'down',ArrowLeft:'left',ArrowRight:'right',KeyW:'up',KeyZ:'up',KeyS:'down',KeyA:'left',KeyQ:'left',KeyD:'right'};
 window.addEventListener('keydown',e=>{if(RC.state==='off'||$('#v-race').hidden)return;const k=RKEY[e.code];if(k){RC.keys[k]=true;e.preventDefault()}else if(e.code==='KeyH'||e.code==='Space'){e.preventDefault();if(!e.repeat)sfx('klaxon',.8)}});
 window.addEventListener('keyup',e=>{const k=RKEY[e.code];if(k)RC.keys[k]=false});
@@ -1985,7 +1994,7 @@ function pfBest(bs,team){const j=pfJack(bs);if(!j||j.dead)return Infinity;let m=
 function pfPoints(bs){const me=pfBest(bs,'me'),ai=pfBest(bs,'ai');if(me===ai)return{win:null,pts:0};const win=me<ai?'me':'ai',lim=Math.max(me,ai),j=pfJack(bs);
   return{win,pts:bs.filter(b=>b.team===win&&!b.dead&&Math.hypot(b.x-j.x,b.y-j.y)<lim).length}}
 /* ---- déroulement ---- */
-function pfStart(){const sd=(Date.now()%900000)+7;PF.H=genPiste(sd);PF.score={me:0,ai:0};PF.mene=0;PF.thrower=Math.random()<.5?'me':'ai';PF.circle={c:V(0,4),dir:V(0,1)};PF.state='play';
+function pfStart(cfg){if(!cfg){PF.duel=false;PF.cfg=null}PF.oppGone=false;clearTimeout(PF.nextT);const sd=cfg?cfg.seed:(Date.now()%900000)+7;if(cfg)PF.target=cfg.target||13;PF.H=genPiste(sd);PF.score={me:0,ai:0};PF.mene=0;PF.thrower=cfg?(cfg.first===pfLetter()?'me':'ai'):Math.random()<.5?'me':'ai';$('#pfOppLbl').textContent=PF.duel?PF.oppName:'IA';PF.circle={c:V(0,4),dir:V(0,1)};PF.state='play';
   P.petolf.played++;saveProfile();$('#pfIntro').hidden=true;$('#pfWrap').hidden=false;
   PF.ras=rasterize(PF.H,-15,-8,15,68,.05,false);pfResize();PF.cam=null;pfNewMene(true);if(!PF.raf)PF.raf=requestAnimationFrame(pfLoop)}
 function pfPatch(p){}
@@ -2001,8 +2010,8 @@ function pfTurn(){const m=PF.m;if(!m.jackOk)return PF.thrower;if(m.done)return n
   if(bm<ba)return'ai';if(ba<bm)return'me';return m.last}
 function pfThrow(team,kind,dir,v0){const m=PF.m,c=PF.circle.c;const b={id:m.balls.length,team:kind==='jack'?null:team,kind,x:c.x+dir.x*.18,y:c.y+dir.y*.18,vx:dir.x*v0,vy:dir.y*v0,dead:false};
   m.balls.push(b);if(kind==='ball'){m.left[team]--;m.last=team}
-  const sim=pfSim(m.balls,true);m.anim={fr:sim.fr,ev:sim.ev.slice(),i:0,t0:performance.now(),kind,team};sfx('fers',.2,1.9);PF.busy=true;pfPanel()}
-function pfAfterThrow(){const m=PF.m,a=m.anim;m.anim=null;PF.busy=false;const j=pfJack(m.balls);
+  const sim=pfSim(m.balls,true);m.anim={fr:sim.fr,ev:sim.ev.slice(),i:0,t0:performance.now(),kind,team};if(team==='me'&&PF.duel)pfDuelSend(kind,dir,v0);sfx('fers',.2,1.9);PF.busy=true;pfPanel()}
+function pfAfterThrow(){const m=PF.m,a=m.anim;m.anim=null;PF.busy=false;if(a.snap&&a.snap.length===m.balls.length)m.balls.forEach((b,i)=>{b.x=a.snap[i][0];b.y=a.snap[i][1];b.dead=!!a.snap[i][2]});const j=pfJack(m.balls);
   if(a.kind==='jack'){const d=dist(j,PF.circle.c);const ok=!j.dead&&pfInB(j,1)&&d>=6&&d<=10;
     if(ok){m.jackOk=true;PF.aim=V(j.x,j.y);pfPatch(j);pfMsg(`Cochonnet à ${fr(d,1)} m. ${PF.thrower==='me'?'À vous de jouer la première balle.':'L’IA joue la première balle.'}`)}
     else{m.jackTries++;m.balls=m.balls.filter(b=>b!==j);
@@ -2020,13 +2029,14 @@ function pfEndMene(r){const m=PF.m;m.done=true;const j=pfJack(m.balls);PF.lastJa
   pfMsg(r.nul?'Mène nulle : le cochonnet est sorti, on rejoue.':r.jackOut?`Cochonnet sorti : ${who.toLowerCase()} ${r.pts} point${r.pts>1?'s':''}, les balles restantes.`:r.win?`${who} ${r.pts} point${r.pts>1?'s':''}.`:'Égalité parfaite : mène nulle.');
   pfPanel();const end=PF.score.me>=PF.target||PF.score.ai>=PF.target;
   if(end){PF.state='done';const win=PF.score.me>PF.score.ai;if(win)P.petolf.wins++;saveProfile();sfx('jingle',.9);
-    setTimeout(()=>{const o=$('#pfOver');o.hidden=false;o.innerHTML=`<div class="ov-card"><span class="lbl">Pétolf · ${PF_LV[PF.level].l} · partie en ${PF.target}</span><h3 style="font-size:40px;margin:6px 0">${win?'Victoire !':'Défaite'}</h3><p style="margin:0">Score final : vous ${PF.score.me}, l’IA ${PF.score.ai}, en ${PF.mene} mène${PF.mene>1?'s':''}.</p><p class="note" style="margin:10px 0 0">${P.petolf.wins} victoire${P.petolf.wins>1?'s':''} sur ${P.petolf.played} partie${P.petolf.played>1?'s':''}.</p><div class="actions" style="margin-top:14px"><button class="btn primary" type="button" id="pfAgain">Nouvelle partie</button><button class="btn" type="button" id="pfOut">Quitter</button></div></div>`;
+    setTimeout(()=>{const o=$('#pfOver');o.hidden=false;o.innerHTML=`<div class="ov-card"><span class="lbl">Pétolf · ${PF.duel?'duel contre '+esc(PF.oppName):PF_LV[PF.level].l} · partie en ${PF.target}</span><h3 style="font-size:40px;margin:6px 0">${win?'Victoire !':'Défaite'}</h3><p style="margin:0">Score final : vous ${PF.score.me}, l’IA ${PF.score.ai}, en ${PF.mene} mène${PF.mene>1?'s':''}.</p><p class="note" style="margin:10px 0 0">${P.petolf.wins} victoire${P.petolf.wins>1?'s':''} sur ${P.petolf.played} partie${P.petolf.played>1?'s':''}.</p><div class="actions" style="margin-top:14px"><button class="btn primary" type="button" id="pfAgain">Nouvelle partie</button><button class="btn" type="button" id="pfOut">Quitter</button></div></div>`;
+      if(PF.duel){o.querySelector('.actions').innerHTML=(DU.host?'<button class="btn primary" type="button" data-du="go">Nouvelle partie</button>':'<span class="note">L’hôte peut relancer une partie.</span>')+'<button class="btn" type="button" id="pfOut">Quitter</button>';$('#pfOut').onclick=pfQuit;return}
       $('#pfAgain').onclick=()=>{$('#pfOver').hidden=true;pfStart()};$('#pfOut').onclick=pfQuit},1400)}
-  else $('#pfNext').hidden=false}
+  else if(PF.duel){const mn=PF.mene;PF.nextT=setTimeout(()=>{if(PF.state==='play'&&PF.mene===mn&&PF.m.done){pfNewMene(false);pfDuelPump()}},4500)}else $('#pfNext').hidden=false}
 /* ---- IA ---- */
 function pfValue(bs,team){const op=team==='me'?'ai':'me',j=pfJack(bs);if(!j||j.dead)return-3;const r=pfPoints(bs);const mine=pfBest(bs,team);
   return(r.win===team?r.pts*2:r.win===op?-r.pts*2:0)-Math.min(mine,5)*.6}
-function pfAi(){if(PF.state!=='play'||PF.busy||$('#v-petolf').hidden)return;const m=PF.m,c=PF.circle.c,lv=PF_LV[PF.level];
+function pfAi(){if(PF.duel){if(PF.state==='play'&&!PF.m.done)pfMsg(PF.m.jackOk?`À ${PF.oppName} de jouer…`:`${PF.oppName} lance le cochonnet…`);pfPanel();pfDuelPump();return}if(PF.state!=='play'||PF.busy||$('#v-petolf').hidden)return;const m=PF.m,c=PF.circle.c,lv=PF_LV[PF.level];
   if(!m.jackOk){if(PF.thrower!=='ai')return;const d=6.8+Math.random()*2.3,an=(Math.random()-.5)*.12,dir=rot(PF.circle.dir,an);return pfThrow('ai','jack',dir,Math.sqrt(2*PFMU*d)*(1+gauss()*.03))}
   if(pfTurn()!=='ai')return;pfMsg('L’IA étudie la pente…');pfPanel();
   setTimeout(()=>{const j=pfJack(m.balls),base=sub(j,c),D=len(base),u=norm(base);let best=null;
@@ -2067,13 +2077,13 @@ document.addEventListener('keydown',e=>{if(e.code!=='Space'||e.repeat||$('#v-pet
   const tick=()=>{if(!ppad.kb)return;ppad.kb.p=clamp((performance.now()-ppad.kb.t0)/1500,0,1.15);ppad.draw();requestAnimationFrame(tick)};tick()});
 document.addEventListener('keyup',e=>{if(e.code!=='Space'||!ppad.kb)return;e.preventDefault();const p=ppad.kb.p;ppad.kb=null;ppad.draw();if(p>.03)pfSwing({power:p,err:gauss()*.14})});
 /* ---- affichage ---- */
-function pfMsg(t){PF.msg=t;const el=$('#pfMsg');if(el)el.textContent=t}
+function pfMsg(t){if(PF.duel&&PF.oppName)t=String(t).replace(/L’IA/g,PF.oppName).replace(/l’IA/g,PF.oppName);PF.msg=t;const el=$('#pfMsg');if(el)el.textContent=t}
 function pfPanel(){if(!PF.m)return;const m=PF.m,t=pfTurn(),dots=n=>'●'.repeat(n)+'○'.repeat(3-n);
   $('#pfSMe').textContent=PF.score.me;$('#pfSAi').textContent=PF.score.ai;$('#pfBMe').textContent=dots(m.left.me);$('#pfBAi').textContent=dots(m.left.ai);
   const mine=t==='me'&&!PF.busy&&PF.state==='play'&&!m.done;ppad.setEnabled(mine);
   const bm=pfBest(m.balls,'me'),ba=pfBest(m.balls,'ai'),j=pfJack(m.balls);
-  $('#pfHud').innerHTML=`<span class="pill hole">Mène ${PF.mene}</span><span class="pill">Vous ${PF.score.me} · ${PF.score.ai} IA</span>`+
-    (m.jackOk&&j&&!j.dead&&(bm<Infinity||ba<Infinity)?`<span class="pill">${bm<ba?'Vous tenez le point':ba<bm?'L’IA tient le point':'Égalité'} · ${Math.round(Math.min(bm,ba)*100)} cm</span>`:'')+
+  $('#pfHud').innerHTML=`<span class="pill hole">Mène ${PF.mene}</span><span class="pill">Vous ${PF.score.me} · ${PF.score.ai} ${PF.duel?esc(PF.oppName):'IA'}</span>`+
+    (m.jackOk&&j&&!j.dead&&(bm<Infinity||ba<Infinity)?`<span class="pill">${bm<ba?'Vous tenez le point':ba<bm?(PF.duel?esc(PF.oppName)+' tient le point':'L’IA tient le point'):'Égalité'} · ${Math.round(Math.min(bm,ba)*100)} cm</span>`:'')+
     (mine?`<span class="pill" style="background:#C6F432;color:#08120D">${m.jackOk?'À vous de jouer':'À vous : le cochonnet'}</span>`:'');
   $('#pfAimInfo').textContent=PF.aim&&PF.circle?`Visée à ${fr(dist(PF.aim,PF.circle.c),1)} m du cercle`+(j&&!j.dead&&m.jackOk?` · cochonnet à ${fr(dist(j,PF.circle.c),1)} m`:''):''}
 function pfResize(){const r=pfStage.getBoundingClientRect();if(!r.width)return;const d=window.devicePixelRatio||1;PF.W=r.width;PF.Hh=r.height;PF.d=d;pfcv.width=Math.round(r.width*d);pfcv.height=Math.round(r.height*d)}
@@ -2082,7 +2092,7 @@ function pfLoop(now){PF.raf=0;if(PF.state==='off')return;if($('#v-petolf').hidde
   const m=PF.m;if(m&&m.anim){const a=m.anim,el=Math.max(0,(now-a.t0)/1000),i=Math.max(0,Math.min(a.fr.length-1,Math.floor(el*60)));
     while(a.ev.length&&a.ev[0].t<=el){const e=a.ev.shift();if(e.k==='hit')sfx('fers',Math.min(.8,.25+e.v*.3),2.6);}
     const f=a.fr[i];m.balls.forEach((b,k)=>{if(f[k]){b.vis=[f[k][0],f[k][1],f[k][2]]}});if(i>=a.fr.length-1){m.balls.forEach(b=>{b.vis=null;b.vx=b.vy=0});pfAfterThrow()}}
-  pfDraw();PF.raf=requestAnimationFrame(pfLoop)}
+  if(PF.duel&&!PF.busy)pfDuelPump();pfDraw();PF.raf=requestAnimationFrame(pfLoop)}
 function pfDraw(){const W=PF.W,Hh=PF.Hh,d=PF.d,c=pfx,m=PF.m;if(!W||!m)return;const j=pfJack(m.balls);
   const pts=[];if(!m.done)pts.push(PF.circle.c);for(const b of m.balls){const q=b.vis?V(b.vis[0],b.vis[1]):b;if(b.vis?!b.vis[2]:!b.dead)pts.push(q)}
   if(!m.jackOk&&!m.done)pts.push(add(PF.circle.c,mul(PF.circle.dir,10)));if(PF.aim&&!m.done)pts.push(PF.aim);if(!pts.length)pts.push(PF.circle.c);
@@ -2121,9 +2131,60 @@ function renderPfIntro(){const R=P.petolf;$('#pfLv').querySelectorAll('.chipbtn'
   $('#pfRec').innerHTML=`<div><span class="lbl">Parties</span><b>${R.played}</b></div><div><span class="lbl">Victoires</span><b>${R.wins}</b></div>`}
 $('#pfLv').querySelectorAll('.chipbtn').forEach(b=>b.onclick=()=>{PF.level=b.dataset.lv;P.petolf.level=PF.level;saveProfile();renderPfIntro()});
 $('#pfTg').querySelectorAll('.chipbtn').forEach(b=>b.onclick=()=>{PF.target=+b.dataset.t;P.petolf.target=PF.target;saveProfile();renderPfIntro()});
-$('#pfGo').onclick=()=>{$('#pfIntro').hidden=true;$('#pfWrap').hidden=false;pfMsg('Préparation du terrain…');setTimeout(pfStart,40)};
+$('#pfGo').onclick=()=>{PF.duel=false;$('#pfIntro').hidden=true;$('#pfWrap').hidden=false;pfMsg('Préparation du terrain…');setTimeout(pfStart,40)};
 $('#pfNext').onclick=()=>pfNewMene(false);$('#pfQuit').onclick=pfQuit;
 renderPfIntro();
+/* ================= duels en ligne (voiturettes, Pétolf) ================= */
+const DU={game:null,named:null,code:null,host:false,me:null,peers:[],cfgId:null};
+const duTag=g=>g==='race'?'vt':'pf',duPre=g=>g==='race'?'r':'pf';
+function duName(p){return(p&&p.presence&&typeof p.presence.nm==='string'&&p.presence.nm.slice(0,24))||'Adversaire'}
+async function duJoin(g,code,host){if(DU.named)duLeave();code=String(code||'').toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,10);const info=$('#'+duPre(g)+'DuelInfo');
+  if(code.length<3){info.textContent='Saisissez le code du duel (3 caractères au moins).';return}info.textContent='Connexion…';
+  try{if(window.__duFake)DU.named=await window.__duFake(duTag(g)+code,host);else if(STANDALONE)DU.named=await peerJoin(duTag(g)+code,host);
+    else{const room=await getRoom();if(!room)throw new Error('Dans claude.ai, les duels exigent un compte Claude invité sur cet artefact. Pour jouer avec quelqu’un sans compte, utilisez la version en ligne du jeu.');DU.named=await room.join(duTag(g)+'-'+code)}}
+  catch(e){DU.named=null;info.textContent=e&&e.message||'Connexion impossible pour le moment.';return}
+  Object.assign(DU,{game:g,code,host,cfgId:null,peers:[]});DU.named.onPeers(ch=>duOnPeers(ch),()=>{});
+  try{await DU.named.presence({v:1,g,nm:(P.name||'Joueur').slice(0,24),role:host?'host':'p',ja:Date.now()})}catch(e){}duRender(g)}
+function duLeave(){try{DU.named&&DU.named.leave()}catch(e){}const g=DU.game;Object.assign(DU,{named:null,code:null,host:false,peers:[],cfgId:null,game:null});if(g)duRender(g)}
+function duPlayers(){return DU.peers.filter(p=>p.presence&&p.presence.v===1&&p.presence.g===DU.game).sort((a,b)=>(a.presence.ja||0)-(b.presence.ja||0))}
+function duOpp(){return duPlayers().find(p=>p.peer!==DU.me)||null}
+function duOnPeers(ch){DU.peers=ch.peers;const me=ch.peers.find(p=>p.sameTab);if(me)DU.me=me.peer;
+  if(DU.named&&ch.joined.some(p=>!p.sameTab))DU.named.presence({hb:Date.now()}).catch(()=>{});
+  const hp=duPlayers().find(p=>p.presence.role==='host'),cfg=hp&&hp.presence.cfg;
+  if(!DU.host&&cfg&&cfg.id&&cfg.id!==DU.cfgId&&duOpp()){DU.cfgId=cfg.id;if(DU.game==='race')raceDuelStart(cfg);else pfDuelStart(cfg)}
+  const o=duOpp();if(DU.game==='race')raceDuelNet(o);else if(DU.game==='petolf')pfDuelNet(o);duRender()}
+function duRender(g){g=g||DU.game;if(!g)return;const pre=duPre(g),info=$('#'+pre+'DuelInfo'),idle=$('#'+pre+'DuelIdle');if(!info)return;
+  if(!DU.named||DU.game!==g){info.innerHTML='';idle.hidden=false;return}idle.hidden=true;const o=duOpp();
+  info.innerHTML=`<div class="mprow"><div><span class="lbl">Code du duel</span><div class="mpcode">${esc(DU.code)}</div></div><button class="btn small" type="button" data-du="copy">Copier le code</button></div>
+    <p style="margin:8px 0 0">${o?`Adversaire : <b>${esc(duName(o))}</b>`:`En attente d’un adversaire : il ouvre le jeu, menu ${g==='race'?'Voiturettes':'Pétolf'}, et saisit ce code.`}</p>
+    <div class="actions" style="margin-top:10px">${DU.host?`<button class="btn primary" type="button" data-du="go" ${o?'':'disabled'}>Lancer le duel</button>`:o?'<span class="note">L’hôte lance le duel.</span>':''}<button class="btn small" type="button" data-du="quit">Quitter le duel</button></div>`}
+function duLaunch(){if(!DU.host||!DU.named||!duOpp())return;const id=String(Date.now()),seed=(Date.now()%900000)+13;
+  const cfg=DU.game==='race'?{id,seed}:{id,seed,first:Math.random()<.5?'A':'B',target:PF.target};DU.cfgId=id;DU.named.presence({cfg}).catch(()=>{});
+  if(DU.game==='race')raceDuelStart(cfg);else pfDuelStart(cfg)}
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-du]');if(!b)return;const k=b.dataset.du;
+  if(k==='copy'){const c=DU.code;if(navigator.clipboard)navigator.clipboard.writeText(c).then(()=>toast('Code copié'),()=>toast('Code : '+c));else toast('Code : '+c)}
+  else if(k==='quit'){if(DU.game==='race'&&RC.state!=='off')raceQuit();if(DU.game==='petolf'&&PF.state!=='off')pfQuit();duLeave()}
+  else if(k==='go')duLaunch();
+  else if(k==='new'){const g=b.dataset.g;const c=Array.from({length:5},()=>'abcdefghjkmnpqrstuvwxyz23456789'[Math.floor(Math.random()*31)]).join('');duJoin(g,c,true)}
+  else if(k==='join'){const g=b.dataset.g;duJoin(g,$('#'+duPre(g)+'DuelCode').value,false)}});
+/* ---- voiturettes en duel ---- */
+function raceDuelStart(cfg){RC.duel=true;RC.oppName=duName(duOpp());RC.net=null;showView('race');raceGoAsync(cfg.seed)}
+function raceDuelNet(o){if(!RC.duel||RC.state==='off')return;if(!o){if(RC.state!=='off'&&!RC.oppGone){RC.oppGone=true;RC.msg='Votre adversaire a quitté le duel.';RC.msgT=RC.t}return}
+  const c=o.presence.car;if(!c||c.cfg!==DU.cfgId||(RC.net&&RC.net.t===c.t))return;RC.net=Object.assign({},c,{rt:performance.now()});const a=RC.ai;
+  if(a&&a.alive&&c.alive===false){a.alive=false;a.crash=c.crash||'eau';a.crashT=RC.t;sfx(a.crash==='eau'?'splash':'bunker',.5);RC.msg=`${RC.oppName} a fini ${a.crash==='eau'?'à l’eau':'dans le bunker'} !`;RC.msgT=RC.t}
+  if(a&&c.fin!=null&&a.fin==null){a.fin=c.fin;const el=$('#rOppT');if(el)el.textContent=`${RC.oppName} : ${fmtT(c.fin)}`}}
+function raceRemoteStep(a,h){const n=RC.net;if(!n)return;const age=Math.min(.35,(performance.now()-n.rt)/1000),px=n.x+Math.cos(n.th)*n.v*age,py=n.y+Math.sin(n.th)*n.v*age,k=Math.min(1,h*12);
+  a.x+=(px-a.x)*k;a.y+=(py-a.y)*k;a.th=wrapA(a.th+wrapA(n.th-a.th)*k);a.v=n.v;a.idx=n.idx;a.wraps=n.wraps;a.onPath=!!n.onPath;a.lie=n.lie||'path'}
+function raceSend(){if(!RC.duel||!DU.named)return;const now=performance.now();if(RC.sentT&&now-RC.sentT<(RC.state==='race'?100:400))return;RC.sentT=now;const p=RC.p,r=x=>Math.round(x*100)/100;
+  DU.named.presence({car:{cfg:DU.cfgId,t:Math.round(RC.t),x:r(p.x),y:r(p.y),th:Math.round(p.th*1000)/1000,v:r(p.v),idx:p.idx,wraps:p.wraps,alive:p.alive,crash:p.crash||null,fin:p.fin,onPath:p.onPath,lie:p.lie}}).catch(()=>{})}
+/* ---- Pétolf en duel ---- */
+const pfLetter=()=>DU.host?'A':'B';
+function pfDuelStart(cfg){PF.duel=true;PF.cfg=cfg;PF.oppName=duName(duOpp());PF.thN=0;PF.seenN=0;PF.pend=[];showView('petolf');$('#pfOver').hidden=true;pfStart(cfg)}
+function pfDuelSend(kind,dir,v0){if(!PF.duel||!DU.named)return;PF.thN++;DU.named.presence({th:{g:PF.cfg.id,n:PF.thN,kind,dx:dir.x,dy:dir.y,v0,after:PF.m.balls.map(b=>[b.x,b.y,b.dead?1:0])}}).catch(()=>{})}
+function pfDuelNet(o){if(!PF.duel||PF.state==='off')return;if(!o){if(!PF.oppGone){PF.oppGone=true;pfMsg('Votre adversaire a quitté le duel.')}return}
+  const th=o.presence.th;if(th&&th.g===PF.cfg.id&&th.n>PF.seenN){PF.seenN=th.n;PF.pend.push(th)}pfDuelPump()}
+function pfDuelPump(){if(!PF.duel||PF.busy||!PF.pend||!PF.pend.length)return;const th=PF.pend.shift();if(PF.m.done&&PF.state==='play'){clearTimeout(PF.nextT);pfNewMene(false)}
+  pfThrow('ai',th.kind,V(th.dx,th.dy),th.v0);if(PF.m.anim)PF.m.anim.snap=th.after}
 /* ================= météo réelle ================= */
 const WX={real:false,data:null,denied:false,loading:false};
 const CARD=['du nord','du nord-est','de l’est','du sud-est','du sud','du sud-ouest','de l’ouest','du nord-ouest'];

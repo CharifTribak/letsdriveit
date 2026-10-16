@@ -22,6 +22,9 @@ Ouvrir la page publiée par GitHub Pages, ou ouvrir `index.html` dans un navigat
 
 ## Multijoueur
 
+Voiturettes et Pétolf se jouent aussi en duel en ligne (2 joueurs, chacun sur son écran) : l’un crée un duel et donne le code, l’autre le saisit. Même technique que le salon de golf.
+
+
 2 à 4 joueurs en stroke play, tour par tour selon la règle 6.4 (honneur, puis le joueur le plus loin du trou).
 
 1. L'hôte ouvre l'onglet Partie et clique sur « Créer un salon ».
