@@ -75,7 +75,10 @@ label{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--m
 #pongCv{display:block;width:100%;height:auto;aspect-ratio:1;touch-action:none}
 .pm{inset:0;left:0}
 .toast.pm{inset:auto 0 auto 0;top:47%}
-.pad2{grid-template-columns:1fr 1fr}
+.slider{display:none;position:relative;width:100%;max-width:520px;height:60px;background:var(--panel);border:1px solid var(--line);border-radius:30px;touch-action:none;user-select:none;-webkit-user-select:none}
+.slider::before{content:"";position:absolute;left:30px;right:30px;top:50%;height:2px;background:var(--line)}
+.thumb{position:absolute;top:7px;bottom:7px;border-radius:23px;background:var(--accent);box-shadow:inset 0 -3px 0 rgba(0,0,0,.25)}
+@media (pointer:coarse){ .slider{display:block} .pong .keys{display:none} }
 .board{max-width:560px;max-height:calc(100vh - 32px);overflow-y:auto}
 .hist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;font-size:12px}
 .hist li{border:1px solid var(--line);border-radius:4px;padding:8px 10px;display:flex;flex-direction:column;gap:4px}
@@ -224,11 +227,10 @@ label{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--m
       <div class="msg pm" id="pongMsg"></div>
       <div class="toast pm" id="pToast" aria-live="polite"></div>
     </div>
-    <div class="pad pad2" id="ppad">
-      <button data-a="pl" aria-label="Gauche">←</button>
-      <button data-a="pr" aria-label="Droite">→</button>
+    <div class="slider" id="pslide" role="slider" aria-label="Position de votre raquette" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">
+      <div class="thumb" id="pthumb"></div>
     </div>
-    <p class="keys">← → ou A D : déplacer votre raquette · au tactile, glisser sur le terrain</p>
+    <p class="keys">← → ou A D : déplacer votre raquette · ou glisser sur le terrain</p>
   </div>
 </section>
 
@@ -1058,11 +1060,27 @@ function pongPointer(e){
 }
 pcv.addEventListener('pointerdown', e => { pcv.setPointerCapture(e.pointerId); pongPointer(e); });
 pcv.addEventListener('pointermove', e => { if (e.pointerType === 'mouse' || e.buttons || pcv.hasPointerCapture(e.pointerId)) pongPointer(e); });
-for (const b of $('ppad').querySelectorAll('button')){
-  const k = b.dataset.a === 'pl' ? 'l' : 'r';
-  b.addEventListener('pointerdown', e => { e.preventDefault(); b.setPointerCapture(e.pointerId); pin[k] = true; });
-  const up = () => { pin[k] = false; };
-  b.addEventListener('pointerup', up); b.addEventListener('pointercancel', up); b.addEventListener('lostpointercapture', up);
+// touch slider: the finger's position along the strip is the paddle's position on your side
+// (your side is drawn at the bottom and its edge runs right-to-left, hence 1 - f)
+const pslide = $('pslide');
+function slideTo(e){
+  if (!PG || PG.mySide < 0) return;
+  const r = pslide.getBoundingClientRect(), E = PG.ar.edges[PG.mySide];
+  const tw = r.width * (E.plen / E.L);                     // thumb width in px
+  const f = Math.max(0, Math.min(1, (e.clientX - r.left - tw/2) / Math.max(1, r.width - tw)));
+  pin.drag = E.plen/2 + (1 - f) * (E.L - E.plen);
+}
+pslide.addEventListener('pointerdown', e => { e.preventDefault(); pslide.setPointerCapture(e.pointerId); slideTo(e); });
+pslide.addEventListener('pointermove', e => { if (pslide.hasPointerCapture(e.pointerId)) slideTo(e); });
+function drawSlider(){
+  if (!PG || PG.mySide < 0) return;
+  const E = PG.ar.edges[PG.mySide], th = $('pthumb');
+  const wPct = 100 * E.plen / E.L;
+  const f = 1 - (PG.pads[PG.mySide] - E.plen/2) / Math.max(1, E.L - E.plen);
+  th.style.width = wPct + '%';
+  th.style.left = (f * (100 - wPct)) + '%';
+  th.style.background = PG.alive[PG.myIdx] ? players[PG.myIdx].color : 'var(--line)';
+  pslide.setAttribute('aria-valuenow', String(Math.round(f * 100)));
 }
 
 // ---- loop ----
@@ -1099,6 +1117,7 @@ function pongFrame(dtMs, now){
   }
   for (let k = 0; k < PG.flash.length; k++) PG.flash[k] = Math.max(0, PG.flash[k] - dt*1.6);
   drawPong();
+  drawSlider();
 }
 
 // ---- drawing ----
