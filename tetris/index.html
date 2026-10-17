@@ -65,6 +65,8 @@ label{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--m
 .msg{position:absolute;inset:0 0 0 16px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:8px;pointer-events:none}
 .msg strong{font-family:var(--display);font-weight:400;font-size:clamp(22px,5vw,34px);text-shadow:0 2px 0 #000}
 .msg small{color:var(--muted)}
+.toast{position:absolute;left:16px;right:0;top:14%;text-align:center;font-weight:700;font-size:15px;color:var(--fg);text-shadow:0 2px 0 #000,0 0 10px #000;opacity:0;transform:translateY(6px);transition:opacity .2s,transform .2s;pointer-events:none}
+.toast.on{opacity:1;transform:none}
 .opps{grid-area:opps;display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,120px));gap:14px;align-content:start;min-width:0}
 .opp{display:flex;flex-direction:column;gap:6px;min-width:0}
 .opp canvas{width:100%;height:auto;aspect-ratio:1/2;display:block;background:#0F0D1E;border:2px solid var(--line);border-radius:3px}
@@ -132,7 +134,7 @@ label{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--m
       <input id="codeIn" maxlength="4" placeholder="CODE" aria-label="Code du salon" autocomplete="off" autocapitalize="characters">
       <button id="btnJoin" class="ghost">Entrer</button>
     </div>
-    <p class="hint" id="menuHint">Faire 2 lignes ou plus envoie des briques à tous les adversaires.</p>
+    <p class="hint" id="menuHint">Faire 2 lignes ou plus envoie des briques à tous les adversaires. Détruire une brique qui clignote envoie une brique noire indestructible à un adversaire au hasard.</p>
   </div>
 </section>
 
@@ -172,6 +174,7 @@ label{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--m
         <div class="meter" id="meter" title="Briques en attente"></div>
         <canvas id="board" width="300" height="600" aria-label="Votre puits"></canvas>
         <div class="msg" id="boardMsg"></div>
+        <div class="toast" id="toast" aria-live="polite"></div>
       </div>
     </div>
     <div class="opps" id="opps"></div>
@@ -363,6 +366,14 @@ function hostHandle(id, m){
     st.sent += n;
     const cols = Array.from({ length:n }, () => Math.floor(Math.random() * COLS));
     broadcast({ t:'gb', from:id, cols });          // everyone gets the same bricks
+  } else if (m.t === 'blk'){
+    // one black brick for one opponent; re-pick if the requested target is gone
+    if (!H.alive.has(id)) return;
+    let to = m.to;
+    if (to === id || !H.alive.has(to)){ const a = [...H.alive].filter(x => x !== id); if (!a.length) return; to = a[Math.floor(Math.random()*a.length)]; }
+    const msg = { t:'gb', from:id, cols:[Math.floor(Math.random()*COLS)], black:true };
+    if (to === 'h') clientRecv(msg);
+    else { const c = net.conns.get(to); if (c && c.open) try { c.send(msg); } catch(_){} }
   } else if (m.t === 'dead'){
     if (!H.alive.has(id)) return;
     H.alive.delete(id); H.deaths.push(id);
@@ -393,7 +404,7 @@ function clientRecv(m){
       break;
     case 'start': startGame(m.players); break;
     case 'bd': { const o = opps.get(m.id); if (o){ o.data = m.s; o.sc = m.sc; o.ln = m.ln; drawOpp(o); } break; }
-    case 'gb': if (m.from !== me.id) receiveGarbage(m.from, m.cols); break;
+    case 'gb': if (m.from !== me.id) receiveGarbage(m.from, m.cols, m.black); break;
     case 'pdead': { const o = opps.get(m.id); if (o){ o.dead = true; o.left = m.left; o.el.classList.add('dead'); drawOpp(o); } updateAliveHint(); break; }
     case 'end': showEnd(m.ranking); break;
   }
@@ -422,9 +433,9 @@ function renderLobby(){
 function newGame(){
   const g = { board:new Array(ROWS*COLS).fill(''), bag:[], queue:[], hold:null, canHold:true,
     score:0, lines:0, sent:0, p:null, acc:0, lockT:0, resets:0, alive:true, pending:[], anims:[],
-    dirty:true, lastSend:0, count:3 };
+    dirty:true, lastSend:0, count:3, elapsed:0, lvl:0 };
   G = g;
-  for (let i = 0; i < 5; i++) g.queue.push(nextType());
+  for (let i = 0; i < 5; i++) g.queue.push(newItem());
   spawn();
   return g;
 }
@@ -432,7 +443,10 @@ function nextType(){
   if (!G.bag.length){ G.bag = Object.keys(SH); for (let i = G.bag.length-1; i > 0; i--){ const j = Math.floor(Math.random()*(i+1)); [G.bag[i],G.bag[j]] = [G.bag[j],G.bag[i]]; } }
   return G.bag.pop();
 }
-const level = () => Math.floor(G.lines / 10);
+// speed: whichever is higher, lines (10 per level) or time (one level every 30 s)
+const level = () => Math.max(Math.floor(G.lines / 10), Math.floor(G.elapsed / 30000));
+const SPECIAL_RATE = 0.07;   // about 1 piece in 14 carries a blinking brick
+function newItem(){ return { t:nextType(), sp: Math.random() < SPECIAL_RATE ? Math.floor(Math.random()*4) : -1 }; }
 const cellsOf = p => ROT[p.t][p.r].map(([x,y]) => [p.x+x, p.y+y]);
 function fits(p){
   for (const [x,y] of cellsOf(p)){
@@ -441,9 +455,9 @@ function fits(p){
   }
   return true;
 }
-function setPiece(t){ G.p = { t, r:0, x:Math.floor((COLS - SH[t].n)/2), y:0 }; G.lockT = 0; G.resets = 0; G.acc = 0; }
+function setPiece(it){ const t = it.t; G.p = { t, sp:it.sp, r:0, x:Math.floor((COLS - SH[t].n)/2), y:0 }; G.lockT = 0; G.resets = 0; G.acc = 0; }
 function spawn(){
-  setPiece(G.queue.shift()); G.queue.push(nextType());
+  setPiece(G.queue.shift()); G.queue.push(newItem());
   if (!fits(G.p)) die();
   G.dirty = true;
 }
@@ -466,29 +480,31 @@ function rotate(dir){
 function hardDrop(){ let n = 0; while (move(0,1)) n++; G.score += n*2; lock(); }
 function hold(){
   if (!G.canHold) return;
-  const t = G.p.t;
+  const t = { t:G.p.t, sp:G.p.sp };
   if (G.hold == null){ G.hold = t; spawn(); }
   else { const h = G.hold; G.hold = t; setPiece(h); if (!fits(G.p)) die(); }
   G.canHold = false; G.dirty = true;
 }
 function clearLines(){
-  let n = 0;
+  let n = 0, sp = 0;
   for (let y = ROWS-1; y >= 0; y--){
     let full = true;
-    for (let x = 0; x < COLS; x++) if (!G.board[y*COLS+x]){ full = false; break; }
+    for (let x = 0; x < COLS; x++){ const c = G.board[y*COLS+x]; if (!c || c === 'X'){ full = false; break; } }
     if (full){
+      for (let x = 0; x < COLS; x++) if (isSpecial(G.board[y*COLS+x])) sp++;
       G.board.splice(y*COLS, COLS);
       G.board.unshift(...new Array(COLS).fill(''));
       n++; y++;
     }
   }
-  return n;
+  return { n, sp };
 }
 function lock(){
   const cells = cellsOf(G.p);
-  for (const [x,y] of cells) G.board[y*COLS+x] = G.p.t;
+  cells.forEach(([x,y], i) => { G.board[y*COLS+x] = i === G.p.sp ? G.p.t + '*' : G.p.t; });
   if (cells.every(([,y]) => y < HID)) return die();
-  const n = clearLines();
+  const cl = clearLines(), n = cl.n;
+  for (let i = 0; i < cl.sp; i++) sendBlack();
   if (n){
     G.score += [0,100,300,500,800][n] * (level()+1);
     G.lines += n;
@@ -499,11 +515,20 @@ function lock(){
   G.canHold = true;
   spawn();
 }
-function receiveGarbage(from, cols){
+function sendBlack(){
+  const alive = [...opps.entries()].filter(([, o]) => !o.dead).map(([id]) => id);
+  if (!alive.length) return;
+  const to = alive[Math.floor(Math.random() * alive.length)];
+  toHost({ t:'blk', to });
+  const p = players.find(x => x.id === to);
+  toast('Brique noire → ' + (p ? p.name : '?'));
+}
+function receiveGarbage(from, cols, black){
   if (!G || !G.alive || (phase !== 'play' && phase !== 'count') || !Array.isArray(cols)) return;
   const slot = players.findIndex(p => p.id === from);
   if (slot < 0) return;
-  G.pending.push({ slot, cols:cols.map(c => Math.max(0, Math.min(COLS-1, c|0))) });
+  G.pending.push({ slot, black:!!black, cols:cols.map(c => Math.max(0, Math.min(COLS-1, c|0))) });
+  if (black) toast('Brique noire de ' + players[slot].name);
   shake(cols.length);
   drawMeter();
 }
@@ -517,12 +542,15 @@ function applyGarbage(){
       for (let y = 0; y < ROWS; y++) if (G.board[y*COLS+col]){ top = y; break; }
       const land = top === -1 ? ROWS-1 : top-1;
       if (land < HID){ G.pending = []; drawMeter(); return die(); }   // reached the top
-      G.board[land*COLS+col] = String(g.slot);
-      G.anims.push({ col, row:land, slot:g.slot, t0:now + i*45 });
+      const v = g.black ? 'X' : String(g.slot);
+      G.board[land*COLS+col] = v;
+      G.anims.push({ col, row:land, v, t0:now + i*45 });
       i++;
     }
   }
-  if (clearLines()) G.anims = [];
+  const cl = clearLines();
+  for (let i = 0; i < cl.sp; i++) sendBlack();
+  if (cl.n) G.anims = [];
   drawMeter(); G.dirty = true;
 }
 function die(){
@@ -567,6 +595,11 @@ function buildOpps(){
   }
 }
 function updateAliveHint(){}
+let toastT = null;
+function toast(t){
+  const el = $('toast'); el.textContent = t; el.classList.add('on');
+  clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove('on'), 1600);
+}
 function setMsg(big, small){
   const m = $('boardMsg'); m.textContent = '';
   if (!big) return;
@@ -597,8 +630,8 @@ function showEnd(ranking){
 // ================= board sharing =================
 function serialize(){
   const b = G.board.slice(HID*COLS);
-  if (G.p) for (const [x,y] of cellsOf(G.p)) if (y >= HID) b[(y-HID)*COLS+x] = G.p.t;
-  return b.map(c => c || '.').join('');
+  if (G.p) cellsOf(G.p).forEach(([x,y], i) => { if (y >= HID) b[(y-HID)*COLS+x] = i === G.p.sp ? '*' : G.p.t; });
+  return b.map(c => !c ? '.' : isSpecial(c) ? '*' : c).join('');
 }
 function sendBoard(force){
   const now = performance.now();
@@ -615,7 +648,8 @@ function updateStats(){
 
 // ================= rendering =================
 const bctx = $('board').getContext('2d');
-const colorOf = c => PCOL[c] || (players[+c] ? players[+c].color : '#888');
+const colorOf = c => PCOL[c[0]] || (players[+c] ? players[+c].color : '#888');
+const isSpecial = c => !!c && c[1] === '*';
 function drawCell(ctx, px, py, s, color, brick){
   ctx.fillStyle = color; ctx.fillRect(px+1, py+1, s-2, s-2);
   ctx.fillStyle = 'rgba(255,255,255,.2)'; ctx.fillRect(px+1, py+1, s-2, Math.max(1, s*.14));
@@ -630,6 +664,19 @@ function drawCell(ctx, px, py, s, color, brick){
   }
 }
 const isBrick = c => c >= '0' && c <= '9';
+function drawBlack(ctx, px, py, s){
+  ctx.fillStyle = '#000'; ctx.fillRect(px+1, py+1, s-2, s-2);
+  ctx.strokeStyle = '#6E6890'; ctx.lineWidth = Math.max(1, s/15);
+  ctx.strokeRect(px+1.5, py+1.5, s-3, s-3);
+  ctx.beginPath(); ctx.moveTo(px+s*.28, py+s*.28); ctx.lineTo(px+s*.72, py+s*.72); ctx.moveTo(px+s*.72, py+s*.28); ctx.lineTo(px+s*.28, py+s*.72); ctx.stroke();
+}
+const blinkOn = now => Math.floor(now / 160) % 2 === 0;
+function paint(ctx, px, py, s, c, now){        // any board value
+  if (c === 'X') return drawBlack(ctx, px, py, s);
+  if (c === '*') return drawCell(ctx, px, py, s, blinkOn(now) ? '#FFFFFF' : '#FFC93C', false);
+  if (isSpecial(c)) return drawCell(ctx, px, py, s, blinkOn(now) ? '#FFFFFF' : PCOL[c[0]], false);
+  drawCell(ctx, px, py, s, colorOf(c), isBrick(c));
+}
 function drawBoard(now){
   const ctx = bctx;
   ctx.fillStyle = '#0F0D1E'; ctx.fillRect(0, 0, COLS*CELL, VIS*CELL);
@@ -644,30 +691,30 @@ function drawBoard(now){
   for (const a of G.anims) animating.add(a.row*COLS + a.col);
   for (let y = HID; y < ROWS; y++) for (let x = 0; x < COLS; x++){
     const c = G.board[y*COLS+x];
-    if (c && !animating.has(y*COLS+x)) drawCell(ctx, x*CELL, (y-HID)*CELL, CELL, colorOf(c), isBrick(c));
+    if (c && !animating.has(y*COLS+x)) paint(ctx, x*CELL, (y-HID)*CELL, CELL, c, now);
   }
   for (const a of G.anims){                     // enemy bricks falling in
     if (now < a.t0) continue;
     const k = Math.min(1, (now - a.t0) / 260), e = k*k;
     const yy = -CELL + e * ((a.row-HID)*CELL + CELL);
-    drawCell(ctx, a.col*CELL, yy, CELL, colorOf(String(a.slot)), true);
+    paint(ctx, a.col*CELL, yy, CELL, a.v, now);
   }
   if (G.p && G.alive){
     let gy = 0; while (fits({ ...G.p, y:G.p.y+gy+1 })) gy++;
     ctx.strokeStyle = PCOL[G.p.t]; ctx.globalAlpha = .45; ctx.lineWidth = 2;
     for (const [x,y] of cellsOf({ ...G.p, y:G.p.y+gy })) if (y >= HID) ctx.strokeRect(x*CELL+3, (y-HID)*CELL+3, CELL-6, CELL-6);
     ctx.globalAlpha = 1;
-    for (const [x,y] of cellsOf(G.p)) if (y >= HID) drawCell(ctx, x*CELL, (y-HID)*CELL, CELL, PCOL[G.p.t], false);
+    cellsOf(G.p).forEach(([x,y], i) => { if (y >= HID) paint(ctx, x*CELL, (y-HID)*CELL, CELL, i === G.p.sp ? G.p.t + '*' : G.p.t, now); });
   }
 }
-function drawMini(ctx, width, t, top, alpha){
-  if (!t) return;
-  const s = 18, cells = ROT[t][0];
+function drawMini(ctx, width, it, top, alpha){
+  if (!it) return;
+  const t = it.t, s = 18, cells = ROT[t][0], now = performance.now();
   const xs = cells.map(c => c[0]), ys = cells.map(c => c[1]);
   const w = (Math.max(...xs) - Math.min(...xs) + 1) * s, h = (Math.max(...ys) - Math.min(...ys) + 1) * s;
   const ox = (width - w)/2 - Math.min(...xs)*s, oy = top + (56 - h)/2 - Math.min(...ys)*s;
   ctx.globalAlpha = alpha;
-  for (const [x,y] of cells) drawCell(ctx, ox + x*s, oy + y*s, s, PCOL[t], false);
+  cells.forEach(([x,y], i) => paint(ctx, ox + x*s, oy + y*s, s, i === it.sp ? t + '*' : t, now));
   ctx.globalAlpha = 1;
 }
 const holdCtx = $('holdCv').getContext('2d'), nextCtx = $('nextCv').getContext('2d');
@@ -683,7 +730,8 @@ function drawOpp(o){
   const d = o.data || '';
   for (let i = 0; i < d.length && i < COLS*VIS; i++){
     const c = d[i]; if (c === '.') continue;
-    drawCell(ctx, (i % COLS)*s, Math.floor(i / COLS)*s, s, colorOf(c), false);
+    if (c === 'X') drawBlack(ctx, (i % COLS)*s, Math.floor(i / COLS)*s, s);
+    else drawCell(ctx, (i % COLS)*s, Math.floor(i / COLS)*s, s, c === '*' ? '#FFFFFF' : colorOf(c), false);
   }
   o.st.textContent = o.dead ? (o.left ? 'Parti' : 'Éliminé') : (o.ln + (o.ln > 1 ? ' lignes' : ' ligne'));
 }
@@ -694,7 +742,7 @@ function drawMeter(){
   for (const g of G.pending){
     const i = document.createElement('i');
     i.style.height = Math.min(100, g.cols.length * per) + '%';
-    i.style.background = colorOf(String(g.slot));
+    i.style.background = g.black ? '#000' : colorOf(String(g.slot));
     m.append(i);
   }
 }
@@ -749,6 +797,9 @@ function frame(now){
     else setMsg(String(Math.ceil(G.count)), '');
   }
   if (G && phase === 'play' && G.alive){
+    G.elapsed += dt;
+    const lv = level();
+    if (lv > G.lvl){ G.lvl = lv; toast('Plus vite ! Niveau ' + (lv+1)); updateStats(); }
     if (input.das){
       input.das.held += dt;
       if (input.das.held > 150){ input.das.arr += dt; while (input.das.arr >= 40 && G.alive){ input.das.arr -= 40; if (!move(input.das.dir, 0)) break; } }
