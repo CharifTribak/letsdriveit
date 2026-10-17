@@ -258,7 +258,7 @@ label{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--m
       <div class="msg pm" id="derbyMsg"></div>
       <div class="toast pm" id="dToast" aria-live="polite"></div>
     </div>
-    <p class="hint" style="text-align:center">Repassez la figure d'un seul trait, en partant du point vert. Plus le tracé est fidèle, plus votre cheval avance.</p>
+    <p class="hint" style="text-align:center">Repassez toute la figure d'un seul trait, en partant du point vert, sans sortir de la bande claire. Plus vous restez au centre, plus votre cheval avance.</p>
   </div>
 </section>
 
@@ -1272,13 +1272,22 @@ function segDist(p, a, b){
 }
 const polyDist = (p, poly) => { let m = 1e9; for (let i = 1; i < poly.length; i++) m = Math.min(m, segDist(p, poly[i-1], poly[i])); return m; };
 // accuracy = worst of coverage (the figure is fully traced) and precision (the stroke stays on the figure)
+// the template is the light band drawn around the figure: GABARIT = its half-width (unit square)
+const GABARIT = 24/600;
+// called once the stroke ended without leaving the band: the whole figure must be covered
 function scoreStroke(stroke, fig){
-  if (stroke.length < 4) return 0;
-  const T = 0.075;
-  const target = resample(fig.pts, 90), drawn = resample(stroke, 120);
-  const cov = target.filter(p => polyDist(p, drawn) < T).length / target.length;
-  const prec = drawn.filter(p => polyDist(p, fig.pts) < T*1.2).length / drawn.length;
-  return Math.min(cov, prec);
+  if (stroke.length < 4) return { ok:false, cov:0, acc:0 };
+  const target = resample(fig.pts, 90), drawn = resample(stroke, 160);
+  const cov = target.filter(p => polyDist(p, drawn) < GABARIT * 1.1).length / target.length;
+  const mean = drawn.reduce((a, p) => a + polyDist(p, fig.pts), 0) / drawn.length;
+  const acc = Math.max(0, 1 - mean / GABARIT);          // 1 = right on the centre line
+  return { ok:cov >= 0.95, cov, acc };
+}
+function failStroke(st, why){
+  D.stroke = null; D.flashT = 0.7; D.lastBad = st;
+  const wrap = $('padwrap'); wrap.classList.remove('ok', 'ko'); void wrap.offsetWidth; wrap.classList.add('ko');
+  setTimeout(() => wrap.classList.remove('ko'), 600);
+  dToast(why);
 }
 
 function startDerby(pl, seed){
@@ -1309,29 +1318,30 @@ dcv.addEventListener('pointerdown', e => {
   if (!D || D.done || D.over || phase !== 'play') return;
   e.preventDefault(); dcv.setPointerCapture(e.pointerId);
   D.stroke = [padPoint(e)];
+  if (polyDist(D.stroke[0], curFig().pts) > GABARIT) failStroke(D.stroke, 'Commencez dans le gabarit');
 });
 dcv.addEventListener('pointermove', e => {
   if (!D || !D.stroke || !dcv.hasPointerCapture(e.pointerId)) return;
   const p = padPoint(e), q = D.stroke[D.stroke.length-1];
   if (Math.hypot(p[0]-q[0], p[1]-q[1]) > 0.004) D.stroke.push(p);
+  // leaving the template rejects the whole stroke at once
+  if (polyDist(p, curFig().pts) > GABARIT){ D.stroke.push(p); failStroke(D.stroke, 'Sorti du gabarit, recommencez'); }
 });
 const endStroke = () => {
   if (!D || !D.stroke) return;
   const st = D.stroke; D.stroke = null;
   if (D.done || D.over || phase !== 'play') return;
-  const fig = curFig(), acc = scoreStroke(st, fig);
+  const fig = curFig(), sc = scoreStroke(st, fig), acc = sc.acc;
+  if (!sc.ok) return failStroke(st, 'Figure incomplète (' + Math.round(sc.cov*100) + ' %), recommencez');
   const wrap = $('padwrap'); wrap.classList.remove('ok', 'ko'); void wrap.offsetWidth;
-  if (acc >= 0.78){
-    const gain = TIER_GAIN[fig.tier] * (0.55 + 0.45 * Math.min(1, (acc - 0.78) / 0.2));
+  {
+    const gain = TIER_GAIN[fig.tier] * (0.55 + 0.45 * Math.min(1, acc / 0.7));
     const d = Math.min(100, D.d[me.id] + gain);
     D.d[me.id] = d; D.shapes++; D.k++;
     wrap.classList.add('ok'); dToast(Math.round(acc*100) + ' % · +' + gain.toFixed(1));
     toHost({ t:'dp', d:Math.round(d*10)/10, s:D.shapes });
     if (d >= 100){ D.done = true; derbyMsg('Arrivé !', 'En attente des autres chevaux'); }
     else derbyShowFig();
-  } else {
-    wrap.classList.add('ko'); dToast('Raté (' + Math.round(acc*100) + ' %), recommencez');
-    D.flashT = 0.5; D.lastBad = st;
   }
   setTimeout(() => wrap.classList.remove('ok', 'ko'), 450);
 };
@@ -1450,7 +1460,7 @@ function drawPad(){
   if (!D || D.done){ return; }
   const fig = curFig(), P = fig.pts.map(([x,y]) => [x*S, y*S]);
   ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-  ctx.strokeStyle = 'rgba(238,234,248,.16)'; ctx.lineWidth = 34;
+  ctx.strokeStyle = 'rgba(238,234,248,.16)'; ctx.lineWidth = GABARIT * 2 * S;
   ctx.beginPath(); P.forEach(([x,y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.stroke();
   ctx.strokeStyle = 'rgba(238,234,248,.55)'; ctx.lineWidth = 3; ctx.setLineDash([10, 10]);
   ctx.beginPath(); P.forEach(([x,y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.stroke(); ctx.setLineDash([]);
@@ -1462,7 +1472,10 @@ function drawPad(){
   ctx.fillStyle = '#3DDC97'; ctx.beginPath(); ctx.arc(ax, ay, 13, 0, Math.PI*2); ctx.fill();
   const mine = players.find(p => p.id === me.id);
   const draw = (st, col) => { if (!st || st.length < 2) return; ctx.strokeStyle = col; ctx.lineWidth = 8; ctx.beginPath(); st.forEach(([x,y], i) => i ? ctx.lineTo(x*S, y*S) : ctx.moveTo(x*S, y*S)); ctx.stroke(); };
-  if (D.flashT > 0){ ctx.globalAlpha = D.flashT*2; draw(D.lastBad, '#FF5D73'); ctx.globalAlpha = 1; }
+  if (D.flashT > 0){
+    ctx.globalAlpha = Math.min(1, D.flashT*1.5); draw(D.lastBad, '#FF5D73');
+    ctx.globalAlpha = Math.min(.35, D.flashT*.5); ctx.fillStyle = '#FF5D73'; ctx.fillRect(0, 0, S, S); ctx.globalAlpha = 1;
+  }
   draw(D.stroke, mine ? mine.color : '#FFC93C');
 }
 
