@@ -80,6 +80,15 @@ label{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--m
 .thumb{position:absolute;top:7px;bottom:7px;border-radius:23px;background:var(--accent);box-shadow:inset 0 -3px 0 rgba(0,0,0,.25)}
 @media (pointer:coarse){ .slider{display:block} .pong .keys{display:none} }
 .board{max-width:560px;max-height:calc(100vh - 32px);overflow-y:auto}
+.derby{display:flex;flex-direction:column;align-items:center;gap:12px;max-width:760px;margin:0 auto}
+#trackCv{display:block;width:100%;height:auto;border-radius:6px;border:2px solid var(--line)}
+.dhead{width:min(100%,62vh,560px);display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:end}
+.dhead b{font-size:18px;font-variant-numeric:tabular-nums;display:block}
+.dname{font-family:var(--display);font-size:clamp(18px,4.5vw,24px);text-align:center;color:var(--accent)}
+.padwrap{position:relative;width:min(100%,62vh,560px)}
+#drawCv{display:block;width:100%;height:auto;aspect-ratio:1;background:#0F0D1E;border:2px solid var(--line);border-radius:8px;touch-action:none}
+#padwrap.ok #drawCv{border-color:#3DDC97}
+#padwrap.ko #drawCv{border-color:var(--danger)}
 .hist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;font-size:12px}
 .hist li{border:1px solid var(--line);border-radius:4px;padding:8px 10px;display:flex;flex-direction:column;gap:4px}
 .hist .when{color:var(--muted)}
@@ -144,7 +153,7 @@ label{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--m
 <!-- MENU -->
 <section id="scrMenu" class="center">
   <div class="card">
-    <h1 class="logo">MÊLÉE<span>TETRIS · PONG · 1 À 5</span></h1>
+    <h1 class="logo">MÊLÉE<span>TETRIS · PONG · DERBY</span></h1>
     <div class="field">
       <label for="nameIn">Votre nom</label>
       <input id="nameIn" maxlength="14" autocomplete="nickname" placeholder="Votre nom">
@@ -156,7 +165,7 @@ label{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--m
       <button id="btnJoin" class="ghost">Entrer</button>
     </div>
     <button id="btnBoard" class="ghost">Classement général</button>
-    <p class="hint" id="menuHint">Créez un salon, partagez le code, puis choisissez le jeu : Tetris ou Pong.</p>
+    <p class="hint" id="menuHint">Créez un salon, partagez le code, puis choisissez le jeu : Tetris, Pong ou Derby. De 1 à 5 joueurs.</p>
   </div>
 </section>
 
@@ -173,6 +182,7 @@ label{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--m
       <div class="seg" id="gamePick">
         <button data-g="tetris" aria-pressed="true">Tetris</button>
         <button data-g="pong" aria-pressed="false">Pong</button>
+        <button data-g="derby" aria-pressed="false">Derby</button>
       </div>
       <p class="hint" id="gameDesc"></p>
     </div>
@@ -234,6 +244,24 @@ label{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--m
   </div>
 </section>
 
+<!-- DERBY -->
+<section id="scrDerby" hidden>
+  <div class="derby">
+    <canvas id="trackCv" width="1000" height="200" aria-label="Piste de course"></canvas>
+    <div class="dhead">
+      <div><label>Figure</label><b id="dFig">1</b></div>
+      <div class="dname" id="dName">Trait</div>
+      <div style="text-align:right"><label>Temps</label><b id="dTime">0,0 s</b></div>
+    </div>
+    <div class="padwrap" id="padwrap">
+      <canvas id="drawCv" width="600" height="600" aria-label="Zone de tracé"></canvas>
+      <div class="msg pm" id="derbyMsg"></div>
+      <div class="toast pm" id="dToast" aria-live="polite"></div>
+    </div>
+    <p class="hint" style="text-align:center">Repassez la figure d'un seul trait, en partant du point vert. Plus le tracé est fidèle, plus votre cheval avance.</p>
+  </div>
+</section>
+
 <!-- RANKING -->
 <div class="overlay" id="scrEnd" hidden>
   <div class="card" style="max-width:480px">
@@ -258,6 +286,7 @@ label{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--m
       <button data-f="all" aria-pressed="true">Tous</button>
       <button data-f="tetris" aria-pressed="false">Tetris</button>
       <button data-f="pong" aria-pressed="false">Pong</button>
+      <button data-f="derby" aria-pressed="false">Derby</button>
     </div>
     <div class="rank"><table>
       <thead><tr id="lbHead"></tr></thead>
@@ -308,14 +337,16 @@ let seq = 0;
 let gameKind = 'tetris';        // chosen in the lobby by the creator
 let cur = null;                 // game being played: 'tetris' | 'pong'
 let PG = null;                  // pong state (host simulates, guests mirror)
+let D = null;                   // derby state
 const GAME_DESC = {
   tetris:'Faire 2 lignes ou plus envoie des briques à tous les adversaires. Une brique qui clignote, une fois détruite, envoie une brique noire indestructible à un adversaire au hasard.',
-  pong:'Chaque joueur défend un côté avec 5 vies. Le terrain suit le nombre de joueurs : carré à 2, triangle à 3, carré à 4, pentagone à 5. Le côté d\'un joueur éliminé devient un mur.'
+  pong:'Chaque joueur défend un côté avec 5 vies. Le terrain suit le nombre de joueurs : carré à 2, hexagone à 3, octogone à 4, décagone à 5. Le côté d\'un joueur éliminé devient un mur.',
+  derby:'Course de chevaux : tout le monde reçoit la même série de figures à tracer. Chaque figure réussie fait avancer votre cheval, plus loin si elle est complexe et bien tracée. Le premier à la ligne gagne.'
 };
 
 const cleanName = s => String(s || '').replace(/[\u0000-\u001f<>]/g,'').trim().slice(0,14) || 'Joueur';
 const genCode = () => { const a='ABCDEFGHJKMNPQRSTUVWXYZ23456789'; let s=''; for(let i=0;i<4;i++) s+=a[Math.floor(Math.random()*a.length)]; return s; };
-const show = id => { for (const s of ['scrMenu','scrLobby','scrGame','scrPong']) $(s).hidden = s !== id; };
+const show = id => { for (const s of ['scrMenu','scrLobby','scrGame','scrPong','scrDerby']) $(s).hidden = s !== id; };
 const store = { get(k){ try { return localStorage.getItem(k); } catch(_) { return null; } }, set(k,v){ try { localStorage.setItem(k,v); } catch(_){} } };
 
 $('nameIn').value = store.get('tm-name') || ('Joueur' + Math.floor(Math.random()*90+10));
@@ -324,7 +355,7 @@ const menuHint = (t, err) => { $('menuHint').textContent = t; $('menuHint').clas
 // ================= networking (PeerJS star, host relays) =================
 function teardown(){
   if (net && net.peer){ try { net.peer.destroy(); } catch(_){} }
-  net = null; H = null; G = null; PG = null; cur = null; me.host = false; me.id = null; players = []; opps.clear();
+  net = null; H = null; G = null; PG = null; D = null; cur = null; me.host = false; me.id = null; players = []; opps.clear();
 }
 function toMenu(msg){
   teardown(); phase = 'menu'; $('scrEnd').hidden = true; show('scrMenu');
@@ -404,7 +435,7 @@ function hostDrop(conn){
   net.conns.delete(id);
   if (phase === 'lobby'){ players = players.filter(p => p.id !== id); sendLobby(false); return; }
   if (H && H.alive.has(id)){
-    if (H.game === 'pong') pongDrop(id); else hostHandle(id, { t:'dead', left:true });
+    if (H.game === 'pong') pongDrop(id); else if (H.game === 'derby') derbyDrop(id); else hostHandle(id, { t:'dead', left:true });
   }
 }
 
@@ -426,8 +457,10 @@ function hostStart(){
   // drop anyone who left meanwhile
   players = players.filter(p => p.id === 'h' || net.conns.has(p.id));
   H = { game:gameKind, alive:new Set(players.map(p => p.id)), deaths:[], stats:{}, n:players.length, over:false };
-  for (const p of players) H.stats[p.id] = gameKind === 'pong' ? { lives:PONG_LIVES, hits:0, left:false } : { sc:0, ln:0, sent:0, left:false };
-  broadcast({ t:'start', players, game:gameKind });
+  for (const p of players) H.stats[p.id] = gameKind === 'pong' ? { lives:PONG_LIVES, hits:0, left:false }
+    : gameKind === 'derby' ? { d:0, shapes:0, t:0, left:false } : { sc:0, ln:0, sent:0, left:false };
+  H.t0 = performance.now();
+  broadcast({ t:'start', players, game:gameKind, seed:Math.floor(Math.random() * 2**31) });
 }
 
 function hostHandle(id, m){
@@ -453,6 +486,8 @@ function hostHandle(id, m){
   } else if (m.t === 'dead'){
     if (!m.left){ st.sc = m.sc|0; st.ln = m.ln|0; }
     hostEliminate(id, m.left);
+  } else if (m.t === 'dp'){
+    derbyProgress(id, m);
   } else if (m.t === 'pp'){
     pongSetPad(id, +m.u);
   }
@@ -481,12 +516,13 @@ function clientRecv(m){
     case 'lobby':
       players = Array.isArray(m.players) ? m.players : [];
       if (m.you) me.id = m.you;
-      if (m.game === 'tetris' || m.game === 'pong') gameKind = m.game;
+      if (m.game === 'tetris' || m.game === 'pong' || m.game === 'derby') gameKind = m.game;
       if (phase === 'menu' || phase === 'lobby' || m.back){
-        phase = 'lobby'; $('scrEnd').hidden = true; G = null; PG = null; cur = null; show('scrLobby'); renderLobby();
+        phase = 'lobby'; $('scrEnd').hidden = true; G = null; PG = null; D = null; cur = null; show('scrLobby'); renderLobby();
       }
       break;
-    case 'start': if (m.game === 'pong') startPong(m.players); else startGame(m.players); break;
+    case 'start': if (m.game === 'pong') startPong(m.players); else if (m.game === 'derby') startDerby(m.players, m.seed|0); else startGame(m.players); break;
+    case 'dr': derbyRemote(m); break;
     case 'ps': pongState(m); break;
     case 'pg': pongGoalFx(m.side|0); break;
     case 'bd': { const o = opps.get(m.id); if (o){ o.data = m.s; o.sc = m.sc; o.ln = m.ln; drawOpp(o); } break; }
@@ -702,12 +738,13 @@ function showEnd(ranking, game){
   phase = 'end';
   if (G) G.p = null;
   if (PG) PG.ph = 'over';
-  const pong = game === 'pong';
+  const pong = game === 'pong', derby = game === 'derby';
+  if (D) D.over = true;
   const hd = $('rankHead'); hd.textContent = '';
-  for (const h of ['#','Joueur', ...(pong ? ['Vies','Renvois'] : ['Lignes','Briques','Score'])]){
+  for (const h of ['#','Joueur', ...(pong ? ['Vies','Renvois'] : derby ? ['Figures','Distance','Temps'] : ['Lignes','Briques','Score'])]){
     const th = document.createElement('th'); th.textContent = h; hd.append(th);
   }
-  $('rankNote').textContent = pong ? '« Renvois » : balles renvoyées avec la raquette.' : '« Briques » : nombre de briques envoyées aux adversaires.';
+  $('rankNote').textContent = pong ? '« Renvois » : balles renvoyées avec la raquette.' : derby ? '« Temps » : durée pour franchir la ligne, pour ceux qui l\'ont franchie.' : '« Briques » : nombre de briques envoyées aux adversaires.';
   const tb = $('rankBody'); tb.textContent = '';
   (ranking || []).forEach(r => {
     const tr = document.createElement('tr'); if (r.place === 1) tr.className = 'win';
@@ -717,11 +754,12 @@ function showEnd(ranking, game){
     const s = document.createElement('span'); s.textContent = r.name + (r.id === me.id ? ' (vous)' : '') + (r.left ? ' · parti' : '');
     w.append(d, s); nm.append(w);
     if (pong) tr.append(td(r.place), nm, td(r.lives|0), td(r.hits|0));
+    else if (derby) tr.append(td(r.place), nm, td(r.shapes|0), td(Math.round(r.d||0) + ' %'), td(r.t ? fmtSec(r.t) : '–'));
     else tr.append(td(r.place), nm, td(r.ln|0), td(r.sent|0), td((r.sc|0).toLocaleString('fr-FR')));
     tb.append(tr);
   });
   const win = ranking && ranking[0];
-  (pong ? pongMsg : setMsg)(win && win.id === me.id ? 'Victoire' : 'Terminé', '');
+  (pong ? pongMsg : derby ? derbyMsg : setMsg)(win && win.id === me.id ? 'Victoire' : 'Terminé', '');
   $('btnAgain').hidden = !me.host;
   $('endHint').textContent = me.host ? '' : 'Le créateur peut relancer une manche.';
   saveGame(ranking, game);
@@ -1177,6 +1215,257 @@ function drawPong(){
 $('pwrap').addEventListener('animationend', () => $('pwrap').classList.remove('shake'));
 
 
+
+// ================= DERBY : trace the figures, your horse runs =================
+const fmtSec = ms => (ms/1000).toLocaleString('fr-FR', { minimumFractionDigits:1, maximumFractionDigits:1 }) + ' s';
+function rng32(a){ return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+const arcPts = (cx, cy, r, a0, a1, n) => Array.from({ length:n+1 }, (_, i) => { const a = a0 + (a1-a0)*i/n; return [cx + r*Math.cos(a), cy + r*Math.sin(a)]; });
+// figures in a unit square, drawn as one stroke from the first point; tier = difficulty
+const FIGS = [
+  { name:'Trait', tier:0, pts:[[.15,.5],[.85,.5]] },
+  { name:'Diagonale', tier:0, pts:[[.2,.8],[.8,.2]] },
+  { name:'V', tier:0, pts:[[.2,.22],[.5,.8],[.8,.22]] },
+  { name:'L', tier:0, pts:[[.3,.18],[.3,.8],[.78,.8]] },
+  { name:'Arche', tier:0, pts:arcPts(.5,.62,.32,Math.PI,2*Math.PI,24) },
+  { name:'Carré', tier:1, pts:[[.22,.22],[.78,.22],[.78,.78],[.22,.78],[.22,.22]] },
+  { name:'Triangle', tier:1, pts:[[.5,.16],[.84,.8],[.16,.8],[.5,.16]] },
+  { name:'Cercle', tier:1, pts:arcPts(.5,.5,.32,-Math.PI/2,1.5*Math.PI,40) },
+  { name:'Zigzag', tier:1, pts:[[.12,.3],[.3,.7],[.48,.3],[.66,.7],[.86,.3]] },
+  { name:'Z', tier:1, pts:[[.22,.22],[.78,.22],[.22,.78],[.78,.78]] },
+  { name:'M', tier:1, pts:[[.18,.8],[.18,.2],[.5,.6],[.82,.2],[.82,.8]] },
+  { name:'Vague', tier:1, pts:Array.from({ length:41 }, (_, i) => [.1 + .8*i/40, .5 + .2*Math.sin(i/40*2*Math.PI*1.5)]) },
+  { name:'Étoile', tier:2, pts:Array.from({ length:6 }, (_, i) => { const a = -Math.PI/2 + i*4*Math.PI/5; return [.5 + .36*Math.cos(a), .54 + .36*Math.sin(a)]; }) },
+  { name:'Spirale', tier:2, pts:Array.from({ length:61 }, (_, i) => { const t = i/60, a = t*4*Math.PI, r = .05 + .3*t; return [.5 + r*Math.cos(a), .5 + r*Math.sin(a)]; }) },
+  { name:'Cœur', tier:2, pts:Array.from({ length:49 }, (_, i) => { const t = Math.PI/2 + i/48*2*Math.PI; const x = 16*Math.sin(t)**3, y = 13*Math.cos(t) - 5*Math.cos(2*t) - 2*Math.cos(3*t) - Math.cos(4*t); return [.5 + x/40, .46 - y/40]; }) },
+  { name:'Infini', tier:2, pts:Array.from({ length:61 }, (_, i) => { const t = i/60*2*Math.PI, d = 1 + Math.sin(t)**2; return [.5 + .38*Math.cos(t)/d, .5 + .38*Math.sin(t)*Math.cos(t)/d]; }) },
+  { name:'Éclair', tier:2, pts:[[.6,.1],[.32,.52],[.56,.5],[.38,.9],[.72,.42],[.48,.44],[.6,.1]] },
+  { name:'Maison', tier:2, pts:[[.25,.85],[.25,.45],[.5,.18],[.75,.45],[.25,.45],[.75,.85],[.75,.45],[.25,.85],[.75,.85]] },
+  { name:'Escalier', tier:2, pts:[[.15,.85],[.15,.68],[.32,.68],[.32,.51],[.49,.51],[.49,.34],[.66,.34],[.66,.17],[.85,.17]] }
+];
+const TIER_GAIN = [6, 9, 12];       // % of the track per figure, before the accuracy factor
+function derbySeries(seed){
+  const r = rng32(seed), out = [];
+  for (let k = 0; k < 40; k++){
+    const tier = k < 3 ? 0 : k < 8 ? 1 : 2;
+    const pool = FIGS.map((f, i) => i).filter(i => FIGS[i].tier === tier && i !== out[out.length-1]);
+    out.push(pool[Math.floor(r() * pool.length)]);
+  }
+  return out;
+}
+function resample(pts, n){
+  const seg = []; let L = 0;
+  for (let i = 1; i < pts.length; i++){ const d = Math.hypot(pts[i][0]-pts[i-1][0], pts[i][1]-pts[i-1][1]); seg.push(d); L += d; }
+  if (L === 0) return [pts[0]];
+  const out = [pts[0]]; let acc = 0, i = 1, pos = 0;
+  for (let k = 1; k < n; k++){
+    const target = L * k / (n-1);
+    while (i < pts.length - 1 && acc + seg[i-1] < target){ acc += seg[i-1]; i++; }
+    const f = seg[i-1] ? (target - acc) / seg[i-1] : 0;
+    out.push([pts[i-1][0] + (pts[i][0]-pts[i-1][0])*f, pts[i-1][1] + (pts[i][1]-pts[i-1][1])*f]);
+  }
+  return out;
+}
+function segDist(p, a, b){
+  const vx = b[0]-a[0], vy = b[1]-a[1], l2 = vx*vx + vy*vy;
+  const t = l2 ? Math.max(0, Math.min(1, ((p[0]-a[0])*vx + (p[1]-a[1])*vy) / l2)) : 0;
+  return Math.hypot(p[0] - (a[0]+vx*t), p[1] - (a[1]+vy*t));
+}
+const polyDist = (p, poly) => { let m = 1e9; for (let i = 1; i < poly.length; i++) m = Math.min(m, segDist(p, poly[i-1], poly[i])); return m; };
+// accuracy = worst of coverage (the figure is fully traced) and precision (the stroke stays on the figure)
+function scoreStroke(stroke, fig){
+  if (stroke.length < 4) return 0;
+  const T = 0.075;
+  const target = resample(fig.pts, 90), drawn = resample(stroke, 120);
+  const cov = target.filter(p => polyDist(p, drawn) < T).length / target.length;
+  const prec = drawn.filter(p => polyDist(p, fig.pts) < T*1.2).length / drawn.length;
+  return Math.min(cov, prec);
+}
+
+function startDerby(pl, seed){
+  players = pl; cur = 'derby'; G = null; PG = null; phase = 'count';
+  $('scrEnd').hidden = true; show('scrDerby');
+  D = { series:derbySeries(seed), k:0, d:{}, shown:{}, gait:{}, stroke:null, count:3, t:0, done:false, over:false, shapes:0, flashT:0 };
+  for (const p of players){ D.d[p.id] = 0; D.shown[p.id] = 0; D.gait[p.id] = Math.random()*6; }
+  const n = players.length;
+  sizeTrack();
+  derbyMsg('3', '');
+  derbyShowFig();
+}
+const derbyMsg = (big, small) => {
+  const m = $('derbyMsg'); m.textContent = '';
+  if (!big) return;
+  const s = document.createElement('strong'); s.textContent = big; m.append(s);
+  if (small){ const t = document.createElement('small'); t.textContent = small; m.append(t); }
+};
+let dToastT = null;
+function dToast(t){ const el = $('dToast'); el.textContent = t; el.classList.add('on'); clearTimeout(dToastT); dToastT = setTimeout(() => el.classList.remove('on'), 1300); }
+const curFig = () => FIGS[D.series[D.k % D.series.length]];
+function derbyShowFig(){ $('dFig').textContent = D.k + 1; $('dName').textContent = curFig().name; }
+
+// ---- drawing pad ----
+const dcv = $('drawCv'), dctx = dcv.getContext('2d');
+function padPoint(e){ const r = dcv.getBoundingClientRect(); return [(e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height]; }
+dcv.addEventListener('pointerdown', e => {
+  if (!D || D.done || D.over || phase !== 'play') return;
+  e.preventDefault(); dcv.setPointerCapture(e.pointerId);
+  D.stroke = [padPoint(e)];
+});
+dcv.addEventListener('pointermove', e => {
+  if (!D || !D.stroke || !dcv.hasPointerCapture(e.pointerId)) return;
+  const p = padPoint(e), q = D.stroke[D.stroke.length-1];
+  if (Math.hypot(p[0]-q[0], p[1]-q[1]) > 0.004) D.stroke.push(p);
+});
+const endStroke = () => {
+  if (!D || !D.stroke) return;
+  const st = D.stroke; D.stroke = null;
+  if (D.done || D.over || phase !== 'play') return;
+  const fig = curFig(), acc = scoreStroke(st, fig);
+  const wrap = $('padwrap'); wrap.classList.remove('ok', 'ko'); void wrap.offsetWidth;
+  if (acc >= 0.78){
+    const gain = TIER_GAIN[fig.tier] * (0.55 + 0.45 * Math.min(1, (acc - 0.78) / 0.2));
+    const d = Math.min(100, D.d[me.id] + gain);
+    D.d[me.id] = d; D.shapes++; D.k++;
+    wrap.classList.add('ok'); dToast(Math.round(acc*100) + ' % · +' + gain.toFixed(1));
+    toHost({ t:'dp', d:Math.round(d*10)/10, s:D.shapes });
+    if (d >= 100){ D.done = true; derbyMsg('Arrivé !', 'En attente des autres chevaux'); }
+    else derbyShowFig();
+  } else {
+    wrap.classList.add('ko'); dToast('Raté (' + Math.round(acc*100) + ' %), recommencez');
+    D.flashT = 0.5; D.lastBad = st;
+  }
+  setTimeout(() => wrap.classList.remove('ok', 'ko'), 450);
+};
+dcv.addEventListener('pointerup', endStroke);
+dcv.addEventListener('pointercancel', endStroke);
+dcv.addEventListener('lostpointercapture', endStroke);
+
+// ---- host: progress & finish ----
+function derbyProgress(id, m){
+  if (!H || H.over || H.game !== 'derby') return;
+  const st = H.stats[id]; if (!st || st.left) return;
+  st.d = Math.max(st.d, Math.min(100, +m.d || 0)); st.shapes = m.s|0;
+  broadcast({ t:'dr', id, d:st.d }, 'h');
+  if (id !== 'h') derbyRemote({ id, d:st.d });
+  if (st.d >= 100 && !st.t){ st.t = Math.round(performance.now() - H.t0 - 3000); derbyFinish(); }
+}
+function derbyDrop(id){ if (H && H.stats[id]){ H.stats[id].left = true; } derbyFinish(); }
+function derbyFinish(){
+  if (!H || H.over) return;
+  const ids = Object.keys(H.stats), fin = ids.filter(i => H.stats[i].t);
+  const active = ids.filter(i => !H.stats[i].left);
+  if (!fin.length && active.length) return;
+  H.over = true;
+  const order = ids.slice().sort((a, b) => {
+    const A = H.stats[a], B = H.stats[b];
+    if (A.left !== B.left) return A.left ? 1 : -1;
+    if (A.t && B.t) return A.t - B.t;
+    if (A.t || B.t) return A.t ? -1 : 1;
+    return B.d - A.d;
+  });
+  const ranking = order.map((pid, i) => { const p = players.find(x => x.id === pid) || { name:'?', color:'#888' }; return { id:pid, name:p.name, color:p.color, place:i+1, ...H.stats[pid] }; });
+  setTimeout(() => broadcast({ t:'end', ranking, game:'derby' }), 1600);   // let everyone see the horse cross the line
+}
+function derbyRemote(m){
+  if (!D || m.id === me.id) return;
+  const before = D.d[m.id] || 0;
+  D.d[m.id] = Math.max(before, +m.d || 0);
+  if (before < 100 && D.d[m.id] >= 100){ const p = players.find(x => x.id === m.id); if (p) dToast(p.name + ' franchit la ligne !'); }
+}
+
+// ---- loop & rendering ----
+function derbyFrame(dtMs, now){
+  if (!D) return;
+  const dt = dtMs/1000;
+  if (phase === 'count'){ D.count -= dt; if (D.count <= 0){ phase = 'play'; derbyMsg('', ''); } else derbyMsg(String(Math.ceil(D.count)), ''); }
+  if (phase === 'play' && !D.done && !D.over){ D.t += dtMs; $('dTime').textContent = fmtSec(D.t); }
+  for (const id in D.d){
+    const diff = D.d[id] - D.shown[id];
+    const step = Math.min(Math.abs(diff), (8 + Math.abs(diff)*2) * dt);
+    D.shown[id] += Math.sign(diff) * step;
+    if (step > 0.001) D.gait[id] += dt * 14;
+  }
+  D.flashT = Math.max(0, D.flashT - dt);
+  drawTrack(now); drawPad();
+}
+function drawHorse(ctx, x, y, s, color, g, moving){
+  const sw = moving ? Math.sin(g) : 0, sw2 = moving ? Math.sin(g + Math.PI) : 0;
+  const bob = moving ? Math.abs(Math.sin(g)) * s*0.05 : 0;
+  y -= bob;
+  ctx.lineCap = 'round';
+  ctx.strokeStyle = color; ctx.lineWidth = s*0.09;
+  const legs = [[-.32, sw], [-.2, sw2], [.24, sw2], [.36, sw]];
+  for (const [lx, a] of legs){
+    ctx.beginPath(); ctx.moveTo(x + lx*s, y + .12*s); ctx.lineTo(x + lx*s + a*.16*s, y + .46*s); ctx.stroke();
+  }
+  ctx.fillStyle = color;
+  ctx.beginPath(); ctx.ellipse(x, y, .46*s, .2*s, 0, 0, Math.PI*2); ctx.fill();          // body
+  ctx.beginPath(); ctx.moveTo(x + .28*s, y - .1*s); ctx.lineTo(x + .5*s, y - .5*s); ctx.lineTo(x + .64*s, y - .44*s); ctx.lineTo(x + .44*s, y + .06*s); ctx.closePath(); ctx.fill();   // neck
+  ctx.beginPath(); ctx.ellipse(x + .66*s, y - .42*s, .17*s, .085*s, .45, 0, Math.PI*2); ctx.fill();   // head
+  ctx.strokeStyle = 'rgba(0,0,0,.35)'; ctx.lineWidth = s*.06;
+  ctx.beginPath(); ctx.moveTo(x + .3*s, y - .14*s); ctx.lineTo(x + .5*s, y - .52*s); ctx.stroke();  // mane
+  ctx.strokeStyle = color; ctx.lineWidth = s*.07;
+  ctx.beginPath(); ctx.moveTo(x - .44*s, y - .05*s); ctx.quadraticCurveTo(x - .66*s, y + (moving ? sw*.05 : 0)*s, x - .62*s, y + .28*s); ctx.stroke();   // tail
+  ctx.fillStyle = '#F2E8D5';                                                                            // jockey
+  ctx.beginPath(); ctx.ellipse(x + .02*s, y - .27*s, .13*s, .1*s, -.3, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(x + .12*s, y - .44*s, .08*s, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = color; ctx.beginPath(); ctx.arc(x + .12*s, y - .47*s, .08*s, Math.PI, 0); ctx.fill();   // cap
+}
+const tctx = $('trackCv').getContext('2d');
+// the track keeps readable text on phones: fewer internal pixels when the screen is narrow
+function sizeTrack(){
+  const cv = $('trackCv'), w = cv.clientWidth || 900;
+  cv.width = Math.round(Math.max(600, Math.min(1000, w * 1.5)));
+  cv.height = 38 + players.length*58;
+}
+addEventListener('resize', () => { if (cur === 'derby') sizeTrack(); });
+function drawTrack(now){
+  const cv = $('trackCv'), ctx = tctx, W = cv.width, Hh = cv.height, n = players.length;
+  const x0 = W < 800 ? 132 : 150, x1 = W - 70, laneH = 58, top = 34;
+  ctx.fillStyle = '#1E1B36'; ctx.fillRect(0, 0, W, Hh);
+  // distance marks
+  ctx.font = '600 13px "JetBrains Mono", monospace'; ctx.fillStyle = '#9A94BF'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  for (let q = 0; q <= 4; q++){ const x = x0 + (x1 - x0)*q/4; ctx.fillText(q === 4 ? 'ARRIVÉE' : (q*25) + ' %', x, 16); }
+  players.forEach((p, i) => {
+    const y = top + i*laneH;
+    ctx.fillStyle = i % 2 ? '#191630' : '#221E3E'; ctx.fillRect(0, y, W, laneH);
+    ctx.fillStyle = p.color; ctx.fillRect(0, y, 6, laneH);
+    ctx.textAlign = 'left'; ctx.font = (p.id === me.id ? '700 ' : '600 ') + (W < 800 ? '19px' : '16px') + ' "JetBrains Mono", monospace';
+    ctx.fillStyle = p.color;
+    ctx.fillText(p.name.length > 9 ? p.name.slice(0, 8) + '…' : p.name, 16, y + laneH/2);
+    ctx.strokeStyle = 'rgba(154,148,191,.18)'; ctx.setLineDash([4, 8]); ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(x0, y + laneH - 8); ctx.lineTo(x1, y + laneH - 8); ctx.stroke(); ctx.setLineDash([]);
+    const d = D.shown[p.id] || 0;
+    const moving = Math.abs((D.d[p.id] || 0) - d) > 0.05;
+    drawHorse(ctx, x0 + (x1 - x0) * d/100, y + laneH/2 - 4, 44, p.color, D.gait[p.id], moving);
+  });
+  // chequered finish line
+  const sq = 8;
+  for (let yy = top, r = 0; yy < Hh; yy += sq, r++) for (let c = 0; c < 2; c++){
+    ctx.fillStyle = (r + c) % 2 ? '#141225' : '#EEEAF8'; ctx.fillRect(x1 + 26 + c*sq, yy, sq, sq);
+  }
+}
+function drawPad(){
+  const ctx = dctx, S = 600;
+  ctx.fillStyle = '#0F0D1E'; ctx.fillRect(0, 0, S, S);
+  if (!D || D.done){ return; }
+  const fig = curFig(), P = fig.pts.map(([x,y]) => [x*S, y*S]);
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  ctx.strokeStyle = 'rgba(238,234,248,.16)'; ctx.lineWidth = 34;
+  ctx.beginPath(); P.forEach(([x,y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.stroke();
+  ctx.strokeStyle = 'rgba(238,234,248,.55)'; ctx.lineWidth = 3; ctx.setLineDash([10, 10]);
+  ctx.beginPath(); P.forEach(([x,y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.stroke(); ctx.setLineDash([]);
+  // direction arrow on the first segment, start dot
+  const [ax, ay] = P[0], b = P[1], L = Math.hypot(b[0]-ax, b[1]-ay) || 1, ux = (b[0]-ax)/L, uy = (b[1]-ay)/L;
+  const tx = ax + ux*44, ty = ay + uy*44;
+  ctx.fillStyle = 'rgba(61,220,151,.9)';
+  ctx.beginPath(); ctx.moveTo(tx + ux*12, ty + uy*12); ctx.lineTo(tx - uy*9, ty + ux*9); ctx.lineTo(tx + uy*9, ty - ux*9); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#3DDC97'; ctx.beginPath(); ctx.arc(ax, ay, 13, 0, Math.PI*2); ctx.fill();
+  const mine = players.find(p => p.id === me.id);
+  const draw = (st, col) => { if (!st || st.length < 2) return; ctx.strokeStyle = col; ctx.lineWidth = 8; ctx.beginPath(); st.forEach(([x,y], i) => i ? ctx.lineTo(x*S, y*S) : ctx.moveTo(x*S, y*S)); ctx.stroke(); };
+  if (D.flashT > 0){ ctx.globalAlpha = D.flashT*2; draw(D.lastBad, '#FF5D73'); ctx.globalAlpha = 1; }
+  draw(D.stroke, mine ? mine.color : '#FFC93C');
+}
+
 // ================= leaderboard: finished games kept in this browser =================
 const HIST_KEY = 'tm-history', HIST_MAX = 200;
 let lastSaved = null;
@@ -1185,8 +1474,8 @@ function saveGame(ranking, game){
   if (!Array.isArray(ranking) || !ranking.length || lastSaved === ranking) return;
   lastSaved = ranking;
   const h = loadHist();
-  h.unshift({ at:Date.now(), game:game === 'pong' ? 'pong' : 'tetris', n:ranking.length,
-    p:ranking.map(r => ({ name:String(r.name).slice(0,14), color:r.color, place:r.place|0, sc:r.sc|0, ln:r.ln|0, sent:r.sent|0, lives:r.lives|0, hits:r.hits|0, me:r.id === me.id })) });
+  h.unshift({ at:Date.now(), game:(game === 'pong' || game === 'derby') ? game : 'tetris', n:ranking.length,
+    p:ranking.map(r => ({ name:String(r.name).slice(0,14), color:r.color, place:r.place|0, sc:r.sc|0, ln:r.ln|0, sent:r.sent|0, lives:r.lives|0, hits:r.hits|0, shapes:r.shapes|0, d:Math.round(r.d||0), t:+r.t||0, me:r.id === me.id })) });
   store.set(HIST_KEY, JSON.stringify(h.slice(0, HIST_MAX)));
 }
 let lbFilter = 'all', clearArmed = false;
@@ -1197,16 +1486,17 @@ function renderBoard(){
   const agg = new Map();
   for (const g of games) for (const p of g.p){
     const k = p.name.toLowerCase();
-    const a = agg.get(k) || { name:p.name, color:p.color, games:0, wins:0, pts:0, best:0 };
+    const a = agg.get(k) || { name:p.name, color:p.color, games:0, wins:0, pts:0, best:0, bestT:0 };
     a.games++; if (p.place === 1 && g.n > 1) a.wins++;
     a.pts += Math.max(0, g.n - p.place);                  // 1 point per player finished ahead of
-    a.best = Math.max(a.best, g.game === 'pong' ? p.hits : p.sc);
+    if (g.game === 'derby'){ if (p.t > 0 && (!a.bestT || p.t < a.bestT)) a.bestT = p.t; }
+    else a.best = Math.max(a.best, g.game === 'pong' ? p.hits : p.sc);
     agg.set(k, a);
   }
   const rows = [...agg.values()].sort((x, y) => y.pts - x.pts || y.wins - x.wins || x.games - y.games);
   const showBest = lbFilter !== 'all';
   const hd = $('lbHead'); hd.textContent = '';
-  for (const t of ['#','Joueur','Parties','Victoires','Points', ...(showBest ? [lbFilter === 'pong' ? 'Renvois max' : 'Meilleur score'] : [])]){
+  for (const t of ['#','Joueur','Parties','Victoires','Points', ...(showBest ? [lbFilter === 'pong' ? 'Renvois max' : lbFilter === 'derby' ? 'Meilleur temps' : 'Meilleur score'] : [])]){
     const th = document.createElement('th'); th.textContent = t; hd.append(th);
   }
   const tb = $('lbBody'); tb.textContent = '';
@@ -1218,7 +1508,7 @@ function renderBoard(){
     const s = document.createElement('span'); s.textContent = r.name;
     w.append(d, s); nm.append(w);
     tr.append(td(i+1), nm, td(r.games), td(r.wins), td(r.pts));
-    if (showBest) tr.append(td(r.best.toLocaleString('fr-FR')));
+    if (showBest) tr.append(td(lbFilter === 'derby' ? (r.bestT ? fmtSec(r.bestT) : '–') : r.best.toLocaleString('fr-FR')));
     tb.append(tr);
   });
   if (!rows.length){ const tr = document.createElement('tr'); const c = td('Aucune partie terminée sur cet appareil pour l\'instant.'); c.colSpan = 6; c.style.textAlign = 'left'; tr.append(c); tb.append(tr); }
@@ -1227,13 +1517,13 @@ function renderBoard(){
   for (const g of games.slice(0, 15)){
     const li = document.createElement('li');
     const when = document.createElement('div'); when.className = 'when';
-    when.textContent = (g.game === 'pong' ? 'Pong' : 'Tetris') + ' · ' + new Date(g.at).toLocaleString('fr-FR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' }) + ' · ' + g.n + (g.n > 1 ? ' joueurs' : ' joueur');
+    when.textContent = ({ pong:'Pong', derby:'Derby' }[g.game] || 'Tetris') + ' · ' + new Date(g.at).toLocaleString('fr-FR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' }) + ' · ' + g.n + (g.n > 1 ? ' joueurs' : ' joueur');
     const who = document.createElement('div'); who.className = 'who';
     for (const p of g.p.slice().sort((a, b) => a.place - b.place)){
       const sp = document.createElement('span');
       const d = document.createElement('i'); d.className = 'dot'; d.style.background = p.color;
       const t = document.createElement('b'); t.style.fontWeight = p.place === 1 ? '700' : '400';
-      t.textContent = p.place + '. ' + p.name + (g.game === 'pong' ? '' : ' (' + p.sc.toLocaleString('fr-FR') + ')');
+      t.textContent = p.place + '. ' + p.name + (g.game === 'pong' ? '' : g.game === 'derby' ? (p.t ? ' (' + fmtSec(p.t) + ')' : '') : ' (' + p.sc.toLocaleString('fr-FR') + ')');
       sp.append(d, t); who.append(sp);
     }
     li.append(when, who); ol.append(li);
@@ -1254,6 +1544,7 @@ let last = performance.now();
 function frame(now){
   const dt = Math.min(50, now - last); last = now;
   if (cur === 'pong') pongFrame(dt, now);
+  if (cur === 'derby') derbyFrame(dt, now);
   if (cur === 'tetris' && G && phase === 'count'){
     G.count -= dt/1000;
     if (G.count <= 0){ phase = 'play'; setMsg('', ''); }
