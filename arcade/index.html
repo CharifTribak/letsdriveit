@@ -76,6 +76,13 @@ label{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--m
 .pm{inset:0;left:0}
 .toast.pm{inset:auto 0 auto 0;top:47%}
 .pad2{grid-template-columns:1fr 1fr}
+.board{max-width:560px;max-height:calc(100vh - 32px);overflow-y:auto}
+.hist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;font-size:12px}
+.hist li{border:1px solid var(--line);border-radius:4px;padding:8px 10px;display:flex;flex-direction:column;gap:4px}
+.hist .when{color:var(--muted)}
+.hist .who{display:flex;flex-wrap:wrap;gap:4px 12px}
+.hist .who span{display:inline-flex;align-items:center;gap:5px}
+.hist .dot{width:10px;height:10px}
 .toast{position:absolute;left:16px;right:0;top:14%;text-align:center;font-weight:700;font-size:15px;color:var(--fg);text-shadow:0 2px 0 #000,0 0 10px #000;opacity:0;transform:translateY(6px);transition:opacity .2s,transform .2s;pointer-events:none}
 .toast.on{opacity:1;transform:none}
 .opps{grid-area:opps;display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,120px));gap:14px;align-content:start;min-width:0}
@@ -145,6 +152,7 @@ label{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--m
       <input id="codeIn" maxlength="4" placeholder="CODE" aria-label="Code du salon" autocomplete="off" autocapitalize="characters">
       <button id="btnJoin" class="ghost">Entrer</button>
     </div>
+    <button id="btnBoard" class="ghost">Classement général</button>
     <p class="hint" id="menuHint">Créez un salon, partagez le code, puis choisissez le jeu : Tetris ou Pong.</p>
   </div>
 </section>
@@ -171,6 +179,7 @@ label{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--m
     </div>
     <button id="btnStart" hidden>Lancer la partie</button>
     <p class="hint" id="lobbyHint"></p>
+    <button id="btnBoard2" class="ghost">Classement général</button>
     <button id="btnLeaveLobby" class="ghost">Quitter le salon</button>
   </div>
 </section>
@@ -233,8 +242,32 @@ label{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--m
     </table></div>
     <p class="hint" id="rankNote"></p>
     <button id="btnAgain" hidden>Nouvelle manche</button>
+    <button id="btnBoard3" class="ghost">Classement général</button>
     <p class="hint" id="endHint"></p>
     <button id="btnQuit" class="ghost">Quitter</button>
+  </div>
+</div>
+
+<!-- LEADERBOARD -->
+<div class="overlay" id="scrBoard" hidden style="z-index:6">
+  <div class="card board">
+    <h1 style="font-size:24px">Classement général</h1>
+    <div class="seg" id="boardTabs">
+      <button data-f="all" aria-pressed="true">Tous</button>
+      <button data-f="tetris" aria-pressed="false">Tetris</button>
+      <button data-f="pong" aria-pressed="false">Pong</button>
+    </div>
+    <div class="rank"><table>
+      <thead><tr id="lbHead"></tr></thead>
+      <tbody id="lbBody"></tbody>
+    </table></div>
+    <p class="hint" id="lbNote"></p>
+    <label>Dernières parties</label>
+    <ol class="hist" id="histList"></ol>
+    <div class="row">
+      <button id="btnClear" class="ghost" style="flex:1">Effacer l'historique</button>
+      <button id="btnBoardClose" style="flex:1">Fermer</button>
+    </div>
   </div>
 </div>
 
@@ -689,6 +722,7 @@ function showEnd(ranking, game){
   (pong ? pongMsg : setMsg)(win && win.id === me.id ? 'Victoire' : 'Terminé', '');
   $('btnAgain').hidden = !me.host;
   $('endHint').textContent = me.host ? '' : 'Le créateur peut relancer une manche.';
+  saveGame(ranking, game);
   $('scrEnd').hidden = false;
 }
 
@@ -864,17 +898,26 @@ const PKEYS = { arrowleft:'l', a:'l', q:'l', arrowright:'r', d:'r' };
 const pin = { l:false, r:false, drag:null };
 
 function pongArena(n){
-  const M = n <= 2 ? 4 : n;
-  const owner = new Array(M).fill(-1);
-  if (n === 1) owner[0] = 0;
-  else if (n === 2){ owner[0] = 0; owner[2] = 1; }
-  else for (let i = 0; i < n; i++) owner[i] = i;
-  // unit polygon; edge i has its middle at angle 90° + i·360°/M (screen y points down), so edge 0 is at the bottom
-  const unit = [];
-  for (let i = 0; i < M; i++){ const a = Math.PI/2 + 2*Math.PI*i/M - Math.PI/M; unit.push([Math.cos(a), Math.sin(a)]); }
+  // 1-2 players: square. 3+: the n-gon with its corners cut off (triangle -> hexagon, square -> octagon...),
+  // goal sides alternate with short wall sides, so the field is roomier and the sharp corners are gone.
+  // Every vertex sits on the unit circle; the goal side of player i is centred at 90° + i·360°/n (screen y down).
+  const ang = [], owner = [];
+  if (n <= 2){
+    for (let i = 0; i < 4; i++){ ang.push(Math.PI/2 + Math.PI/2*i - Math.PI/4); owner.push(-1); }
+    owner[0] = 0; if (n === 2) owner[2] = 1;
+  } else {
+    const step = 2*Math.PI/n, half = step * 0.36;           // goal side spans 72% of each sector
+    for (let i = 0; i < n; i++){
+      const c = Math.PI/2 + step*i;
+      ang.push(c - half); owner.push(i);                    // goal side i
+      ang.push(c + half); owner.push(-1);                   // corner wall after it
+    }
+  }
+  const M = ang.length;
+  const unit = ang.map(a => [Math.cos(a), Math.sin(a)]);
   const xs = unit.map(p => p[0]), ys = unit.map(p => p[1]);
   const w = Math.max(...xs) - Math.min(...xs), h = Math.max(...ys) - Math.min(...ys);
-  const k = 480 / Math.max(w, h);
+  const k = 520 / Math.max(w, h);
   const ox = PSZ/2 - (Math.min(...xs) + w/2) * k, oy = PSZ/2 - (Math.min(...ys) + h/2) * k;
   const P = unit.map(([x,y]) => [ox + x*k, oy + y*k]);
   const C = [ox, oy];                                   // polygon centre
@@ -883,7 +926,7 @@ function pongArena(n){
     const e = [(b[0]-a[0])/L, (b[1]-a[1])/L];
     const mid = [(a[0]+b[0])/2, (a[1]+b[1])/2];
     const d = Math.hypot(C[0]-mid[0], C[1]-mid[1]);
-    return { a, b, L, e, mid, n:[(C[0]-mid[0])/d, (C[1]-mid[1])/d], plen:Math.min(L*0.24, 120) };
+    return { a, b, L, e, mid, n:[(C[0]-mid[0])/d, (C[1]-mid[1])/d], plen:Math.min(L*0.3, 130) };
   });
   return { M, owner, P, C, edges };
 }
@@ -926,7 +969,7 @@ function pongServe(){
   const live = PG.ar.owner.map((o, k) => (o >= 0 && PG.alive[o]) ? k : -1).filter(k => k >= 0);
   if (!live.length){ PG.ph = 'over'; return; }
   const E = PG.ar.edges[live[Math.floor(Math.random()*live.length)]];
-  const ang = (Math.random()*2 - 1) * 0.45, sp = 300;
+  const ang = (Math.random()*2 - 1) * 0.4, sp = 250;
   const dx = -E.n[0], dy = -E.n[1];                       // towards that side
   PG.ball = { x:PG.ar.C[0], y:PG.ar.C[1], vx:(dx*Math.cos(ang) - dy*Math.sin(ang))*sp, vy:(dx*Math.sin(ang) + dy*Math.cos(ang))*sp };
   PG.ph = 'play';
@@ -945,7 +988,7 @@ function pongStep(h){
   b.x += b.vx*h; b.y += b.vy*h;
   // gentle speed-up over time
   const sp0 = Math.hypot(b.vx, b.vy);
-  if (sp0 < 700){ const f = 1 + 0.012*h; b.vx *= f; b.vy *= f; }
+  if (sp0 < 600){ const f = 1 + 0.01*h; b.vx *= f; b.vy *= f; }
   PG.ar.edges.forEach((E, k) => {
     const dx = b.x - E.a[0], dy = b.y - E.a[1];
     const d = dx*E.n[0] + dy*E.n[1];
@@ -961,7 +1004,7 @@ function pongStep(h){
     const u = dx*E.e[0] + dy*E.e[1], half = E.plen/2;
     if (Math.abs(u - PG.pads[k]) <= half + BALL_R && d > -BALL_R){   // paddle: angle depends on where it hits
       const off = Math.max(-1, Math.min(1, (u - PG.pads[k]) / half)), a = off * 0.9;
-      const sp = Math.min(Math.hypot(b.vx, b.vy) * 1.05, 950);
+      const sp = Math.min(Math.hypot(b.vx, b.vy) * 1.04, 780);
       b.vx = (E.n[0]*Math.cos(a) + E.e[0]*Math.sin(a)) * sp;
       b.vy = (E.n[1]*Math.cos(a) + E.e[1]*Math.sin(a)) * sp;
       b.x += E.n[0]*(BALL_R - d); b.y += E.n[1]*(BALL_R - d);
@@ -1113,6 +1156,79 @@ function drawPong(){
   });
 }
 $('pwrap').addEventListener('animationend', () => $('pwrap').classList.remove('shake'));
+
+
+// ================= leaderboard: finished games kept in this browser =================
+const HIST_KEY = 'tm-history', HIST_MAX = 200;
+let lastSaved = null;
+function loadHist(){ try { const h = JSON.parse(store.get(HIST_KEY) || '[]'); return Array.isArray(h) ? h : []; } catch(_) { return []; } }
+function saveGame(ranking, game){
+  if (!Array.isArray(ranking) || !ranking.length || lastSaved === ranking) return;
+  lastSaved = ranking;
+  const h = loadHist();
+  h.unshift({ at:Date.now(), game:game === 'pong' ? 'pong' : 'tetris', n:ranking.length,
+    p:ranking.map(r => ({ name:String(r.name).slice(0,14), color:r.color, place:r.place|0, sc:r.sc|0, ln:r.ln|0, sent:r.sent|0, lives:r.lives|0, hits:r.hits|0, me:r.id === me.id })) });
+  store.set(HIST_KEY, JSON.stringify(h.slice(0, HIST_MAX)));
+}
+let lbFilter = 'all', clearArmed = false;
+function renderBoard(){
+  for (const b of $('boardTabs').querySelectorAll('button')) b.setAttribute('aria-pressed', String(b.dataset.f === lbFilter));
+  const games = loadHist().filter(g => lbFilter === 'all' || g.game === lbFilter);
+  // aggregate by player name (case-insensitive)
+  const agg = new Map();
+  for (const g of games) for (const p of g.p){
+    const k = p.name.toLowerCase();
+    const a = agg.get(k) || { name:p.name, color:p.color, games:0, wins:0, pts:0, best:0 };
+    a.games++; if (p.place === 1 && g.n > 1) a.wins++;
+    a.pts += Math.max(0, g.n - p.place);                  // 1 point per player finished ahead of
+    a.best = Math.max(a.best, g.game === 'pong' ? p.hits : p.sc);
+    agg.set(k, a);
+  }
+  const rows = [...agg.values()].sort((x, y) => y.pts - x.pts || y.wins - x.wins || x.games - y.games);
+  const showBest = lbFilter !== 'all';
+  const hd = $('lbHead'); hd.textContent = '';
+  for (const t of ['#','Joueur','Parties','Victoires','Points', ...(showBest ? [lbFilter === 'pong' ? 'Renvois max' : 'Meilleur score'] : [])]){
+    const th = document.createElement('th'); th.textContent = t; hd.append(th);
+  }
+  const tb = $('lbBody'); tb.textContent = '';
+  const td = t => { const c = document.createElement('td'); c.textContent = t; return c; };
+  rows.forEach((r, i) => {
+    const tr = document.createElement('tr'); if (i === 0) tr.className = 'win';
+    const nm = document.createElement('td'); const w = document.createElement('div'); w.className = 'nm';
+    const d = document.createElement('span'); d.className = 'dot'; d.style.background = r.color;
+    const s = document.createElement('span'); s.textContent = r.name;
+    w.append(d, s); nm.append(w);
+    tr.append(td(i+1), nm, td(r.games), td(r.wins), td(r.pts));
+    if (showBest) tr.append(td(r.best.toLocaleString('fr-FR')));
+    tb.append(tr);
+  });
+  if (!rows.length){ const tr = document.createElement('tr'); const c = td('Aucune partie terminée sur cet appareil pour l\'instant.'); c.colSpan = 6; c.style.textAlign = 'left'; tr.append(c); tb.append(tr); }
+  $('lbNote').textContent = games.length + (games.length > 1 ? ' parties enregistrées' : ' partie enregistrée') + ' sur cet appareil. Points : 1 par adversaire terminé derrière soi.';
+  const ol = $('histList'); ol.textContent = '';
+  for (const g of games.slice(0, 15)){
+    const li = document.createElement('li');
+    const when = document.createElement('div'); when.className = 'when';
+    when.textContent = (g.game === 'pong' ? 'Pong' : 'Tetris') + ' · ' + new Date(g.at).toLocaleString('fr-FR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' }) + ' · ' + g.n + (g.n > 1 ? ' joueurs' : ' joueur');
+    const who = document.createElement('div'); who.className = 'who';
+    for (const p of g.p.slice().sort((a, b) => a.place - b.place)){
+      const sp = document.createElement('span');
+      const d = document.createElement('i'); d.className = 'dot'; d.style.background = p.color;
+      const t = document.createElement('b'); t.style.fontWeight = p.place === 1 ? '700' : '400';
+      t.textContent = p.place + '. ' + p.name + (g.game === 'pong' ? '' : ' (' + p.sc.toLocaleString('fr-FR') + ')');
+      sp.append(d, t); who.append(sp);
+    }
+    li.append(when, who); ol.append(li);
+  }
+  clearArmed = false; $('btnClear').textContent = 'Effacer l\'historique';
+}
+const openBoard = () => { renderBoard(); $('scrBoard').hidden = false; };
+for (const id of ['btnBoard','btnBoard2','btnBoard3']) $(id).onclick = openBoard;
+$('btnBoardClose').onclick = () => { $('scrBoard').hidden = true; };
+for (const b of $('boardTabs').querySelectorAll('button')) b.onclick = () => { lbFilter = b.dataset.f; renderBoard(); };
+$('btnClear').onclick = () => {
+  if (!clearArmed){ clearArmed = true; $('btnClear').textContent = 'Confirmer l\'effacement'; return; }
+  store.set(HIST_KEY, '[]'); renderBoard();
+};
 
 // ================= loop =================
 let last = performance.now();
