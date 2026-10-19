@@ -564,7 +564,7 @@ function renderLobby(){
 
 // ================= game core =================
 function newGame(){
-  const g = { board:new Array(ROWS*COLS).fill(''), bag:[], queue:[], hold:null, canHold:true,
+  const g = { board:new Array(ROWS*COLS).fill(''), bag:[], queue:[], hold:null, canHold:true, falling:[],
     score:0, lines:0, sent:0, p:null, acc:0, lockT:0, resets:0, alive:true, pending:[], anims:[],
     dirty:true, lastSend:0, count:3, elapsed:0, lvl:0 };
   G = g;
@@ -612,7 +612,7 @@ function rotate(dir){
 }
 function hardDrop(){ let n = 0; while (move(0,1)) n++; G.score += n*2; lock(); }
 function hold(){
-  if (!G.canHold) return;
+  if (!G.canHold || !G.p) return;
   const t = { t:G.p.t, sp:G.p.sp };
   if (G.hold == null){ G.hold = t; spawn(); }
   else { const h = G.hold; G.hold = t; setPiece(h); if (!fits(G.p)) die(); }
@@ -643,10 +643,9 @@ function lock(){
     const k = [0, 1, 2, 4, 6][n];                     // bricks sent to every opponent
     if (k){ G.sent += k; toHost({ t:'atk', n:k }); }
   }
-  applyGarbage();
-  if (!G.alive) return;
   G.canHold = true;
-  spawn();
+  if (G.pending.length) startGarbageFall();   // bricks fall from the top first; next piece comes after
+  else spawn();
 }
 function sendBlack(){
   const alive = [...opps.entries()].filter(([, o]) => !o.dead).map(([id]) => id);
@@ -665,25 +664,41 @@ function receiveGarbage(from, cols, black){
   shake(cols.length);
   drawMeter();
 }
-function applyGarbage(){
-  if (!G.pending.length) return;
-  const now = performance.now(); let i = 0;
+// Enemy bricks enter at the top of the well and fall straight down.
+// The player cannot move them; holding ↓ makes them fall faster. The next piece spawns once they have all landed.
+const BRICK_SPEED = 14, BRICK_SPEED_SOFT = 60;       // rows per second
+function startGarbageFall(){
+  G.p = null; G.falling = [];
+  const stackInCol = {};
   while (G.pending.length){
     const g = G.pending.shift();
     for (const col of g.cols){
-      let top = -1;
-      for (let y = 0; y < ROWS; y++) if (G.board[y*COLS+col]){ top = y; break; }
-      const land = top === -1 ? ROWS-1 : top-1;
-      if (land < HID){ G.pending = []; drawMeter(); return die(); }   // reached the top
-      const v = g.black ? 'X' : String(g.slot);
-      G.board[land*COLS+col] = v;
-      G.anims.push({ col, row:land, v, t0:now + i*45 });
-      i++;
+      const k = stackInCol[col] = (stackInCol[col] || 0) + 1;   // several bricks in one column queue up above
+      G.falling.push({ col, y:HID - k, v:String(g.slot) });
     }
   }
-  const cl = clearLines();
-  if (cl.n) G.anims = [];
   drawMeter(); G.dirty = true;
+}
+function stepGarbageFall(dt){
+  const rate = input.soft ? BRICK_SPEED_SOFT : BRICK_SPEED;
+  G.falling.sort((a, b) => b.y - a.y);                 // lowest first, so the ones above stack on it
+  const keep = [];
+  for (const b of G.falling){
+    let top = ROWS;
+    for (let y = 0; y < ROWS; y++) if (G.board[y*COLS+b.col]){ top = y; break; }
+    const land = top - 1;
+    const ny = b.y + rate * dt / 1000;
+    if (ny >= land){
+      if (land < HID){ G.falling = []; return die(); }   // no room left: the well overflows
+      G.board[land*COLS+b.col] = b.v;
+      if (input.soft) G.score++;
+    } else { b.y = ny; keep.push(b); }
+  }
+  G.falling = keep; G.dirty = true;
+  if (!keep.length){
+    clearLines();                                      // bricks can complete a line; it is cleared but sends nothing
+    spawn();
+  }
 }
 function die(){
   if (!G.alive) return;
@@ -774,6 +789,7 @@ function showEnd(ranking, game){
 function serialize(){
   const b = G.board.slice(HID*COLS);
   if (G.p) cellsOf(G.p).forEach(([x,y], i) => { if (y >= HID) b[(y-HID)*COLS+x] = i === G.p.sp ? '*' : G.p.t; });
+  for (const f of G.falling || []){ const y = Math.floor(f.y); if (y >= HID) b[(y-HID)*COLS+f.col] = f.v; }
   return b.map(c => !c ? '.' : isSpecial(c) ? '*' : c).join('');
 }
 function sendBoard(force){
@@ -836,7 +852,11 @@ function drawBoard(now){
     const c = G.board[y*COLS+x];
     if (c && !animating.has(y*COLS+x)) paint(ctx, x*CELL, (y-HID)*CELL, CELL, c, now);
   }
-  for (const a of G.anims){                     // enemy bricks falling in
+  for (const f of G.falling || []){             // enemy bricks falling from the top
+    const py = (f.y - HID) * CELL;
+    if (py > -CELL) paint(ctx, f.col*CELL, py, CELL, f.v, now);
+  }
+  for (const a of G.anims){
     if (now < a.t0) continue;
     const k = Math.min(1, (now - a.t0) / 260), e = k*k;
     const yy = -CELL + e * ((a.row-HID)*CELL + CELL);
@@ -900,6 +920,7 @@ $('play').addEventListener('animationend', () => $('play').classList.remove('sha
 const input = { das:null, soft:false };
 function act(a){
   if (phase !== 'play' || !G || !G.alive) return;
+  if (!G.p){ if (a === 'down') input.soft = true; return; }
   switch (a){
     case 'left': move(-1,0); input.das = { dir:-1, held:0, arr:0 }; break;
     case 'right': move(1,0); input.das = { dir:1, held:0, arr:0 }; break;
@@ -1571,14 +1592,15 @@ function frame(now){
     G.elapsed += dt;
     const lv = level();
     if (lv > G.lvl){ G.lvl = lv; toast('Plus vite ! Niveau ' + (lv+1)); updateStats(); }
-    if (input.das){
+    if (G.falling && G.falling.length) stepGarbageFall(dt);
+    if (input.das && G.p){
       input.das.held += dt;
       if (input.das.held > 150){ input.das.arr += dt; while (input.das.arr >= 40 && G.alive){ input.das.arr -= 40; if (!move(input.das.dir, 0)) break; } }
     }
     const base = Math.max(55, 800 * Math.pow(0.82, level()));
     const interval = input.soft ? Math.min(base, 35) : base;
     G.acc += dt;
-    while (G.alive && G.acc >= interval){
+    while (G.alive && G.p && G.acc >= interval){
       G.acc -= interval;
       if (move(0,1)){ if (input.soft) G.score++; }
       else { G.acc = 0; break; }
