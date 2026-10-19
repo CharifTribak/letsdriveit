@@ -80,6 +80,18 @@ label{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--m
 .thumb{position:absolute;top:7px;bottom:7px;border-radius:23px;background:var(--accent);box-shadow:inset 0 -3px 0 rgba(0,0,0,.25)}
 @media (pointer:coarse){ .slider{display:block} .pong .keys{display:none} }
 .board{max-width:560px;max-height:calc(100vh - 32px);overflow-y:auto}
+.naval{display:flex;flex-direction:column;align-items:center;gap:10px;max-width:760px;margin:0 auto}
+.nvhead{width:min(100%,74vh,700px);display:flex;justify-content:flex-start;padding-right:90px;align-items:center;gap:12px;min-height:34px}
+.nvturn{font-family:var(--display);font-size:clamp(15px,4vw,20px);display:flex;align-items:center;gap:8px;min-width:0}
+.nvturn.mine{color:var(--accent)}
+.nvtime{font-weight:700;font-variant-numeric:tabular-nums;font-size:18px}
+.nvtime.low{color:var(--danger)}
+.nvwrap{position:relative;width:min(100%,74vh,700px)}
+#nvCv{display:block;width:100%;height:auto;aspect-ratio:1;touch-action:manipulation;cursor:crosshair}
+.nvplayers{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px 14px;justify-content:center;font-size:13px}
+.nvplayers li{display:flex;align-items:center;gap:6px}
+.nvplayers li.dead{opacity:.45;text-decoration:line-through}
+.nvplayers li.turn{font-weight:700}
 .derby{display:flex;flex-direction:column;align-items:center;gap:12px;max-width:760px;margin:0 auto}
 #trackCv{display:block;width:100%;height:auto;border-radius:6px;border:2px solid var(--line)}
 .dhead{width:min(100%,62vh,560px);display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:end}
@@ -158,7 +170,7 @@ label{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--m
 <!-- MENU -->
 <section id="scrMenu" class="center">
   <div class="card">
-    <h1 class="logo">MÊLÉE<span>TETRIS · PONG · DERBY</span></h1>
+    <h1 class="logo">MÊLÉE<span>TETRIS · PONG · DERBY · ARMADA</span></h1>
     <div class="field">
       <label for="nameIn">Votre nom</label>
       <input id="nameIn" maxlength="14" autocomplete="nickname" placeholder="Votre nom">
@@ -170,7 +182,7 @@ label{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--m
       <button id="btnJoin" class="ghost">Entrer</button>
     </div>
     <button id="btnBoard" class="ghost">Classement général</button>
-    <p class="hint" id="menuHint">Créez un salon, partagez le code, puis choisissez le jeu : Tetris, Pong ou Derby. De 1 à 5 joueurs.</p>
+    <p class="hint" id="menuHint">Créez un salon, partagez le code, puis choisissez le jeu : Tetris, Pong, Derby ou Armada. De 1 à 5 joueurs.</p>
   </div>
 </section>
 
@@ -188,6 +200,7 @@ label{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--m
         <button data-g="tetris" aria-pressed="true">Tetris</button>
         <button data-g="pong" aria-pressed="false">Pong</button>
         <button data-g="derby" aria-pressed="false">Derby</button>
+        <button data-g="naval" aria-pressed="false">Armada</button>
       </div>
       <p class="hint" id="gameDesc"></p>
     </div>
@@ -267,6 +280,23 @@ label{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--m
   </div>
 </section>
 
+<!-- ARMADA -->
+<section id="scrNaval" hidden>
+  <div class="naval">
+    <div class="nvhead">
+      <div class="nvturn" id="nvTurn">Préparation…</div>
+      <div class="nvtime" id="nvTime"></div>
+    </div>
+    <div class="nvwrap">
+      <canvas id="nvCv" width="720" height="720" aria-label="Carte de la bataille"></canvas>
+      <div class="msg pm" id="nvMsg"></div>
+      <div class="toast pm" id="nvToast" aria-live="polite"></div>
+    </div>
+    <ul class="nvplayers" id="nvPlayers"></ul>
+    <p class="hint" style="text-align:center">À votre tour, touchez une case. Dans l'eau, vous seul voyez la distance du bateau ennemi le plus proche (en cases, diagonales comprises).</p>
+  </div>
+</section>
+
 <!-- RANKING -->
 <div class="overlay" id="scrEnd" hidden>
   <div class="card" style="max-width:480px">
@@ -292,6 +322,7 @@ label{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--m
       <button data-f="tetris" aria-pressed="false">Tetris</button>
       <button data-f="pong" aria-pressed="false">Pong</button>
       <button data-f="derby" aria-pressed="false">Derby</button>
+      <button data-f="naval" aria-pressed="false">Armada</button>
     </div>
     <div class="rank"><table>
       <thead><tr id="lbHead"></tr></thead>
@@ -343,15 +374,17 @@ let gameKind = 'tetris';        // chosen in the lobby by the creator
 let cur = null;                 // game being played: 'tetris' | 'pong'
 let PG = null;                  // pong state (host simulates, guests mirror)
 let D = null;                   // derby state
+let NV = null, HN = null;       // armada: my view / host's full map
 const GAME_DESC = {
   tetris:'Chaque ligne effacée envoie des briques gênantes à tous les adversaires : 1 ligne = 1 brique, 2 = 2, 3 = 4, 4 = 6.',
   pong:'Chaque joueur défend un côté avec 5 vies. Le terrain suit le nombre de joueurs : carré à 2, hexagone à 3, octogone à 4, décagone à 5. Le côté d\'un joueur éliminé devient un mur.',
+  naval:'Bataille navale à plusieurs sur une seule mer. Chacun voit ses bateaux, rien d\'autre. À tour de rôle, tirez au canon sur une case : touché, tout le monde voit la flamme ; dans l\'eau, vous seul apprenez la distance du bateau ennemi le plus proche. Le dernier à flot gagne.',
   derby:'Course de chevaux : tout le monde reçoit la même série de figures à tracer. Chaque figure réussie fait avancer votre cheval, plus loin si elle est complexe et bien tracée. Le premier à la ligne gagne.'
 };
 
 const cleanName = s => String(s || '').replace(/[\u0000-\u001f<>]/g,'').trim().slice(0,14) || 'Joueur';
 const genCode = () => { const a='ABCDEFGHJKMNPQRSTUVWXYZ23456789'; let s=''; for(let i=0;i<4;i++) s+=a[Math.floor(Math.random()*a.length)]; return s; };
-const show = id => { for (const s of ['scrMenu','scrLobby','scrGame','scrPong','scrDerby']) $(s).hidden = s !== id; };
+const show = id => { for (const s of ['scrMenu','scrLobby','scrGame','scrPong','scrDerby','scrNaval']) $(s).hidden = s !== id; };
 const store = { get(k){ try { return localStorage.getItem(k); } catch(_) { return null; } }, set(k,v){ try { localStorage.setItem(k,v); } catch(_){} } };
 
 $('nameIn').value = store.get('tm-name') || ('Joueur' + Math.floor(Math.random()*90+10));
@@ -360,7 +393,8 @@ const menuHint = (t, err) => { $('menuHint').textContent = t; $('menuHint').clas
 // ================= networking (PeerJS star, host relays) =================
 function teardown(){
   if (net && net.peer){ try { net.peer.destroy(); } catch(_){} }
-  net = null; H = null; G = null; PG = null; D = null; cur = null; me.host = false; me.id = null; players = []; opps.clear();
+  if (HN && HN.timer) clearTimeout(HN.timer);
+  net = null; H = null; G = null; PG = null; D = null; NV = null; HN = null; cur = null; me.host = false; me.id = null; players = []; opps.clear();
 }
 function toMenu(msg){
   teardown(); phase = 'menu'; $('scrEnd').hidden = true; show('scrMenu');
@@ -440,7 +474,7 @@ function hostDrop(conn){
   net.conns.delete(id);
   if (phase === 'lobby'){ players = players.filter(p => p.id !== id); sendLobby(false); return; }
   if (H && H.alive.has(id)){
-    if (H.game === 'pong') pongDrop(id); else if (H.game === 'derby') derbyDrop(id); else hostHandle(id, { t:'dead', left:true });
+    if (H.game === 'pong') pongDrop(id); else if (H.game === 'derby') derbyDrop(id); else if (H.game === 'naval') navalDrop(id); else hostHandle(id, { t:'dead', left:true });
   }
 }
 
@@ -463,8 +497,10 @@ function hostStart(){
   players = players.filter(p => p.id === 'h' || net.conns.has(p.id));
   H = { game:gameKind, alive:new Set(players.map(p => p.id)), deaths:[], stats:{}, n:players.length, over:false };
   for (const p of players) H.stats[p.id] = gameKind === 'pong' ? { lives:PONG_LIVES, hits:0, left:false }
-    : gameKind === 'derby' ? { d:0, shapes:0, t:0, left:false } : { sc:0, ln:0, sent:0, left:false };
+    : gameKind === 'derby' ? { d:0, shapes:0, t:0, left:false }
+    : gameKind === 'naval' ? { shots:0, hits:0, afloat:0, left:false } : { sc:0, ln:0, sent:0, left:false };
   H.t0 = performance.now();
+  if (gameKind === 'naval') return navalHostStart();
   broadcast({ t:'start', players, game:gameKind, seed:Math.floor(Math.random() * 2**31) });
 }
 
@@ -491,6 +527,8 @@ function hostHandle(id, m){
   } else if (m.t === 'dead'){
     if (!m.left){ st.sc = m.sc|0; st.ln = m.ln|0; }
     hostEliminate(id, m.left);
+  } else if (m.t === 'nv_fire'){
+    navalFire(id, m.x|0, m.y|0);
   } else if (m.t === 'dp'){
     derbyProgress(id, m);
   } else if (m.t === 'pp'){
@@ -521,11 +559,15 @@ function clientRecv(m){
     case 'lobby':
       players = Array.isArray(m.players) ? m.players : [];
       if (m.you) me.id = m.you;
-      if (m.game === 'tetris' || m.game === 'pong' || m.game === 'derby') gameKind = m.game;
+      if (['tetris','pong','derby','naval'].includes(m.game)) gameKind = m.game;
       if (phase === 'menu' || phase === 'lobby' || m.back){
-        phase = 'lobby'; $('scrEnd').hidden = true; G = null; PG = null; D = null; cur = null; show('scrLobby'); renderLobby();
+        phase = 'lobby'; $('scrEnd').hidden = true; G = null; PG = null; D = null; NV = null; cur = null; show('scrLobby'); renderLobby();
       }
       break;
+    case 'nv_start': startNaval(m); break;
+    case 'nv_turn': navalTurn(m); break;
+    case 'nv_shot': navalShot(m); break;
+    case 'nv_dist': if (NV) NV.pendingDist[m.x + ',' + m.y] = m.d|0; break;
     case 'start': if (m.game === 'pong') startPong(m.players); else if (m.game === 'derby') startDerby(m.players, m.seed|0); else startGame(m.players); break;
     case 'dr': derbyRemote(m); break;
     case 'ps': pongState(m); break;
@@ -533,6 +575,7 @@ function clientRecv(m){
     case 'bd': { const o = opps.get(m.id); if (o){ o.data = m.s; o.sc = m.sc; o.ln = m.ln; drawOpp(o); } break; }
     case 'gb': if (m.from !== me.id) receiveGarbage(m.from, m.cols, m.black); break;
     case 'pdead': if (cur === 'pong'){ pongDeadFx(m.id); break; }
+    if (cur === 'naval'){ navalDeadFx(m.id, m.left); break; }
     { const o = opps.get(m.id); if (o){ o.dead = true; o.left = m.left; o.el.classList.add('dead'); drawOpp(o); } updateAliveHint(); break; }
     case 'end': showEnd(m.ranking, m.game); break;
   }
@@ -757,13 +800,14 @@ function showEnd(ranking, game){
   phase = 'end';
   if (G) G.p = null;
   if (PG) PG.ph = 'over';
-  const pong = game === 'pong', derby = game === 'derby';
+  const pong = game === 'pong', derby = game === 'derby', naval = game === 'naval';
+  if (NV) NV.over = true;
   if (D) D.over = true;
   const hd = $('rankHead'); hd.textContent = '';
-  for (const h of ['#','Joueur', ...(pong ? ['Vies','Renvois'] : derby ? ['Figures','Distance','Temps'] : ['Lignes','Briques','Score'])]){
+  for (const h of ['#','Joueur', ...(pong ? ['Vies','Renvois'] : derby ? ['Figures','Distance','Temps'] : naval ? ['Tirs','Touchés','À flot'] : ['Lignes','Briques','Score'])]){
     const th = document.createElement('th'); th.textContent = h; hd.append(th);
   }
-  $('rankNote').textContent = pong ? '« Renvois » : balles renvoyées avec la raquette.' : derby ? '« Temps » : durée pour franchir la ligne, pour ceux qui l\'ont franchie.' : '« Briques » : nombre de briques envoyées aux adversaires.';
+  $('rankNote').textContent = naval ? '« À flot » : cases de bateau encore intactes à la fin.' : pong ? '« Renvois » : balles renvoyées avec la raquette.' : derby ? '« Temps » : durée pour franchir la ligne, pour ceux qui l\'ont franchie.' : '« Briques » : nombre de briques envoyées aux adversaires.';
   const tb = $('rankBody'); tb.textContent = '';
   (ranking || []).forEach(r => {
     const tr = document.createElement('tr'); if (r.place === 1) tr.className = 'win';
@@ -773,12 +817,13 @@ function showEnd(ranking, game){
     const s = document.createElement('span'); s.textContent = r.name + (r.id === me.id ? ' (vous)' : '') + (r.left ? ' · parti' : '');
     w.append(d, s); nm.append(w);
     if (pong) tr.append(td(r.place), nm, td(r.lives|0), td(r.hits|0));
+    else if (naval) tr.append(td(r.place), nm, td(r.shots|0), td(r.hits|0), td(r.afloat|0));
     else if (derby) tr.append(td(r.place), nm, td(r.shapes|0), td(Math.round(r.d||0) + ' %'), td(r.t ? fmtSec(r.t) : '–'));
     else tr.append(td(r.place), nm, td(r.ln|0), td(r.sent|0), td((r.sc|0).toLocaleString('fr-FR')));
     tb.append(tr);
   });
   const win = ranking && ranking[0];
-  (pong ? pongMsg : derby ? derbyMsg : setMsg)(win && win.id === me.id ? 'Victoire' : 'Terminé', '');
+  (pong ? pongMsg : derby ? derbyMsg : naval ? navalMsg : setMsg)(win && win.id === me.id ? 'Victoire' : 'Terminé', '');
   $('btnAgain').hidden = false;
   $('endHint').textContent = me.host ? 'Tout le monde revient au salon : relancez le même jeu ou choisissez-en un autre.' : 'Vous attendrez au salon que le créateur relance.';
   saveGame(ranking, game);
@@ -1526,6 +1571,403 @@ function drawPad(){
   draw(D.stroke, mine ? mine.color : '#FFC93C');
 }
 
+
+// ================= ARMADA : battleship x minesweeper, everyone on one sea =================
+// The host keeps the full map and is the referee; each player only receives the position of their own ships.
+const NV_FLEET = [4, 3, 2, 2];            // ship lengths per player
+const NV_TURN_MS = 25000, NV_FLIGHT = 1100, NV_SIZE = 720, NV_M = 64;
+const NV_GHOST = '#8A84B0';
+const nvSide = n => [10, 12, 14, 15, 16][Math.max(0, Math.min(4, n - 1))];
+const nvKey = (x, y) => x + ',' + y;
+
+// ---- host ----
+function nvPlace(N, owners){
+  const occ = new Map(), ships = [];
+  const free = (x, y, gap) => {
+    if (x < 0 || y < 0 || x >= N || y >= N) return false;
+    if (occ.has(nvKey(x, y))) return false;
+    if (gap) for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++) if (occ.has(nvKey(x+dx, y+dy))) return false;
+    return true;
+  };
+  for (const o of owners) for (const len of NV_FLEET){
+    let placed = false;
+    for (let tries = 0; tries < 2000 && !placed; tries++){
+      const gap = tries < 1500, hor = Math.random() < .5;
+      const x0 = Math.floor(Math.random() * N), y0 = Math.floor(Math.random() * N);
+      const cells = Array.from({ length:len }, (_, i) => hor ? [x0+i, y0] : [x0, y0+i]);
+      if (!cells.every(([x, y]) => free(x, y, gap))) continue;
+      const id = ships.length;
+      ships.push({ owner:o, cells, hits:new Set() });
+      cells.forEach(([x, y]) => occ.set(nvKey(x, y), id));
+      placed = true;
+    }
+  }
+  return { occ, ships };
+}
+function navalHostStart(){
+  const n = players.length, N = nvSide(n);
+  const owners = players.map((_, i) => i);
+  if (n === 1) owners.push(-1);                     // solo: a ghost fleet to sink
+  const { occ, ships } = nvPlace(N, owners);
+  HN = { N, occ, ships, shots:new Set(), order:players.map(p => p.id), turn:Math.floor(Math.random() * n), timer:null, busy:false };
+  for (const p of players) H.stats[p.id].afloat = NV_FLEET.reduce((a, b) => a + b, 0);
+  for (const [i, p] of players.entries()){
+    const mine = ships.filter(sh => sh.owner === i).map(sh => sh.cells);
+    const msg = { t:'nv_start', players, N, ships:mine, solo:n === 1 };
+    if (p.id === 'h') clientRecv(msg);
+    else { const c = net.conns.get(p.id); if (c && c.open) try { c.send(msg); } catch(_){} }
+  }
+  setTimeout(() => navalNextTurn(false), 3200);     // after the countdown
+}
+function navalNextTurn(advance){
+  if (!H || H.over || !HN) return;
+  clearTimeout(HN.timer);
+  const n = HN.order.length;
+  for (let k = 0; k < n; k++){
+    if (advance || k > 0) HN.turn = (HN.turn + 1) % n;
+    if (H.alive.has(HN.order[HN.turn])) break;
+  }
+  advance = false;
+  const id = HN.order[HN.turn];
+  HN.busy = false;
+  broadcast({ t:'nv_turn', id, ms:NV_TURN_MS });
+  HN.timer = setTimeout(() => {                    // nobody fired in time: the turn passes
+    if (!H || H.over || HN.busy) return;
+    broadcast({ t:'nv_shot', by:id, skip:true });
+    navalNextTurn(true);
+  }, NV_TURN_MS + 400);
+}
+function navalFire(id, x, y){
+  if (!H || H.over || !HN || HN.busy) return;
+  if (HN.order[HN.turn] !== id || !H.alive.has(id)) return;
+  const N = HN.N, k = nvKey(x, y), pi = players.findIndex(p => p.id === id);
+  if (x < 0 || y < 0 || x >= N || y >= N || HN.shots.has(k)) return;
+  const si = HN.occ.get(k);
+  if (si !== undefined && HN.ships[si].owner === pi) return;   // never on your own ships
+  HN.busy = true; clearTimeout(HN.timer);
+  HN.shots.add(k);
+  H.stats[id].shots++;
+  const msg = { t:'nv_shot', by:id, x, y, hit:false };
+  if (si !== undefined){
+    const sh = HN.ships[si];
+    sh.hits.add(k);
+    H.stats[id].hits++;
+    msg.hit = true; msg.owner = sh.owner;
+    if (sh.owner >= 0){ const oid = players[sh.owner].id; H.stats[oid].afloat = Math.max(0, H.stats[oid].afloat - 1); }
+    if (sh.hits.size === sh.cells.length) msg.sunk = sh.cells;
+  } else {
+    // minesweeper clue for the shooter only: distance (king moves) to the nearest intact enemy ship cell
+    let best = 99;
+    HN.ships.forEach((sh, j) => {
+      if (sh.owner === pi) return;
+      if (sh.owner >= 0 && !H.alive.has(players[sh.owner].id)) return;
+      for (const [cx, cy] of sh.cells) if (!sh.hits.has(nvKey(cx, cy))) best = Math.min(best, Math.max(Math.abs(cx - x), Math.abs(cy - y)));
+    });
+    const dm = { t:'nv_dist', x, y, d:best };
+    if (id === 'h') clientRecv(dm); else { const c = net.conns.get(id); if (c && c.open) try { c.send(dm); } catch(_){} }
+  }
+  broadcast(msg);
+  setTimeout(() => {
+    if (!H || H.over) return;
+    if (msg.sunk){
+      const o = HN.ships[HN.occ.get(k)].owner;
+      const fleetDown = HN.ships.filter(sh => sh.owner === o).every(sh => sh.hits.size === sh.cells.length);
+      if (fleetDown){
+        if (o < 0) return navalSoloEnd();
+        hostEliminate(players[o].id, false);
+      }
+    }
+    if (!H.over) navalNextTurn(true);
+  }, NV_FLIGHT + 900);
+}
+function navalSoloEnd(){
+  H.over = true;
+  const p = players[0];
+  setTimeout(() => broadcast({ t:'end', game:'naval', ranking:[{ id:p.id, name:p.name, color:p.color, place:1, ...H.stats[p.id] }] }), 600);
+}
+function navalDrop(id){
+  if (!H || !HN) return;
+  const wasTurn = HN.order[HN.turn] === id;
+  hostEliminate(id, true);
+  if (!H.over && wasTurn && !HN.busy) navalNextTurn(true);
+}
+
+// ---- every player ----
+const NV_SHAPES = ['ball', 'tri', 'square', 'diamond', 'star'];
+function startNaval(m){
+  players = m.players; cur = 'naval'; G = null; PG = null; D = null; phase = 'count';
+  $('scrEnd').hidden = true; show('scrNaval');
+  const N = m.N, myIdx = players.findIndex(p => p.id === me.id);
+  NV = { N, myIdx, solo:!!m.solo, cell:(NV_SIZE - 2*NV_M) / N, own:new Map(), ownShips:m.ships || [],
+    marks:new Map(), dist:new Map(), pendingDist:{}, sunk:[], turnId:null, deadline:0, count:3,
+    shots:[], fx:[], cannons:[], aim:{}, recoil:{}, hover:null, alive:players.map(() => true), afloat:players.map(() => NV_FLEET.reduce((a, b) => a + b, 0)), over:false };
+  NV.ownShips.forEach(cells => cells.forEach(([x, y]) => NV.own.set(nvKey(x, y), true)));
+  // cannons around the sea, mine at the bottom
+  const n = players.length, C = NV_SIZE/2, Rr = (NV_SIZE - 2*NV_M)/2 + NV_M*0.52;
+  for (let k = 0; k < n; k++){
+    const i = (myIdx + k) % n, a = Math.PI/2 + 2*Math.PI*k/n;
+    const dx = Math.cos(a), dy = Math.sin(a), f = Rr / Math.max(Math.abs(dx), Math.abs(dy));
+    NV.cannons[i] = [C + dx*f, C + dy*f];
+    NV.aim[i] = Math.atan2(C - (C + dy*f), C - (C + dx*f));
+  }
+  navalMsg('3', '');
+  renderNvPlayers();
+}
+const navalMsg = (big, small) => {
+  const m = $('nvMsg'); m.textContent = '';
+  if (!big) return;
+  const s = document.createElement('strong'); s.textContent = big; m.append(s);
+  if (small){ const t = document.createElement('small'); t.textContent = small; m.append(t); }
+};
+let nvToastT = null;
+function nvToast(t){ const el = $('nvToast'); el.textContent = t; el.classList.add('on'); clearTimeout(nvToastT); nvToastT = setTimeout(() => el.classList.remove('on'), 1800); }
+function renderNvPlayers(){
+  const ul = $('nvPlayers'); ul.textContent = '';
+  players.forEach((p, i) => {
+    const li = document.createElement('li');
+    if (!NV.alive[i]) li.classList.add('dead');
+    if (NV.turnId === p.id) li.classList.add('turn');
+    const d = document.createElement('span'); d.className = 'dot'; d.style.background = p.color;
+    const t = document.createElement('span'); t.textContent = p.name + (p.id === me.id ? ' (vous)' : '') + ' · ' + NV.afloat[i];
+    t.title = 'cases de bateau intactes';
+    li.append(d, t); ul.append(li);
+  });
+}
+function navalTurn(m){
+  if (!NV || NV.over) return;
+  if (phase === 'count'){ phase = 'play'; navalMsg('', ''); }
+  NV.turnId = m.id; NV.deadline = performance.now() + (m.ms|0);
+  const i = players.findIndex(p => p.id === m.id);
+  const el = $('nvTurn'); el.textContent = '';
+  const d = document.createElement('span'); d.className = 'dot'; d.style.background = players[i] ? players[i].color : '#888';
+  const t = document.createElement('span');
+  t.textContent = m.id === me.id ? 'À vous de tirer !' : 'Tour de ' + (players[i] ? players[i].name : '?');
+  el.append(d, t); el.classList.toggle('mine', m.id === me.id);
+  renderNvPlayers();
+}
+function navalShot(m){
+  if (!NV) return;
+  const i = players.findIndex(p => p.id === m.by);
+  if (m.skip){ nvToast((players[i] ? players[i].name : '?') + ' passe son tour'); NV.turnId = null; return; }
+  NV.turnId = null; $('nvTime').textContent = '';
+  const [cx, cy] = NV.cannons[i] || [NV_SIZE/2, NV_SIZE - 20];
+  const tx = NV_M + (m.x + .5) * NV.cell, ty = NV_M + (m.y + .5) * NV.cell;
+  NV.aim[i] = Math.atan2(ty - cy, tx - cx);
+  NV.recoil[i] = 1;
+  NV.marks.set(nvKey(m.x, m.y), { pending:true });
+  NV.shots.push({ i, from:[cx, cy], to:[tx, ty], x:m.x, y:m.y, t:0, m });
+}
+function navalImpact(sh){
+  const m = sh.m, k = nvKey(m.x, m.y);
+  if (m.hit){
+    NV.marks.set(k, { hit:true, owner:m.owner, t0:performance.now() });
+    NV.fx.push({ kind:'boom', x:sh.to[0], y:sh.to[1], t:0, col:m.owner >= 0 ? players[m.owner].color : NV_GHOST,
+      parts:Array.from({ length:18 }, () => ({ a:Math.random()*Math.PI*2, v:60 + Math.random()*140 })) });
+    if (m.owner >= 0) NV.afloat[m.owner] = Math.max(0, NV.afloat[m.owner] - 1);
+    if (m.sunk){
+      NV.sunk.push({ owner:m.owner, cells:m.sunk });
+      const who = m.owner >= 0 ? players[m.owner] : null;
+      nvToast(who ? (who.id === me.id ? 'Un de vos bateaux est coulé !' : 'Bateau de ' + who.name + ' coulé !') : 'Bateau fantôme coulé !');
+    } else if (m.owner === NV.myIdx) nvToast('Vous êtes touché !');
+    if (m.owner === NV.myIdx){
+      const el = $('nvwrapShake') || document.querySelector('.nvwrap');
+      el.style.setProperty('--amp', '5px'); el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake');
+    }
+    renderNvPlayers();
+  } else {
+    NV.marks.set(k, { hit:false });
+    NV.fx.push({ kind:'splash', x:sh.to[0], y:sh.to[1], t:0,
+      drops:Array.from({ length:10 }, () => ({ a:-Math.PI/2 + (Math.random() - .5)*2.2, v:50 + Math.random()*70 })) });
+    if (NV.pendingDist[k] !== undefined){ NV.dist.set(k, NV.pendingDist[k]); delete NV.pendingDist[k]; }
+  }
+}
+function navalDeadFx(id, left){
+  if (!NV) return;
+  const i = players.findIndex(p => p.id === id); if (i < 0) return;
+  NV.alive[i] = false;
+  renderNvPlayers();
+  if (i === NV.myIdx) navalMsg(left ? '' : 'Coulé', left ? '' : 'Toute votre flotte est au fond');
+  else nvToast(players[i].name + (left ? ' a quitté la partie' : ' est éliminé'));
+}
+
+// ---- input ----
+const nvcv = $('nvCv'), nvctx = nvcv.getContext('2d');
+function nvCellAt(e){
+  const r = nvcv.getBoundingClientRect();
+  const px = (e.clientX - r.left) / r.width * NV_SIZE, py = (e.clientY - r.top) / r.height * NV_SIZE;
+  const x = Math.floor((px - NV_M) / NV.cell), y = Math.floor((py - NV_M) / NV.cell);
+  return (x < 0 || y < 0 || x >= NV.N || y >= NV.N) ? null : [x, y];
+}
+function nvCanShoot(c){
+  if (!NV || !c || NV.over || phase !== 'play' || NV.turnId !== me.id || !NV.alive[NV.myIdx]) return false;
+  const k = nvKey(c[0], c[1]);
+  return !NV.own.has(k) && !NV.marks.has(k);
+}
+nvcv.addEventListener('pointermove', e => { if (NV) NV.hover = nvCellAt(e); });
+nvcv.addEventListener('pointerleave', () => { if (NV) NV.hover = null; });
+nvcv.addEventListener('click', e => {
+  if (!NV) return;
+  const c = nvCellAt(e);
+  if (!c) return;
+  const k = nvKey(c[0], c[1]);
+  if (NV.turnId !== me.id) return nvToast(NV.turnId ? 'Ce n\'est pas votre tour' : 'Patience…');
+  if (NV.own.has(k)) return nvToast('C\'est votre propre bateau !');
+  if (NV.marks.has(k)) return nvToast('Case déjà visée');
+  if (!nvCanShoot(c)) return;
+  NV.turnId = null;                                  // no double shot while the host answers
+  toHost({ t:'nv_fire', x:c[0], y:c[1] });
+});
+
+// ---- loop & drawing ----
+function navalFrame(dtMs, now){
+  if (!NV) return;
+  const dt = dtMs/1000;
+  if (phase === 'count'){ NV.count -= dt; if (NV.count > 0) navalMsg(String(Math.ceil(NV.count)), ''); else navalMsg('', ''); }
+  if (NV.turnId && !NV.over){
+    const left = Math.max(0, NV.deadline - now), el = $('nvTime');
+    el.textContent = Math.ceil(left/1000) + ' s'; el.classList.toggle('low', left < 6000);
+  }
+  for (const sh of NV.shots){ sh.t += dtMs / NV_FLIGHT; if (sh.t >= 1 && !sh.done){ sh.done = true; navalImpact(sh); } }
+  NV.shots = NV.shots.filter(sh => !sh.done);
+  for (const f of NV.fx) f.t += dt;
+  NV.fx = NV.fx.filter(f => f.t < 1.4);
+  for (const i in NV.recoil) NV.recoil[i] = Math.max(0, NV.recoil[i] - dt*3);
+  drawNaval(now);
+}
+function nvShape(ctx, kind, r){
+  ctx.beginPath();
+  if (kind === 'ball') ctx.arc(0, 0, r, 0, Math.PI*2);
+  else if (kind === 'square') ctx.rect(-r*.85, -r*.85, r*1.7, r*1.7);
+  else if (kind === 'tri'){ for (let k = 0; k < 3; k++){ const a = -Math.PI/2 + k*2*Math.PI/3; k ? ctx.lineTo(Math.cos(a)*r*1.2, Math.sin(a)*r*1.2) : ctx.moveTo(Math.cos(a)*r*1.2, Math.sin(a)*r*1.2); } ctx.closePath(); }
+  else if (kind === 'diamond'){ ctx.moveTo(0, -r*1.3); ctx.lineTo(r, 0); ctx.lineTo(0, r*1.3); ctx.lineTo(-r, 0); ctx.closePath(); }
+  else { for (let k = 0; k < 10; k++){ const a = -Math.PI/2 + k*Math.PI/5, rr = k % 2 ? r*.55 : r*1.3; k ? ctx.lineTo(Math.cos(a)*rr, Math.sin(a)*rr) : ctx.moveTo(Math.cos(a)*rr, Math.sin(a)*rr); } ctx.closePath(); }
+}
+const NV_NUM = ['#FF5D73','#FF5D73','#FF8A3D','#FFC93C','#3DDC97','#4EA8FF','#9A94BF'];
+function drawNaval(now){
+  const ctx = nvctx, S = NV_SIZE, M = NV_M, c = NV.cell, N = NV.N, B = c*N;
+  ctx.fillStyle = '#141225'; ctx.fillRect(0, 0, S, S);
+  // sea
+  const g = ctx.createLinearGradient(0, M, 0, M + B); g.addColorStop(0, '#123A5C'); g.addColorStop(1, '#0B2742');
+  ctx.fillStyle = g; ctx.fillRect(M, M, B, B);
+  ctx.save(); ctx.beginPath(); ctx.rect(M, M, B, B); ctx.clip();
+  ctx.strokeStyle = 'rgba(255,255,255,.05)'; ctx.lineWidth = 2;
+  for (let w = 0; w < 9; w++){                      // drifting wave lines
+    const y0 = M + (w + .5) * B/9;
+    ctx.beginPath();
+    for (let x = M; x <= M + B; x += 8){ const y = y0 + Math.sin((x + now*.03 + w*40) / 26) * 3; x === M ? ctx.moveTo(x, y) : ctx.lineTo(x, y); }
+    ctx.stroke();
+  }
+  ctx.restore();
+  ctx.strokeStyle = 'rgba(160,200,240,.13)'; ctx.lineWidth = 1;
+  ctx.beginPath();
+  for (let k = 0; k <= N; k++){ ctx.moveTo(M + k*c + .5, M); ctx.lineTo(M + k*c + .5, M + B); ctx.moveTo(M, M + k*c + .5); ctx.lineTo(M + B, M + k*c + .5); }
+  ctx.stroke();
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.strokeStyle = 'rgba(160,200,240,.35)'; ctx.lineWidth = 2; ctx.strokeRect(M - 1, M - 1, B + 2, B + 2);
+  // my ships
+  const mine = players[NV.myIdx];
+  for (const cells of NV.ownShips){
+    const xs = cells.map(p => p[0]), ys = cells.map(p => p[1]);
+    const x0 = M + Math.min(...xs)*c + 3, y0 = M + Math.min(...ys)*c + 3;
+    const w = (Math.max(...xs) - Math.min(...xs) + 1)*c - 6, h = (Math.max(...ys) - Math.min(...ys) + 1)*c - 6;
+    ctx.fillStyle = mine ? mine.color : '#ccc'; ctx.globalAlpha = .9;
+    ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x0, y0, w, h, Math.min(w, h)/2) : ctx.rect(x0, y0, w, h); ctx.fill();
+    ctx.globalAlpha = 1; ctx.fillStyle = 'rgba(0,0,0,.25)';
+    for (const [x, y] of cells){ ctx.beginPath(); ctx.arc(M + (x + .5)*c, M + (y + .5)*c, c*.13, 0, Math.PI*2); ctx.fill(); }
+  }
+  // sunk ships: outline for everyone
+  for (const s of NV.sunk){
+    const col = s.owner >= 0 ? players[s.owner].color : NV_GHOST;
+    const xs = s.cells.map(p => p[0]), ys = s.cells.map(p => p[1]);
+    ctx.strokeStyle = col; ctx.lineWidth = 3; ctx.setLineDash([6, 4]);
+    ctx.strokeRect(M + Math.min(...xs)*c + 2, M + Math.min(...ys)*c + 2, (Math.max(...xs) - Math.min(...xs) + 1)*c - 4, (Math.max(...ys) - Math.min(...ys) + 1)*c - 4);
+    ctx.setLineDash([]);
+  }
+  // marks
+  for (const [k, mk] of NV.marks){
+    if (mk.pending) continue;
+    const [x, y] = k.split(',').map(Number), px = M + x*c, py = M + y*c;
+    if (mk.hit){
+      const col = mk.owner >= 0 ? players[mk.owner].color : NV_GHOST;
+      ctx.fillStyle = col; ctx.globalAlpha = .85; ctx.fillRect(px + 2, py + 2, c - 4, c - 4); ctx.globalAlpha = 1;
+      ctx.fillStyle = 'rgba(0,0,0,.45)'; ctx.fillRect(px + 2, py + 2, c - 4, c - 4);
+      // flames
+      for (let f = 0; f < 3; f++){
+        const fx = px + c*(.3 + .2*f), fl = c*(.35 + .15*Math.sin(now/90 + f*2 + x*3 + y));
+        ctx.fillStyle = f === 1 ? '#FFC93C' : '#FF6B3D';
+        ctx.beginPath(); ctx.moveTo(fx - c*.11, py + c*.78); ctx.quadraticCurveTo(fx, py + c*.78 - fl*1.6, fx + c*.11, py + c*.78); ctx.fill();
+      }
+    } else {
+      ctx.strokeStyle = 'rgba(220,235,255,.45)'; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(px + c/2, py + c/2, c*.16, 0, Math.PI*2); ctx.stroke();
+      const d = NV.dist.get(k);
+      if (d !== undefined){
+        ctx.fillStyle = 'rgba(10,20,40,.55)'; ctx.fillRect(px + 1, py + 1, c - 2, c - 2);
+        ctx.fillStyle = NV_NUM[Math.min(d, 6)]; ctx.font = '700 ' + Math.round(c*.55) + 'px "JetBrains Mono", monospace';
+        ctx.fillText(d >= 99 ? '–' : String(d), px + c/2, py + c/2 + 1);
+      }
+    }
+  }
+  // hover target
+  if (NV.hover && nvCanShoot(NV.hover)){
+    const [x, y] = NV.hover, px = M + (x + .5)*c, py = M + (y + .5)*c;
+    ctx.strokeStyle = mine ? mine.color : '#fff'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(px, py, c*.38, 0, Math.PI*2); ctx.moveTo(px - c*.5, py); ctx.lineTo(px + c*.5, py); ctx.moveTo(px, py - c*.5); ctx.lineTo(px, py + c*.5); ctx.stroke();
+  }
+  // cannons
+  players.forEach((p, i) => {
+    const pos = NV.cannons[i]; if (!pos) return;
+    const [x, y] = pos, live = NV.alive[i], col = live ? p.color : '#4A4475';
+    const a = NV.aim[i] || 0, rec = (NV.recoil[i] || 0) * 6;
+    ctx.save(); ctx.translate(x, y);
+    if (NV.turnId === p.id){ ctx.strokeStyle = p.color; ctx.globalAlpha = .4 + .3*Math.sin(now/180); ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(0, 0, 25, 0, Math.PI*2); ctx.stroke(); ctx.globalAlpha = 1; }
+    ctx.rotate(a);
+    ctx.fillStyle = '#2A2548'; ctx.fillRect(-rec, -5.5, 30, 11);           // barrel
+    ctx.fillStyle = col; ctx.fillRect(-rec + 24, -7, 8, 14);
+    ctx.rotate(-a);
+    ctx.fillStyle = col; ctx.beginPath(); ctx.arc(0, 0, 14, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.save(); ctx.scale(.55, .55); nvShape(ctx, NV_SHAPES[i % 5], 9); ctx.restore(); ctx.fill();
+    ctx.restore();
+    ctx.fillStyle = col; ctx.font = (p.id === me.id ? '700 ' : '600 ') + '19px "JetBrains Mono", monospace';
+    const ly = y > S - M ? y + 24 : y < M ? y - 22 : y + 30;
+    const lx = Math.max(50, Math.min(S - 50, x));
+    ctx.fillText(p.name.length > 10 ? p.name.slice(0, 9) + '…' : p.name, lx, ly);
+  });
+  // projectiles in flight: arc + ground shadow
+  for (const sh of NV.shots){
+    const t = Math.min(1, sh.t), [x0, y0] = sh.from, [x1, y1] = sh.to;
+    const gx = x0 + (x1 - x0)*t, gy = y0 + (y1 - y0)*t;
+    const arcH = 60 + Math.hypot(x1 - x0, y1 - y0)*.32, lift = 4*t*(1 - t)*arcH;
+    ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.beginPath(); ctx.ellipse(gx, gy, 7, 4, 0, 0, Math.PI*2); ctx.fill();
+    ctx.save(); ctx.translate(gx, gy - lift); ctx.rotate(t*8);
+    const sc = 1 + .7*4*t*(1 - t);
+    ctx.fillStyle = players[sh.i] ? players[sh.i].color : '#fff'; ctx.strokeStyle = '#141225'; ctx.lineWidth = 2;
+    nvShape(ctx, NV_SHAPES[sh.i % 5], 7*sc); ctx.fill(); ctx.stroke();
+    ctx.restore();
+  }
+  // effects
+  for (const f of NV.fx){
+    if (f.kind === 'boom'){
+      const k = Math.min(1, f.t / .5);
+      ctx.globalAlpha = 1 - k; ctx.fillStyle = '#FFE08A';
+      ctx.beginPath(); ctx.arc(f.x, f.y, 6 + k*c*1.1, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#FF6B3D'; ctx.beginPath(); ctx.arc(f.x, f.y, 3 + k*c*.7, 0, Math.PI*2); ctx.fill();
+      ctx.globalAlpha = Math.max(0, 1 - f.t/1.1);
+      for (const p of f.parts){ ctx.fillStyle = p.v > 140 ? '#FFC93C' : f.col; ctx.fillRect(f.x + Math.cos(p.a)*p.v*f.t - 2, f.y + Math.sin(p.a)*p.v*f.t + 60*f.t*f.t - 2, 4, 4); }
+      ctx.globalAlpha = 1;
+    } else {
+      for (let r = 0; r < 3; r++){
+        const k = f.t - r*.15; if (k <= 0) continue;
+        ctx.strokeStyle = 'rgba(200,230,255,' + Math.max(0, .8 - k*.7) + ')'; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.ellipse(f.x, f.y, 4 + k*c*.9, 2 + k*c*.45, 0, 0, Math.PI*2); ctx.stroke();
+      }
+      ctx.fillStyle = 'rgba(220,240,255,' + Math.max(0, 1 - f.t*1.2) + ')';
+      for (const d of f.drops){ const tt = Math.min(f.t, .8); ctx.beginPath(); ctx.arc(f.x + Math.cos(d.a)*d.v*tt, f.y + Math.sin(d.a)*d.v*tt + 160*tt*tt, 2.2, 0, Math.PI*2); ctx.fill(); }
+    }
+  }
+}
+document.querySelector('.nvwrap').addEventListener('animationend', e => e.currentTarget.classList.remove('shake'));
+
 // ================= leaderboard: finished games kept in this browser =================
 const HIST_KEY = 'tm-history', HIST_MAX = 200;
 let lastSaved = null;
@@ -1534,8 +1976,8 @@ function saveGame(ranking, game){
   if (!Array.isArray(ranking) || !ranking.length || lastSaved === ranking) return;
   lastSaved = ranking;
   const h = loadHist();
-  h.unshift({ at:Date.now(), game:(game === 'pong' || game === 'derby') ? game : 'tetris', n:ranking.length,
-    p:ranking.map(r => ({ name:String(r.name).slice(0,14), color:r.color, place:r.place|0, sc:r.sc|0, ln:r.ln|0, sent:r.sent|0, lives:r.lives|0, hits:r.hits|0, shapes:r.shapes|0, d:Math.round(r.d||0), t:+r.t||0, me:r.id === me.id })) });
+  h.unshift({ at:Date.now(), game:['pong','derby','naval'].includes(game) ? game : 'tetris', n:ranking.length,
+    p:ranking.map(r => ({ name:String(r.name).slice(0,14), color:r.color, place:r.place|0, sc:r.sc|0, ln:r.ln|0, sent:r.sent|0, lives:r.lives|0, hits:r.hits|0, shots:r.shots|0, afloat:r.afloat|0, shapes:r.shapes|0, d:Math.round(r.d||0), t:+r.t||0, me:r.id === me.id })) });
   store.set(HIST_KEY, JSON.stringify(h.slice(0, HIST_MAX)));
 }
 let lbFilter = 'all', clearArmed = false;
@@ -1550,13 +1992,13 @@ function renderBoard(){
     a.games++; if (p.place === 1 && g.n > 1) a.wins++;
     a.pts += Math.max(0, g.n - p.place);                  // 1 point per player finished ahead of
     if (g.game === 'derby'){ if (p.t > 0 && (!a.bestT || p.t < a.bestT)) a.bestT = p.t; }
-    else a.best = Math.max(a.best, g.game === 'pong' ? p.hits : p.sc);
+    else a.best = Math.max(a.best, (g.game === 'pong' || g.game === 'naval') ? p.hits : p.sc);
     agg.set(k, a);
   }
   const rows = [...agg.values()].sort((x, y) => y.pts - x.pts || y.wins - x.wins || x.games - y.games);
   const showBest = lbFilter !== 'all';
   const hd = $('lbHead'); hd.textContent = '';
-  for (const t of ['#','Joueur','Parties','Victoires','Points', ...(showBest ? [lbFilter === 'pong' ? 'Renvois max' : lbFilter === 'derby' ? 'Meilleur temps' : 'Meilleur score'] : [])]){
+  for (const t of ['#','Joueur','Parties','Victoires','Points', ...(showBest ? [lbFilter === 'pong' ? 'Renvois max' : lbFilter === 'derby' ? 'Meilleur temps' : lbFilter === 'naval' ? 'Touchés max' : 'Meilleur score'] : [])]){
     const th = document.createElement('th'); th.textContent = t; hd.append(th);
   }
   const tb = $('lbBody'); tb.textContent = '';
@@ -1577,13 +2019,13 @@ function renderBoard(){
   for (const g of games.slice(0, 15)){
     const li = document.createElement('li');
     const when = document.createElement('div'); when.className = 'when';
-    when.textContent = ({ pong:'Pong', derby:'Derby' }[g.game] || 'Tetris') + ' · ' + new Date(g.at).toLocaleString('fr-FR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' }) + ' · ' + g.n + (g.n > 1 ? ' joueurs' : ' joueur');
+    when.textContent = ({ pong:'Pong', derby:'Derby', naval:'Armada' }[g.game] || 'Tetris') + ' · ' + new Date(g.at).toLocaleString('fr-FR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' }) + ' · ' + g.n + (g.n > 1 ? ' joueurs' : ' joueur');
     const who = document.createElement('div'); who.className = 'who';
     for (const p of g.p.slice().sort((a, b) => a.place - b.place)){
       const sp = document.createElement('span');
       const d = document.createElement('i'); d.className = 'dot'; d.style.background = p.color;
       const t = document.createElement('b'); t.style.fontWeight = p.place === 1 ? '700' : '400';
-      t.textContent = p.place + '. ' + p.name + (g.game === 'pong' ? '' : g.game === 'derby' ? (p.t ? ' (' + fmtSec(p.t) + ')' : '') : ' (' + p.sc.toLocaleString('fr-FR') + ')');
+      t.textContent = p.place + '. ' + p.name + (g.game === 'pong' || g.game === 'naval' ? '' : g.game === 'derby' ? (p.t ? ' (' + fmtSec(p.t) + ')' : '') : ' (' + p.sc.toLocaleString('fr-FR') + ')');
       sp.append(d, t); who.append(sp);
     }
     li.append(when, who); ol.append(li);
@@ -1605,6 +2047,7 @@ function frame(now){
   const dt = Math.min(50, now - last); last = now;
   if (cur === 'pong') pongFrame(dt, now);
   if (cur === 'derby') derbyFrame(dt, now);
+  if (cur === 'naval') navalFrame(dt, now);
   if (cur === 'tetris' && G && phase === 'count'){
     G.count -= dt/1000;
     if (G.count <= 0){ phase = 'play'; setMsg('', ''); }
@@ -1661,7 +2104,7 @@ function backToLobby(){
     players = players.filter(p => p.id === 'h' || net.conns.has(p.id));
     sendLobby(true);                                       // everyone goes back
   } else {
-    phase = 'lobby'; $('scrEnd').hidden = true; G = null; PG = null; D = null; cur = null;
+    phase = 'lobby'; $('scrEnd').hidden = true; G = null; PG = null; D = null; NV = null; cur = null;
     show('scrLobby'); renderLobby();                      // wait there for the creator
   }
   abortArmed = false; syncAbort();
