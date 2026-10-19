@@ -420,7 +420,7 @@ let ML = null, HM = null;       // tape-taupe: my view / host referee
 const GAME_DESC = {
   tetris:'Chaque ligne effacée envoie des briques gênantes à tous les adversaires : 1 ligne = 1 brique, 2 = 2, 3 = 4, 4 = 6.',
   pong:'Chaque joueur défend un côté avec 5 vies. Le terrain suit le nombre de joueurs : carré à 2, hexagone à 3, octogone à 4, décagone à 5. Le côté d\'un joueur éliminé devient un mur.',
-  mole:'Tour à tour, chacun cache 5 taupes à sa couleur dans le pré (8×8). Puis elles sortent une à une, vite : la première personne à taper une taupe d\'un autre gagne 1 point, une taupe que personne ne tape rapporte 1 point à son propriétaire. Premier à 20 points.',
+  mole:'En même temps, chacun cache 5 taupes à sa couleur dans le pré (8×8). Puis elles sortent une à une, vite : la première personne à taper une taupe d\'un autre gagne 1 point, une taupe que personne ne tape rapporte 1 point à son propriétaire. Premier à 20 points.',
   naval:'Bataille navale à plusieurs sur une seule mer. Chacun voit ses bateaux, rien d\'autre. À tour de rôle, tirez au canon sur une case : touché, tout le monde voit la flamme ; dans l\'eau, vous seul voyez combien de cases de bateau l\'entourent, comme au démineur. Le dernier à flot gagne.',
   derby:'Course de chevaux : tout le monde reçoit la même série de figures à tracer. Chaque figure réussie fait avancer votre cheval, plus loin si elle est complexe et bien tracée. Le premier à la ligne gagne.'
 };
@@ -617,7 +617,7 @@ function clientRecv(m){
     case 'nv_start': startNaval(m); break;
     case 'tt_start': startMole(m); break;
     case 'tt_place': molePlaceTurn(m); break;
-    case 'tt_placed': moleToast((players.find(p => p.id === m.id) || {}).name + ' a caché ses taupes'); break;
+    case 'tt_placed': molePlaced(m); break;
     case 'tt_round': moleRound(m); break;
     case 'tt_up': moleUp(m); break;
     case 'tt_res': moleRes(m); break;
@@ -633,7 +633,7 @@ function clientRecv(m){
     case 'gb': if (m.from !== me.id) receiveGarbage(m.from, m.cols, m.black); break;
     case 'pdead': if (cur === 'pong'){ pongDeadFx(m.id); break; }
     if (cur === 'naval'){ navalDeadFx(m.id, m.left); break; }
-    if (cur === 'mole'){ const p = players.find(x => x.id === m.id); if (p && m.left) moleToast(p.name + ' a quitté la partie'); break; }
+    if (cur === 'mole'){ const p = players.find(x => x.id === m.id); if (m.id === me.id && ML) ML.out = true; if (p && m.left) moleToast(p.name + ' a quitté la partie'); break; }
     { const o = opps.get(m.id); if (o){ o.dead = true; o.left = m.left; o.el.classList.add('dead'); drawOpp(o); } updateAliveHint(); break; }
     case 'end': showEnd(m.ranking, m.game); break;
   }
@@ -2111,7 +2111,7 @@ document.querySelector('.nvwrap').addEventListener('animationend', e => e.curren
 
 
 // ================= TAPE-TAUPE : hide 5 moles each, then whack the others' =================
-const ML_N = 8, ML_PER = 5, ML_GOAL = 20, ML_PLACE_MS = 10000, ML_SIZE = 640, ML_PAD = 20;
+const ML_N = 8, ML_PER = 5, ML_GOAL = 20, ML_PLACE_MS = 12000, ML_SIZE = 640, ML_PAD = 20;
 const mlCell = (ML_SIZE - 2*ML_PAD) / ML_N;
 const ML_GHOST = '#8A84B0';
 
@@ -2120,31 +2120,26 @@ function moleClearTimers(){ if (!HM) return; HM.timers.forEach(t => clearTimeout
 function moleLater(fn, ms){ const t = setTimeout(() => { if (H && !H.over && HM) fn(); }, ms); HM.timers.push(t); return t; }
 function moleHostStart(){
   const n = players.length;
-  HM = { round:0, order:players.map(p => p.id), first:0, placeIdx:0, placing:null, moles:[], seq:0, timers:[], popper:null, solo:n === 1 };
+  HM = { round:0, order:players.map(p => p.id), waiting:null, moles:[], seq:0, timers:[], popper:null, solo:n === 1 };
   broadcast({ t:'tt_start', players, goal:ML_GOAL });
   moleLater(() => moleNextRound(), 3200);
 }
 function moleNextRound(){
-  HM.round++; HM.moles = []; HM.placeIdx = 0;
+  HM.round++; HM.moles = [];
   if (HM.solo){                                        // solo: 5 grey moles to whack
     const cells = new Set();
     while (cells.size < ML_PER) cells.add(Math.floor(Math.random()*ML_N) + ',' + Math.floor(Math.random()*ML_N));
     for (const c of cells){ const [x, y] = c.split(',').map(Number); HM.moles.push({ owner:null, x, y }); }
   }
-  moleNextPlacer();
+  // everyone hides their moles at the same time; the round starts when all have confirmed
+  HM.waiting = new Set(moleActive());
+  broadcast({ t:'tt_place', id:'all', ms:ML_PLACE_MS, round:HM.round, total:HM.waiting.size });
+  clearTimeout(HM.placeTimer);
+  HM.placeTimer = moleLater(() => { for (const id of [...HM.waiting]) molePut(id, null); }, ML_PLACE_MS + 1500);   // too slow: placed at random
 }
 function moleActive(){ return HM.order.filter(id => H.alive.has(id)); }
-function moleNextPlacer(){
-  const act = moleActive();
-  if (HM.placeIdx >= act.length) return moleWhack();
-  const id = act[(HM.first + HM.placeIdx) % act.length];
-  HM.placing = id;
-  broadcast({ t:'tt_place', id, ms:ML_PLACE_MS, round:HM.round });
-  clearTimeout(HM.placeTimer);
-  HM.placeTimer = moleLater(() => molePut(id, null), ML_PLACE_MS + 1500);   // too slow: placed at random
-}
 function molePut(id, cells){
-  if (!HM || HM.placing !== id) return;
+  if (!HM || !HM.waiting || !HM.waiting.has(id)) return;
   const ok = new Set();
   if (Array.isArray(cells)) for (const c of cells){
     const x = c[0]|0, y = c[1]|0;
@@ -2153,10 +2148,9 @@ function molePut(id, cells){
   }
   while (ok.size < ML_PER) ok.add(Math.floor(Math.random()*ML_N) + ',' + Math.floor(Math.random()*ML_N));
   for (const c of ok){ const [x, y] = c.split(',').map(Number); HM.moles.push({ owner:id, x, y }); }
-  HM.placing = null; clearTimeout(HM.placeTimer);
-  broadcast({ t:'tt_placed', id });
-  HM.placeIdx++;
-  moleLater(() => moleNextPlacer(), 400);
+  HM.waiting.delete(id);
+  broadcast({ t:'tt_placed', id, ready:moleActive().length - HM.waiting.size, total:moleActive().length });
+  if (!HM.waiting.size){ clearTimeout(HM.placeTimer); HM.waiting = null; moleLater(() => moleWhack(), 500); }
 }
 function moleWhack(){
   // shuffle all moles; speed grows every round
@@ -2204,7 +2198,6 @@ function moleResolve(m){
   broadcast({ t:'tt_res', mid:m.mid, by, owner:m.owner, scores });
   if (winner && H.stats[winner] && H.stats[winner].pts >= ML_GOAL) return moleEnd();
   if (HM.left <= 0){
-    HM.first = (HM.first + 1) % Math.max(1, moleActive().length);
     moleLater(() => moleNextRound(), 1500);
   }
 }
@@ -2219,7 +2212,10 @@ function moleDrop(id){
   if (!H || !HM) return;
   H.alive.delete(id); H.stats[id].left = true;
   broadcast({ t:'pdead', id, left:true });
-  if (HM.placing === id){ HM.placing = null; clearTimeout(HM.placeTimer); HM.placeIdx++; moleLater(() => moleNextPlacer(), 300); }
+  if (HM.waiting && HM.waiting.has(id)){
+    HM.waiting.delete(id);
+    if (!HM.waiting.size){ clearTimeout(HM.placeTimer); HM.waiting = null; moleLater(() => moleWhack(), 500); }
+  }
   if (moleActive().length < 1) moleEnd();
 }
 
@@ -2265,12 +2261,17 @@ function molePlaceTurn(m){
   if (!ML || ML.over) return;
   if (phase === 'count'){ phase = 'play'; moleMsg('', ''); countBeep(0); }
   if (m.round !== ML.round){ ML.round = m.round; ML.mine = []; }
-  ML.placing = m.id; ML.deadline = performance.now() + (m.ms|0); ML.sel = [];
-  const mineTurn = m.id === me.id;
-  $('mlPhase').classList.toggle('mine', mineTurn);
-  setMolePhase(mineTurn ? 'Cachez vos 5 taupes' : (molePlayer(m.id) || {}).name + ' cache ses taupes…', moleColor(m.id));
-  $('mlConfirm').hidden = !mineTurn; syncMoleConfirm();
-  if (mineTurn) sfx('myturn');
+  const active = !ML.out;
+  ML.placing = active ? me.id : null; ML.sent = !active; ML.deadline = performance.now() + (m.ms|0); ML.sel = []; ML.total = m.total|0;
+  $('mlPhase').classList.toggle('mine', active);
+  setMolePhase(active ? 'Cachez vos 5 taupes (tout le monde en même temps)' : 'Les autres cachent leurs taupes…', active ? moleColor(me.id) : null);
+  $('mlConfirm').hidden = !active; syncMoleConfirm();
+  if (active) sfx('myturn');
+}
+function molePlaced(m){
+  if (!ML) return;
+  if (m.id !== me.id){ const p = molePlayer(m.id); if (p) moleToast(p.name + ' est prêt'); }
+  if (ML.sent) setMolePhase('En attente des autres : ' + (m.ready|0) + ' / ' + (m.total|0) + ' prêts', null);
 }
 function syncMoleConfirm(){
   $('mlCount').textContent = ML.sel.length + ' / ' + ML_PER + ' taupes';
@@ -2282,15 +2283,16 @@ function moleSend(){
     const c = [Math.floor(Math.random()*ML_N), Math.floor(Math.random()*ML_N)];
     if (!ML.sel.some(s => s[0] === c[0] && s[1] === c[1])) ML.sel.push(c);
   }
-  ML.mine = ML.sel.slice(); ML.placing = null;
-  $('mlConfirm').hidden = true; $('mlTime').textContent = '';
+  ML.mine = ML.sel.slice(); ML.placing = null; ML.sent = true;
+  $('mlConfirm').hidden = true;
+  setMolePhase('En attente des autres…', null); $('mlPhase').classList.remove('mine');
   toHost({ t:'tt_put', cells:ML.mine });
 }
 $('mlOk').onclick = moleSend;
 $('mlRand').onclick = () => { if (ML){ ML.sel = []; moleSend(); } };
 function moleRound(m){
   if (!ML) return;
-  ML.placing = null; $('mlConfirm').hidden = true; $('mlTime').textContent = '';
+  ML.placing = null; ML.sent = false; ML.deadline = 0; $('mlConfirm').hidden = true; $('mlTime').textContent = '';
   $('mlPhase').classList.remove('mine');
   setMolePhase('Manche ' + m.round + ' : tapez les taupes des autres !', null);
   moleMsg('Taupes !', m.count + ' taupes vont sortir'); sfx('go');
@@ -2361,7 +2363,7 @@ function moleFrame(dtMs, now){
   if (!ML) return;
   const dt = dtMs/1000;
   if (phase === 'count'){ ML.count -= dt; if (ML.count > 0){ moleMsg(String(Math.ceil(ML.count)), ''); countBeep(Math.ceil(ML.count)); } }
-  if (ML.placing && !ML.over){
+  if ((ML.placing || (ML.sent && ML.deadline > now)) && !ML.over){
     const left = Math.max(0, ML.deadline - now), te = $('mlTime');
     te.textContent = Math.ceil(left/1000) + ' s'; te.classList.toggle('low', left < 4000);
     if (ML.placing === me.id && left <= 0) moleSend();
