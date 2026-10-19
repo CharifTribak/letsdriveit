@@ -80,6 +80,16 @@ label{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--m
 .thumb{position:absolute;top:7px;bottom:7px;border-radius:23px;background:var(--accent);box-shadow:inset 0 -3px 0 rgba(0,0,0,.25)}
 @media (pointer:coarse){ .slider{display:block} .pong .keys{display:none} }
 .board{max-width:560px;max-height:calc(100vh - 32px);overflow-y:auto}
+.mole{display:flex;flex-direction:column;align-items:center;gap:10px;max-width:700px;margin:0 auto}
+#mlCv{display:block;width:100%;height:auto;aspect-ratio:1;touch-action:manipulation;cursor:pointer;border-radius:10px}
+.mlscores{list-style:none;margin:0;padding:0;width:min(100%,74vh,700px);display:flex;flex-direction:column;gap:5px;font-size:13px}
+.mlscores li{display:grid;grid-template-columns:minmax(0,9em) 1fr 2.5em;align-items:center;gap:8px}
+.mlscores .nm{display:flex;align-items:center;gap:6px;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.mlscores .bar{height:10px;background:var(--panel);border:1px solid var(--line);border-radius:5px;overflow:hidden}
+.mlscores .bar i{display:block;height:100%;transition:width .25s}
+.mlscores b{text-align:right;font-variant-numeric:tabular-nums}
+#gamePick, #boardTabs{flex-wrap:wrap}
+#gamePick button, #boardTabs button{padding:10px 4px;font-size:13px;min-width:0}
 .naval{display:flex;flex-direction:column;align-items:center;gap:10px;max-width:760px;margin:0 auto}
 .nvhead{width:min(100%,74vh,700px);display:flex;justify-content:flex-start;padding-right:90px;align-items:center;gap:12px;min-height:34px}
 .nvturn{font-family:var(--display);font-size:clamp(15px,4vw,20px);display:flex;align-items:center;gap:8px;min-width:0}
@@ -172,7 +182,7 @@ label{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--m
 <!-- MENU -->
 <section id="scrMenu" class="center">
   <div class="card">
-    <h1 class="logo">MÊLÉE<span>TETRIS · PONG · DERBY · ARMADA</span></h1>
+    <h1 class="logo">MÊLÉE<span>5 JEUX · 1 À 5 JOUEURS</span></h1>
     <div class="field">
       <label for="nameIn">Votre nom</label>
       <input id="nameIn" maxlength="14" autocomplete="nickname" placeholder="Votre nom">
@@ -185,7 +195,7 @@ label{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--m
     </div>
     <button id="btnBoard" class="ghost">Classement général</button>
     <button id="btnSound" class="ghost">Son : activé</button>
-    <p class="hint" id="menuHint">Créez un salon, partagez le code, puis choisissez le jeu : Tetris, Pong, Derby ou Armada. De 1 à 5 joueurs.</p>
+    <p class="hint" id="menuHint">Créez un salon, partagez le code, puis choisissez le jeu : Tetris, Pong, Derby, Armada ou Tape-taupe. De 1 à 5 joueurs.</p>
   </div>
 </section>
 
@@ -204,6 +214,7 @@ label{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--m
         <button data-g="pong" aria-pressed="false">Pong</button>
         <button data-g="derby" aria-pressed="false">Derby</button>
         <button data-g="naval" aria-pressed="false">Armada</button>
+        <button data-g="mole" aria-pressed="false">Taupes</button>
       </div>
       <p class="hint" id="gameDesc"></p>
     </div>
@@ -305,6 +316,27 @@ label{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--m
   </div>
 </section>
 
+<!-- TAPE-TAUPE -->
+<section id="scrMole" hidden>
+  <div class="mole">
+    <div class="nvhead">
+      <div class="nvturn" id="mlPhase">Préparation…</div>
+      <div class="nvtime" id="mlTime"></div>
+    </div>
+    <div class="nvwrap" id="mlWrap">
+      <canvas id="mlCv" width="640" height="640" aria-label="Pré aux taupes"></canvas>
+      <div class="msg pm" id="mlMsg"></div>
+      <div class="toast pm" id="mlToast" aria-live="polite"></div>
+    </div>
+    <div class="nvconfirm" id="mlConfirm" hidden>
+      <span id="mlCount">0 / 5 taupes</span>
+      <button id="mlOk" disabled>Valider</button>
+      <button id="mlRand" class="ghost">Au hasard</button>
+    </div>
+    <ul class="mlscores" id="mlScores"></ul>
+  </div>
+</section>
+
 <!-- RANKING -->
 <div class="overlay" id="scrEnd" hidden>
   <div class="card" style="max-width:480px">
@@ -331,6 +363,7 @@ label{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--m
       <button data-f="pong" aria-pressed="false">Pong</button>
       <button data-f="derby" aria-pressed="false">Derby</button>
       <button data-f="naval" aria-pressed="false">Armada</button>
+      <button data-f="mole" aria-pressed="false">Taupes</button>
     </div>
     <div class="rank"><table>
       <thead><tr id="lbHead"></tr></thead>
@@ -383,16 +416,18 @@ let cur = null;                 // game being played: 'tetris' | 'pong'
 let PG = null;                  // pong state (host simulates, guests mirror)
 let D = null;                   // derby state
 let NV = null, HN = null;       // armada: my view / host's full map
+let ML = null, HM = null;       // tape-taupe: my view / host referee
 const GAME_DESC = {
   tetris:'Chaque ligne effacée envoie des briques gênantes à tous les adversaires : 1 ligne = 1 brique, 2 = 2, 3 = 4, 4 = 6.',
   pong:'Chaque joueur défend un côté avec 5 vies. Le terrain suit le nombre de joueurs : carré à 2, hexagone à 3, octogone à 4, décagone à 5. Le côté d\'un joueur éliminé devient un mur.',
+  mole:'Tour à tour, chacun cache 5 taupes à sa couleur dans le pré (8×8). Puis elles sortent une à une, vite : la première personne à taper une taupe d\'un autre gagne 1 point, une taupe que personne ne tape rapporte 1 point à son propriétaire. Premier à 20 points.',
   naval:'Bataille navale à plusieurs sur une seule mer. Chacun voit ses bateaux, rien d\'autre. À tour de rôle, tirez au canon sur une case : touché, tout le monde voit la flamme ; dans l\'eau, vous seul voyez combien de cases de bateau l\'entourent, comme au démineur. Le dernier à flot gagne.',
   derby:'Course de chevaux : tout le monde reçoit la même série de figures à tracer. Chaque figure réussie fait avancer votre cheval, plus loin si elle est complexe et bien tracée. Le premier à la ligne gagne.'
 };
 
 const cleanName = s => String(s || '').replace(/[\u0000-\u001f<>]/g,'').trim().slice(0,14) || 'Joueur';
 const genCode = () => { const a='ABCDEFGHJKMNPQRSTUVWXYZ23456789'; let s=''; for(let i=0;i<4;i++) s+=a[Math.floor(Math.random()*a.length)]; return s; };
-const show = id => { for (const s of ['scrMenu','scrLobby','scrGame','scrPong','scrDerby','scrNaval']) $(s).hidden = s !== id; };
+const show = id => { for (const s of ['scrMenu','scrLobby','scrGame','scrPong','scrDerby','scrNaval','scrMole']) $(s).hidden = s !== id; };
 const store = { get(k){ try { return localStorage.getItem(k); } catch(_) { return null; } }, set(k,v){ try { localStorage.setItem(k,v); } catch(_){} } };
 
 $('nameIn').value = store.get('tm-name') || ('Joueur' + Math.floor(Math.random()*90+10));
@@ -402,6 +437,7 @@ const menuHint = (t, err) => { $('menuHint').textContent = t; $('menuHint').clas
 function teardown(){
   if (net && net.peer){ try { net.peer.destroy(); } catch(_){} }
   if (HN && HN.timer) clearTimeout(HN.timer);
+  if (HM) moleClearTimers();
   net = null; H = null; G = null; PG = null; D = null; NV = null; HN = null; cur = null; me.host = false; me.id = null; players = []; opps.clear();
 }
 function toMenu(msg){
@@ -482,7 +518,7 @@ function hostDrop(conn){
   net.conns.delete(id);
   if (phase === 'lobby'){ players = players.filter(p => p.id !== id); sendLobby(false); return; }
   if (H && H.alive.has(id)){
-    if (H.game === 'pong') pongDrop(id); else if (H.game === 'derby') derbyDrop(id); else if (H.game === 'naval') navalDrop(id); else hostHandle(id, { t:'dead', left:true });
+    if (H.game === 'pong') pongDrop(id); else if (H.game === 'derby') derbyDrop(id); else if (H.game === 'naval') navalDrop(id); else if (H.game === 'mole') moleDrop(id); else hostHandle(id, { t:'dead', left:true });
   }
 }
 
@@ -506,9 +542,11 @@ function hostStart(){
   H = { game:gameKind, alive:new Set(players.map(p => p.id)), deaths:[], stats:{}, n:players.length, over:false };
   for (const p of players) H.stats[p.id] = gameKind === 'pong' ? { lives:PONG_LIVES, hits:0, left:false }
     : gameKind === 'derby' ? { d:0, shapes:0, t:0, left:false }
-    : gameKind === 'naval' ? { shots:0, hits:0, afloat:0, left:false } : { sc:0, ln:0, sent:0, left:false };
+    : gameKind === 'naval' ? { shots:0, hits:0, afloat:0, left:false }
+    : gameKind === 'mole' ? { pts:0, whacks:0, escaped:0, left:false } : { sc:0, ln:0, sent:0, left:false };
   H.t0 = performance.now();
   if (gameKind === 'naval') return navalHostStart();
+  if (gameKind === 'mole') return moleHostStart();
   broadcast({ t:'start', players, game:gameKind, seed:Math.floor(Math.random() * 2**31) });
 }
 
@@ -535,6 +573,10 @@ function hostHandle(id, m){
   } else if (m.t === 'dead'){
     if (!m.left){ st.sc = m.sc|0; st.ln = m.ln|0; }
     hostEliminate(id, m.left);
+  } else if (m.t === 'tt_put'){
+    molePut(id, m.cells);
+  } else if (m.t === 'tt_hit'){
+    moleHit(id, m.mid|0, +m.rt);
   } else if (m.t === 'nv_fire'){
     navalFire(id, m.x|0, m.y|0);
   } else if (m.t === 'dp'){
@@ -567,12 +609,18 @@ function clientRecv(m){
     case 'lobby':
       players = Array.isArray(m.players) ? m.players : [];
       if (m.you) me.id = m.you;
-      if (['tetris','pong','derby','naval'].includes(m.game)) gameKind = m.game;
+      if (['tetris','pong','derby','naval','mole'].includes(m.game)) gameKind = m.game;
       if (phase === 'menu' || phase === 'lobby' || m.back){
-        phase = 'lobby'; $('scrEnd').hidden = true; G = null; PG = null; D = null; NV = null; cur = null; show('scrLobby'); renderLobby();
+        phase = 'lobby'; $('scrEnd').hidden = true; G = null; PG = null; D = null; NV = null; ML = null; cur = null; show('scrLobby'); renderLobby();
       }
       break;
     case 'nv_start': startNaval(m); break;
+    case 'tt_start': startMole(m); break;
+    case 'tt_place': molePlaceTurn(m); break;
+    case 'tt_placed': moleToast((players.find(p => p.id === m.id) || {}).name + ' a caché ses taupes'); break;
+    case 'tt_round': moleRound(m); break;
+    case 'tt_up': moleUp(m); break;
+    case 'tt_res': moleRes(m); break;
     case 'nv_turn': navalTurn(m); break;
     case 'nv_shot': navalShot(m); break;
     case 'nv_dist': if (NV){ const k = m.x + ',' + m.y, mk = NV.marks.get(k); if (mk && !mk.pending) NV.dist.set(k, m.d|0); else NV.pendingDist[k] = m.d|0; } break;
@@ -585,6 +633,7 @@ function clientRecv(m){
     case 'gb': if (m.from !== me.id) receiveGarbage(m.from, m.cols, m.black); break;
     case 'pdead': if (cur === 'pong'){ pongDeadFx(m.id); break; }
     if (cur === 'naval'){ navalDeadFx(m.id, m.left); break; }
+    if (cur === 'mole'){ const p = players.find(x => x.id === m.id); if (p && m.left) moleToast(p.name + ' a quitté la partie'); break; }
     { const o = opps.get(m.id); if (o){ o.dead = true; o.left = m.left; o.el.classList.add('dead'); drawOpp(o); } updateAliveHint(); break; }
     case 'end': showEnd(m.ranking, m.game); break;
   }
@@ -812,14 +861,15 @@ function showEnd(ranking, game){
   phase = 'end';
   if (G) G.p = null;
   if (PG) PG.ph = 'over';
-  const pong = game === 'pong', derby = game === 'derby', naval = game === 'naval';
+  const pong = game === 'pong', derby = game === 'derby', naval = game === 'naval', mole = game === 'mole';
+  if (ML) ML.over = true;
   if (NV) NV.over = true;
   if (D) D.over = true;
   const hd = $('rankHead'); hd.textContent = '';
-  for (const h of ['#','Joueur', ...(pong ? ['Vies','Renvois'] : derby ? ['Figures','Distance','Temps'] : naval ? ['Tirs','Touchés','À flot'] : ['Lignes','Briques','Score'])]){
+  for (const h of ['#','Joueur', ...(pong ? ['Vies','Renvois'] : derby ? ['Figures','Distance','Temps'] : naval ? ['Tirs','Touchés','À flot'] : mole ? ['Points','Tapées','Échappées'] : ['Lignes','Briques','Score'])]){
     const th = document.createElement('th'); th.textContent = h; hd.append(th);
   }
-  $('rankNote').textContent = naval ? '« À flot » : cases de bateau encore intactes à la fin.' : pong ? '« Renvois » : balles renvoyées avec la raquette.' : derby ? '« Temps » : durée pour franchir la ligne, pour ceux qui l\'ont franchie.' : '« Briques » : nombre de briques envoyées aux adversaires.';
+  $('rankNote').textContent = mole ? '« Tapées » : taupes adverses tapées. « Échappées » : vos taupes que personne n\'a eues.' : naval ? '« À flot » : cases de bateau encore intactes à la fin.' : pong ? '« Renvois » : balles renvoyées avec la raquette.' : derby ? '« Temps » : durée pour franchir la ligne, pour ceux qui l\'ont franchie.' : '« Briques » : nombre de briques envoyées aux adversaires.';
   const tb = $('rankBody'); tb.textContent = '';
   (ranking || []).forEach(r => {
     const tr = document.createElement('tr'); if (r.place === 1) tr.className = 'win';
@@ -829,6 +879,7 @@ function showEnd(ranking, game){
     const s = document.createElement('span'); s.textContent = r.name + (r.id === me.id ? ' (vous)' : '') + (r.left ? ' · parti' : '');
     w.append(d, s); nm.append(w);
     if (pong) tr.append(td(r.place), nm, td(r.lives|0), td(r.hits|0));
+    else if (mole) tr.append(td(r.place), nm, td(r.pts|0), td(r.whacks|0), td(r.escaped|0));
     else if (naval) tr.append(td(r.place), nm, td(r.shots|0), td(r.hits|0), td(r.afloat|0));
     else if (derby) tr.append(td(r.place), nm, td(r.shapes|0), td(Math.round(r.d||0) + ' %'), td(r.t ? fmtSec(r.t) : '–'));
     else tr.append(td(r.place), nm, td(r.ln|0), td(r.sent|0), td((r.sc|0).toLocaleString('fr-FR')));
@@ -836,7 +887,7 @@ function showEnd(ranking, game){
   });
   const win = ranking && ranking[0];
   sfx(win && win.id === me.id ? 'win' : 'lose');
-  (pong ? pongMsg : derby ? derbyMsg : naval ? navalMsg : setMsg)(win && win.id === me.id ? 'Victoire' : 'Terminé', '');
+  (pong ? pongMsg : derby ? derbyMsg : naval ? navalMsg : mole ? moleMsg : setMsg)(win && win.id === me.id ? 'Victoire' : 'Terminé', '');
   $('btnAgain').hidden = false;
   $('endHint').textContent = me.host ? 'Tout le monde revient au salon : relancez le même jeu ou choisissez-en un autre.' : 'Vous attendrez au salon que le créateur relance.';
   saveGame(ranking, game);
@@ -2058,6 +2109,348 @@ function drawNaval(now){
 document.querySelector('.nvwrap').addEventListener('animationend', e => e.currentTarget.classList.remove('shake'));
 
 
+
+// ================= TAPE-TAUPE : hide 5 moles each, then whack the others' =================
+const ML_N = 8, ML_PER = 5, ML_GOAL = 20, ML_PLACE_MS = 10000, ML_SIZE = 640, ML_PAD = 20;
+const mlCell = (ML_SIZE - 2*ML_PAD) / ML_N;
+const ML_GHOST = '#8A84B0';
+
+// ---- host (referee) ----
+function moleClearTimers(){ if (!HM) return; HM.timers.forEach(t => clearTimeout(t)); HM.timers = []; clearInterval(HM.popper); }
+function moleLater(fn, ms){ const t = setTimeout(() => { if (H && !H.over && HM) fn(); }, ms); HM.timers.push(t); return t; }
+function moleHostStart(){
+  const n = players.length;
+  HM = { round:0, order:players.map(p => p.id), first:0, placeIdx:0, placing:null, moles:[], seq:0, timers:[], popper:null, solo:n === 1 };
+  broadcast({ t:'tt_start', players, goal:ML_GOAL });
+  moleLater(() => moleNextRound(), 3200);
+}
+function moleNextRound(){
+  HM.round++; HM.moles = []; HM.placeIdx = 0;
+  if (HM.solo){                                        // solo: 5 grey moles to whack
+    const cells = new Set();
+    while (cells.size < ML_PER) cells.add(Math.floor(Math.random()*ML_N) + ',' + Math.floor(Math.random()*ML_N));
+    for (const c of cells){ const [x, y] = c.split(',').map(Number); HM.moles.push({ owner:null, x, y }); }
+  }
+  moleNextPlacer();
+}
+function moleActive(){ return HM.order.filter(id => H.alive.has(id)); }
+function moleNextPlacer(){
+  const act = moleActive();
+  if (HM.placeIdx >= act.length) return moleWhack();
+  const id = act[(HM.first + HM.placeIdx) % act.length];
+  HM.placing = id;
+  broadcast({ t:'tt_place', id, ms:ML_PLACE_MS, round:HM.round });
+  clearTimeout(HM.placeTimer);
+  HM.placeTimer = moleLater(() => molePut(id, null), ML_PLACE_MS + 1500);   // too slow: placed at random
+}
+function molePut(id, cells){
+  if (!HM || HM.placing !== id) return;
+  const ok = new Set();
+  if (Array.isArray(cells)) for (const c of cells){
+    const x = c[0]|0, y = c[1]|0;
+    if (x >= 0 && y >= 0 && x < ML_N && y < ML_N) ok.add(x + ',' + y);
+    if (ok.size >= ML_PER) break;
+  }
+  while (ok.size < ML_PER) ok.add(Math.floor(Math.random()*ML_N) + ',' + Math.floor(Math.random()*ML_N));
+  for (const c of ok){ const [x, y] = c.split(',').map(Number); HM.moles.push({ owner:id, x, y }); }
+  HM.placing = null; clearTimeout(HM.placeTimer);
+  broadcast({ t:'tt_placed', id });
+  HM.placeIdx++;
+  moleLater(() => moleNextPlacer(), 400);
+}
+function moleWhack(){
+  // shuffle all moles; speed grows every round
+  const q = HM.moles.slice();
+  for (let i = q.length - 1; i > 0; i--){ const j = Math.floor(Math.random()*(i+1)); [q[i], q[j]] = [q[j], q[i]]; }
+  const r = HM.round;
+  HM.gap = Math.max(380, 760 - 70*(r - 1));            // ms between two moles
+  HM.dur = Math.max(650, 1150 - 80*(r - 1));           // ms a mole stays up
+  HM.queue = q; HM.up = new Map(); HM.left = q.length;
+  broadcast({ t:'tt_round', round:r, count:q.length });
+  moleLater(() => {
+    HM.popper = setInterval(() => {
+      if (!H || H.over || !HM){ clearInterval(HM && HM.popper); return; }
+      if (!HM.queue.length){ clearInterval(HM.popper); return; }
+      // never two moles in the same hole at once
+      const busy = new Set([...HM.up.values()].map(m => m.x + ',' + m.y));
+      let k = HM.queue.findIndex(m => !busy.has(m.x + ',' + m.y));
+      if (k < 0) return;
+      const m = HM.queue.splice(k, 1)[0];
+      m.mid = ++HM.seq; m.taps = []; m.done = false;
+      HM.up.set(m.mid, m);
+      broadcast({ t:'tt_up', mid:m.mid, x:m.x, y:m.y, owner:m.owner, dur:HM.dur });
+      moleLater(() => moleResolve(m), HM.dur + 220);
+    }, HM.gap);
+  }, 1600);
+}
+function moleHit(id, mid, rt){
+  if (!HM || !HM.up) return;
+  const m = HM.up.get(mid);
+  if (!m || m.done || m.owner === id || !H.alive.has(id) || !(rt >= 0) || rt > HM.dur + 150) return;
+  m.taps.push({ id, rt });
+  // fairness over the network: gather taps for a short moment, the fastest reaction wins
+  if (m.taps.length === 1) moleLater(() => moleResolve(m), 160);
+}
+function moleResolve(m){
+  if (m.done) return;
+  m.done = true; HM.up.delete(m.mid); HM.left--;
+  let by = null;
+  if (m.taps.length){ m.taps.sort((a, b) => a.rt - b.rt); by = m.taps[0].id; }
+  const winner = by || m.owner;
+  if (by) H.stats[by].whacks++;
+  else if (m.owner) H.stats[m.owner].escaped++;
+  if (winner && H.stats[winner]) H.stats[winner].pts++;
+  const scores = {}; for (const id in H.stats) scores[id] = H.stats[id].pts;
+  broadcast({ t:'tt_res', mid:m.mid, by, owner:m.owner, scores });
+  if (winner && H.stats[winner] && H.stats[winner].pts >= ML_GOAL) return moleEnd();
+  if (HM.left <= 0){
+    HM.first = (HM.first + 1) % Math.max(1, moleActive().length);
+    moleLater(() => moleNextRound(), 1500);
+  }
+}
+function moleEnd(){
+  if (H.over) return;
+  H.over = true; moleClearTimers();
+  const order = players.map(p => p.id).sort((a, b) => (H.stats[b].pts - H.stats[a].pts) || (H.stats[b].whacks - H.stats[a].whacks));
+  const ranking = order.map((pid, i) => { const p = players.find(x => x.id === pid); return { id:pid, name:p.name, color:p.color, place:i+1, ...H.stats[pid] }; });
+  setTimeout(() => broadcast({ t:'end', ranking, game:'mole' }), 900);
+}
+function moleDrop(id){
+  if (!H || !HM) return;
+  H.alive.delete(id); H.stats[id].left = true;
+  broadcast({ t:'pdead', id, left:true });
+  if (HM.placing === id){ HM.placing = null; clearTimeout(HM.placeTimer); HM.placeIdx++; moleLater(() => moleNextPlacer(), 300); }
+  if (moleActive().length < 1) moleEnd();
+}
+
+// ---- every player ----
+function startMole(m){
+  players = m.players; cur = 'mole'; G = null; PG = null; D = null; NV = null; phase = 'count';
+  lastCountShown = null;
+  $('scrEnd').hidden = true; show('scrMole');
+  ML = { count:3, scores:Object.fromEntries(players.map(p => [p.id, 0])), placing:null, deadline:0, sel:[], mine:[], up:new Map(), fx:[], hover:null, over:false, round:0 };
+  moleMsg('3', ''); renderMoleScores();
+}
+const moleMsg = (big, small) => {
+  const m = $('mlMsg'); m.textContent = '';
+  if (!big) return;
+  const s = document.createElement('strong'); s.textContent = big; m.append(s);
+  if (small){ const t = document.createElement('small'); t.textContent = small; m.append(t); }
+};
+let mlToastT = null;
+function moleToast(t){ const el = $('mlToast'); el.textContent = t; el.classList.add('on'); clearTimeout(mlToastT); mlToastT = setTimeout(() => el.classList.remove('on'), 1500); }
+const molePlayer = id => players.find(p => p.id === id);
+const moleColor = id => id ? ((molePlayer(id) || {}).color || '#888') : ML_GHOST;
+function renderMoleScores(){
+  const ul = $('mlScores'); ul.textContent = '';
+  players.slice().sort((a, b) => (ML.scores[b.id] || 0) - (ML.scores[a.id] || 0)).forEach(p => {
+    const li = document.createElement('li');
+    const nm = document.createElement('span'); nm.className = 'nm';
+    const d = document.createElement('span'); d.className = 'dot'; d.style.background = p.color;
+    const t = document.createElement('span'); t.textContent = p.name + (p.id === me.id ? ' (vous)' : '');
+    nm.append(d, t);
+    const bar = document.createElement('span'); bar.className = 'bar';
+    const i = document.createElement('i'); i.style.background = p.color; i.style.width = Math.min(100, 100 * (ML.scores[p.id] || 0) / ML_GOAL) + '%';
+    bar.append(i);
+    const b = document.createElement('b'); b.textContent = (ML.scores[p.id] || 0) + '/' + ML_GOAL;
+    li.append(nm, bar, b); ul.append(li);
+  });
+}
+function setMolePhase(text, color){
+  const el = $('mlPhase'); el.textContent = '';
+  if (color){ const d = document.createElement('span'); d.className = 'dot'; d.style.background = color; el.append(d); }
+  const t = document.createElement('span'); t.textContent = text; el.append(t);
+}
+function molePlaceTurn(m){
+  if (!ML || ML.over) return;
+  if (phase === 'count'){ phase = 'play'; moleMsg('', ''); countBeep(0); }
+  if (m.round !== ML.round){ ML.round = m.round; ML.mine = []; }
+  ML.placing = m.id; ML.deadline = performance.now() + (m.ms|0); ML.sel = [];
+  const mineTurn = m.id === me.id;
+  $('mlPhase').classList.toggle('mine', mineTurn);
+  setMolePhase(mineTurn ? 'Cachez vos 5 taupes' : (molePlayer(m.id) || {}).name + ' cache ses taupes…', moleColor(m.id));
+  $('mlConfirm').hidden = !mineTurn; syncMoleConfirm();
+  if (mineTurn) sfx('myturn');
+}
+function syncMoleConfirm(){
+  $('mlCount').textContent = ML.sel.length + ' / ' + ML_PER + ' taupes';
+  $('mlOk').disabled = ML.sel.length !== ML_PER;
+}
+function moleSend(){
+  if (!ML || ML.placing !== me.id) return;
+  while (ML.sel.length < ML_PER){
+    const c = [Math.floor(Math.random()*ML_N), Math.floor(Math.random()*ML_N)];
+    if (!ML.sel.some(s => s[0] === c[0] && s[1] === c[1])) ML.sel.push(c);
+  }
+  ML.mine = ML.sel.slice(); ML.placing = null;
+  $('mlConfirm').hidden = true; $('mlTime').textContent = '';
+  toHost({ t:'tt_put', cells:ML.mine });
+}
+$('mlOk').onclick = moleSend;
+$('mlRand').onclick = () => { if (ML){ ML.sel = []; moleSend(); } };
+function moleRound(m){
+  if (!ML) return;
+  ML.placing = null; $('mlConfirm').hidden = true; $('mlTime').textContent = '';
+  $('mlPhase').classList.remove('mine');
+  setMolePhase('Manche ' + m.round + ' : tapez les taupes des autres !', null);
+  moleMsg('Taupes !', m.count + ' taupes vont sortir'); sfx('go');
+  setTimeout(() => { if (ML && !ML.over) moleMsg('', ''); }, 1300);
+}
+function moleUp(m){
+  if (!ML || ML.over) return;
+  ML.up.set(m.mid, { mid:m.mid, x:m.x, y:m.y, owner:m.owner, dur:m.dur|0, t0:performance.now(), state:'up', tapped:false });
+  ML.mine = ML.mine.filter(c => !(m.owner === me.id && c[0] === m.x && c[1] === m.y));
+  sfx('pop');
+}
+function moleRes(m){
+  if (!ML) return;
+  const u = ML.up.get(m.mid);
+  if (m.scores) ML.scores = m.scores;
+  renderMoleScores();
+  if (!u) return;
+  u.state = m.by ? 'whacked' : 'gone'; u.t1 = performance.now(); u.by = m.by;
+  const px = ML_PAD + (u.x + .5)*mlCell, py = ML_PAD + (u.y + .5)*mlCell;
+  if (m.by){
+    ML.fx.push({ kind:'plus', x:px, y:py - mlCell*.3, t:0, col:moleColor(m.by), txt:'+1' });
+    ML.fx.push({ kind:'stars', x:px, y:py - mlCell*.15, t:0 });
+    sfx('bonk');
+    if (m.owner === me.id) moleToast((molePlayer(m.by) || {}).name + ' a tapé votre taupe');
+  } else {
+    if (m.owner) ML.fx.push({ kind:'plus', x:px, y:py - mlCell*.3, t:0, col:moleColor(m.owner), txt:'+1' });
+    if (m.owner === me.id) sfx('escape');
+  }
+}
+
+// ---- input ----
+const mlcv = $('mlCv'), mlctx = mlcv.getContext('2d');
+function moleCellAt(e){
+  const r = mlcv.getBoundingClientRect();
+  const x = Math.floor(((e.clientX - r.left) / r.width * ML_SIZE - ML_PAD) / mlCell);
+  const y = Math.floor(((e.clientY - r.top) / r.height * ML_SIZE - ML_PAD) / mlCell);
+  return (x < 0 || y < 0 || x >= ML_N || y >= ML_N) ? null : [x, y];
+}
+mlcv.addEventListener('pointermove', e => { if (ML) ML.hover = moleCellAt(e); });
+mlcv.addEventListener('pointerleave', () => { if (ML) ML.hover = null; });
+mlcv.addEventListener('pointerdown', e => {
+  if (!ML || ML.over) return;
+  e.preventDefault();
+  const c = moleCellAt(e); if (!c) return;
+  if (ML.placing === me.id){                          // placing: toggle a hole
+    const i = ML.sel.findIndex(s => s[0] === c[0] && s[1] === c[1]);
+    if (i >= 0) ML.sel.splice(i, 1);
+    else if (ML.sel.length < ML_PER) ML.sel.push(c);
+    else return moleToast('5 taupes maximum : retirez-en une');
+    sfx('place'); syncMoleConfirm();
+    return;
+  }
+  // whacking: the mole in this hole, if it is up and not yours
+  const now = performance.now();
+  for (const u of ML.up.values()){
+    if (u.x !== c[0] || u.y !== c[1] || u.state !== 'up' || u.tapped) continue;
+    if (u.owner === me.id){ moleToast('C\'est votre taupe !'); return; }
+    u.tapped = true;
+    ML.fx.push({ kind:'ring', x:ML_PAD + (c[0] + .5)*mlCell, y:ML_PAD + (c[1] + .5)*mlCell, t:0, col:moleColor(me.id) });
+    toHost({ t:'tt_hit', mid:u.mid, rt:Math.round(now - u.t0) });
+    return;
+  }
+  ML.fx.push({ kind:'miss', x:ML_PAD + (c[0] + .5)*mlCell, y:ML_PAD + (c[1] + .5)*mlCell, t:0 });
+});
+
+// ---- loop & drawing ----
+function moleFrame(dtMs, now){
+  if (!ML) return;
+  const dt = dtMs/1000;
+  if (phase === 'count'){ ML.count -= dt; if (ML.count > 0){ moleMsg(String(Math.ceil(ML.count)), ''); countBeep(Math.ceil(ML.count)); } }
+  if (ML.placing && !ML.over){
+    const left = Math.max(0, ML.deadline - now), te = $('mlTime');
+    te.textContent = Math.ceil(left/1000) + ' s'; te.classList.toggle('low', left < 4000);
+    if (ML.placing === me.id && left <= 0) moleSend();
+  }
+  for (const [mid, u] of ML.up){
+    if ((u.state === 'whacked' || u.state === 'gone') && now - u.t1 > 450) ML.up.delete(mid);
+  }
+  for (const f of ML.fx) f.t += dt;
+  ML.fx = ML.fx.filter(f => f.t < 0.9);
+  drawMole(now);
+}
+function drawMoleBody(ctx, cx, cy, s, col, rise, squash, now, whackedBy){
+  // rise: 0 hidden .. 1 fully out ; drawn clipped to the hole
+  ctx.save();
+  ctx.beginPath(); ctx.rect(cx - s, cy - s*1.4, s*2, s*1.4 + s*.02); ctx.clip();
+  const h = s*1.05, by = cy + h*(1 - rise) - h*.15;
+  ctx.translate(cx, by); ctx.scale(1 + squash*.25, 1 - squash*.35);
+  ctx.fillStyle = col;
+  ctx.beginPath(); ctx.ellipse(0, 0, s*.48, s*.62, 0, Math.PI, 0); ctx.lineTo(s*.48, s*.4); ctx.lineTo(-s*.48, s*.4); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = 'rgba(255,255,255,.25)'; ctx.beginPath(); ctx.ellipse(0, -s*.05, s*.3, s*.35, 0, Math.PI, 0); ctx.fill();   // belly
+  ctx.fillStyle = '#F7B6C2'; ctx.beginPath(); ctx.ellipse(0, -s*.3, s*.1, s*.07, 0, 0, Math.PI*2); ctx.fill();          // nose
+  ctx.fillStyle = '#141225';
+  if (squash > 0){                                    // dazed eyes
+    ctx.strokeStyle = '#141225'; ctx.lineWidth = 2.5;
+    for (const ex of [-.17, .17]){ ctx.beginPath(); ctx.moveTo(s*(ex - .06), -s*.48); ctx.lineTo(s*(ex + .06), -s*.4); ctx.moveTo(s*(ex + .06), -s*.48); ctx.lineTo(s*(ex - .06), -s*.4); ctx.stroke(); }
+  } else {
+    for (const ex of [-.17, .17]){ ctx.beginPath(); ctx.arc(s*ex, -s*.44, s*.055, 0, Math.PI*2); ctx.fill(); }
+  }
+  ctx.fillStyle = '#FFF'; ctx.fillRect(-s*.07, -s*.24, s*.06, s*.08); ctx.fillRect(s*.01, -s*.24, s*.06, s*.08);           // teeth
+  ctx.restore();
+}
+function drawMole(now){
+  const ctx = mlctx, S = ML_SIZE, c = mlCell;
+  // meadow
+  ctx.fillStyle = '#2E5E2A'; ctx.fillRect(0, 0, S, S);
+  for (let y = 0; y < ML_N; y++) for (let x = 0; x < ML_N; x++){
+    ctx.fillStyle = (x + y) % 2 ? '#3B7334' : '#356A2F'; ctx.fillRect(ML_PAD + x*c, ML_PAD + y*c, c, c);
+  }
+  const mineCol = moleColor(me.id);
+  for (let y = 0; y < ML_N; y++) for (let x = 0; x < ML_N; x++){
+    const cx = ML_PAD + (x + .5)*c, cy = ML_PAD + (y + .62)*c;
+    ctx.fillStyle = '#5A3B22'; ctx.beginPath(); ctx.ellipse(cx, cy + 2, c*.36, c*.15, 0, 0, Math.PI*2); ctx.fill();        // dirt rim
+    ctx.fillStyle = '#1C120A'; ctx.beginPath(); ctx.ellipse(cx, cy, c*.3, c*.11, 0, 0, Math.PI*2); ctx.fill();            // hole
+  }
+  // my hidden moles (only I can see them) and my current selection
+  const marks = ML.placing === me.id ? ML.sel : ML.mine;
+  for (const [x, y] of marks){
+    const cx = ML_PAD + (x + .5)*c, cy = ML_PAD + (y + .5)*c;
+    ctx.strokeStyle = mineCol; ctx.lineWidth = 4; ctx.globalAlpha = ML.placing === me.id ? 1 : .55;
+    ctx.beginPath(); ctx.arc(cx, cy, c*.4, 0, Math.PI*2); ctx.stroke();
+    if (ML.placing === me.id) drawMoleBody(ctx, cx, ML_PAD + (y + .62)*c, c*.8, mineCol, .55, 0, now);
+    ctx.globalAlpha = 1;
+  }
+  if (ML.placing === me.id && ML.hover){
+    const [x, y] = ML.hover; ctx.strokeStyle = 'rgba(255,255,255,.5)'; ctx.lineWidth = 2;
+    ctx.strokeRect(ML_PAD + x*c + 3, ML_PAD + y*c + 3, c - 6, c - 6);
+  }
+  // moles out of their holes
+  for (const u of ML.up.values()){
+    const cx = ML_PAD + (u.x + .5)*c, cy = ML_PAD + (u.y + .62)*c, col = moleColor(u.owner);
+    let rise = 1, squash = 0;
+    const age = now - u.t0;
+    if (u.state === 'up'){ rise = Math.min(1, age / 110); if (age > u.dur - 110) rise = Math.max(0, (u.dur - age) / 110); }
+    else if (u.state === 'whacked'){ const k = (now - u.t1) / 450; squash = 1; rise = Math.max(0, 1 - k*1.2); }
+    else { rise = Math.max(0, 1 - (now - u.t1) / 160); }
+    drawMoleBody(ctx, cx, cy, c*.8, col, rise, squash, now);
+    ctx.fillStyle = '#5A3B22'; ctx.beginPath(); ctx.ellipse(cx, cy + 2, c*.36, c*.15, 0, 0, Math.PI); ctx.fill();   // front rim over the mole
+    if (u.owner === me.id && u.state === 'up'){       // your own mole: little flag so you do not tap it
+      ctx.fillStyle = '#F2E8D5'; ctx.font = '700 ' + Math.round(c*.2) + 'px "JetBrains Mono", monospace'; ctx.textAlign = 'center';
+      ctx.fillText('à vous', cx, ML_PAD + (u.y + .97)*c);
+    }
+  }
+  // effects
+  for (const f of ML.fx){
+    if (f.kind === 'plus'){
+      ctx.globalAlpha = Math.max(0, 1 - f.t/.9); ctx.fillStyle = f.col; ctx.strokeStyle = '#141225'; ctx.lineWidth = 4;
+      ctx.font = '700 ' + Math.round(c*.42) + 'px "Rubik Mono One", sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.strokeText(f.txt, f.x, f.y - f.t*40); ctx.fillText(f.txt, f.x, f.y - f.t*40); ctx.globalAlpha = 1;
+    } else if (f.kind === 'stars'){
+      ctx.fillStyle = '#FFC93C';
+      for (let k = 0; k < 5; k++){ const a = k*2*Math.PI/5 + f.t*6, r = c*(.3 + f.t*.4); ctx.globalAlpha = Math.max(0, 1 - f.t/.7); ctx.beginPath(); ctx.arc(f.x + Math.cos(a)*r, f.y + Math.sin(a)*r*.5, 4, 0, Math.PI*2); ctx.fill(); }
+      ctx.globalAlpha = 1;
+    } else if (f.kind === 'ring' || f.kind === 'miss'){
+      ctx.strokeStyle = f.kind === 'ring' ? f.col : 'rgba(255,255,255,.6)'; ctx.lineWidth = 3; ctx.globalAlpha = Math.max(0, 1 - f.t/.35);
+      ctx.beginPath(); ctx.arc(f.x, f.y, c*(.2 + f.t*1.2), 0, Math.PI*2); ctx.stroke(); ctx.globalAlpha = 1;
+    }
+  }
+}
+
 // ================= sounds: small synthesized effects, no files =================
 const SND = { on:true, ctx:null };
 try { SND.on = localStorage.getItem('tm-sound') !== '0'; } catch(_){}
@@ -2105,6 +2498,10 @@ const SFX = {
   hit:    () => { noise(.6, .3, 2000, 60, 0, .7); tone(70, .45, 'sawtooth', .1, 35); },
   splash: () => { noise(.35, .12, 3500, 300, 0, 3); tone(900, .12, 'sine', .04, 300, .02); },
   myturn: () => { tone(784, .1, 'triangle', .1); tone(1175, .16, 'triangle', .1, null, .1); },
+  pop:    () => tone(380, .09, 'triangle', .07, 760),
+  bonk:   () => { tone(200, .08, 'square', .12, 90); noise(.08, .15, 2500, 400); tone(1200, .06, 'sine', .05, 1800, .05); },
+  escape: () => tone(600, .2, 'sine', .05, 250),
+  place:  () => tone(330, .05, 'triangle', .08),
   sunk:   () => { noise(.9, .25, 800, 40); tone(160, .8, 'sawtooth', .07, 40, .1); },
   win:    () => [523, 659, 784, 1047, 784, 1047].forEach((f, i) => tone(f, .18, 'square', .08, null, i*.11)),
   lose:   () => [392, 330, 262, 196].forEach((f, i) => tone(f, .22, 'triangle', .1, null, i*.16))
@@ -2132,8 +2529,8 @@ function saveGame(ranking, game){
   if (!Array.isArray(ranking) || !ranking.length || lastSaved === ranking) return;
   lastSaved = ranking;
   const h = loadHist();
-  h.unshift({ at:Date.now(), game:['pong','derby','naval'].includes(game) ? game : 'tetris', n:ranking.length,
-    p:ranking.map(r => ({ name:String(r.name).slice(0,14), color:r.color, place:r.place|0, sc:r.sc|0, ln:r.ln|0, sent:r.sent|0, lives:r.lives|0, hits:r.hits|0, shots:r.shots|0, afloat:r.afloat|0, shapes:r.shapes|0, d:Math.round(r.d||0), t:+r.t||0, me:r.id === me.id })) });
+  h.unshift({ at:Date.now(), game:['pong','derby','naval','mole'].includes(game) ? game : 'tetris', n:ranking.length,
+    p:ranking.map(r => ({ name:String(r.name).slice(0,14), color:r.color, place:r.place|0, sc:r.sc|0, ln:r.ln|0, sent:r.sent|0, lives:r.lives|0, hits:r.hits|0, pts:r.pts|0, whacks:r.whacks|0, shots:r.shots|0, afloat:r.afloat|0, shapes:r.shapes|0, d:Math.round(r.d||0), t:+r.t||0, me:r.id === me.id })) });
   store.set(HIST_KEY, JSON.stringify(h.slice(0, HIST_MAX)));
 }
 let lbFilter = 'all', clearArmed = false;
@@ -2148,13 +2545,13 @@ function renderBoard(){
     a.games++; if (p.place === 1 && g.n > 1) a.wins++;
     a.pts += Math.max(0, g.n - p.place);                  // 1 point per player finished ahead of
     if (g.game === 'derby'){ if (p.t > 0 && (!a.bestT || p.t < a.bestT)) a.bestT = p.t; }
-    else a.best = Math.max(a.best, (g.game === 'pong' || g.game === 'naval') ? p.hits : p.sc);
+    else a.best = Math.max(a.best, (g.game === 'pong' || g.game === 'naval') ? p.hits : g.game === 'mole' ? (p.whacks || 0) : p.sc);
     agg.set(k, a);
   }
   const rows = [...agg.values()].sort((x, y) => y.pts - x.pts || y.wins - x.wins || x.games - y.games);
   const showBest = lbFilter !== 'all';
   const hd = $('lbHead'); hd.textContent = '';
-  for (const t of ['#','Joueur','Parties','Victoires','Points', ...(showBest ? [lbFilter === 'pong' ? 'Renvois max' : lbFilter === 'derby' ? 'Meilleur temps' : lbFilter === 'naval' ? 'Touchés max' : 'Meilleur score'] : [])]){
+  for (const t of ['#','Joueur','Parties','Victoires','Points', ...(showBest ? [lbFilter === 'pong' ? 'Renvois max' : lbFilter === 'derby' ? 'Meilleur temps' : lbFilter === 'naval' ? 'Touchés max' : lbFilter === 'mole' ? 'Taupes tapées max' : 'Meilleur score'] : [])]){
     const th = document.createElement('th'); th.textContent = t; hd.append(th);
   }
   const tb = $('lbBody'); tb.textContent = '';
@@ -2175,13 +2572,13 @@ function renderBoard(){
   for (const g of games.slice(0, 15)){
     const li = document.createElement('li');
     const when = document.createElement('div'); when.className = 'when';
-    when.textContent = ({ pong:'Pong', derby:'Derby', naval:'Armada' }[g.game] || 'Tetris') + ' · ' + new Date(g.at).toLocaleString('fr-FR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' }) + ' · ' + g.n + (g.n > 1 ? ' joueurs' : ' joueur');
+    when.textContent = ({ pong:'Pong', derby:'Derby', naval:'Armada', mole:'Tape-taupe' }[g.game] || 'Tetris') + ' · ' + new Date(g.at).toLocaleString('fr-FR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' }) + ' · ' + g.n + (g.n > 1 ? ' joueurs' : ' joueur');
     const who = document.createElement('div'); who.className = 'who';
     for (const p of g.p.slice().sort((a, b) => a.place - b.place)){
       const sp = document.createElement('span');
       const d = document.createElement('i'); d.className = 'dot'; d.style.background = p.color;
       const t = document.createElement('b'); t.style.fontWeight = p.place === 1 ? '700' : '400';
-      t.textContent = p.place + '. ' + p.name + (g.game === 'pong' || g.game === 'naval' ? '' : g.game === 'derby' ? (p.t ? ' (' + fmtSec(p.t) + ')' : '') : ' (' + p.sc.toLocaleString('fr-FR') + ')');
+      t.textContent = p.place + '. ' + p.name + (g.game === 'pong' || g.game === 'naval' ? '' : g.game === 'mole' ? ' (' + (p.pts || 0) + ' pts)' : g.game === 'derby' ? (p.t ? ' (' + fmtSec(p.t) + ')' : '') : ' (' + p.sc.toLocaleString('fr-FR') + ')');
       sp.append(d, t); who.append(sp);
     }
     li.append(when, who); ol.append(li);
@@ -2204,6 +2601,7 @@ function frame(now){
   if (cur === 'pong') pongFrame(dt, now);
   if (cur === 'derby') derbyFrame(dt, now);
   if (cur === 'naval') navalFrame(dt, now);
+  if (cur === 'mole') moleFrame(dt, now);
   if (cur === 'tetris' && G && phase === 'count'){
     G.count -= dt/1000;
     if (G.count <= 0){ phase = 'play'; setMsg('', ''); countBeep(0); }
@@ -2260,7 +2658,8 @@ function backToLobby(){
     players = players.filter(p => p.id === 'h' || net.conns.has(p.id));
     sendLobby(true);                                       // everyone goes back
   } else {
-    phase = 'lobby'; $('scrEnd').hidden = true; G = null; PG = null; D = null; NV = null; cur = null;
+    phase = 'lobby'; $('scrEnd').hidden = true; G = null; PG = null; D = null; NV = null; ML = null; cur = null;
+    if (HM) moleClearTimers();
     show('scrLobby'); renderLobby();                      // wait there for the creator
   }
   abortArmed = false; syncAbort();
