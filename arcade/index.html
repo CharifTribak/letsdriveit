@@ -225,10 +225,10 @@ label{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--m
     </div>
     <div class="opps" id="opps"></div>
     <div class="pad" id="pad">
+      <button data-a="rotr" aria-label="Tourner">↻</button>
       <button data-a="left" aria-label="Gauche">←</button>
       <button data-a="down" aria-label="Descendre">↓</button>
       <button data-a="right" aria-label="Droite">→</button>
-      <button data-a="rotr" aria-label="Tourner">↻</button>
     </div>
     <p class="keys">← → déplacer · ↓ descendre · ↑ ou X tourner · Z tourner à gauche · Espace chute · C réserve</p>
   </div>
@@ -1040,6 +1040,7 @@ function pongServe(){
   PG.ph = 'play';
 }
 function pongGoal(k, o){
+  PG.idle = 0;
   PG.lives[o] = Math.max(0, PG.lives[o] - 1);
   const id = players[o].id;
   if (H) H.stats[id].lives = PG.lives[o];
@@ -1054,6 +1055,9 @@ function pongStep(h){
   // gentle speed-up over time
   const sp0 = Math.hypot(b.vx, b.vy);
   if (sp0 < 900){ const f = 1 + 0.06*h; b.vx *= f; b.vy *= f; }
+  // anti-stall: a ball that only bounces between walls for 5 s gets a small random deflection
+  PG.idle = (PG.idle || 0) + h;
+  if (PG.idle > 5){ PG.idle = 0; const a = (Math.random() - .5) * 0.8, c = Math.cos(a), s = Math.sin(a); const vx = b.vx; b.vx = vx*c - b.vy*s; b.vy = vx*s + b.vy*c; }
   PG.ar.edges.forEach((E, k) => {
     const dx = b.x - E.a[0], dy = b.y - E.a[1];
     const d = dx*E.n[0] + dy*E.n[1];
@@ -1061,19 +1065,22 @@ function pongStep(h){
     const vn = b.vx*E.n[0] + b.vy*E.n[1];
     if (vn >= 0) return;
     const o = PG.ar.owner[k];
+    const u = dx*E.e[0] + dy*E.e[1];
+    if (u < -BALL_R || u > E.L + BALL_R) return;          // beside this side, not on it
     if (o < 0 || !PG.alive[o]){                           // wall: mirror bounce
+      if (d < -BALL_R) return;                            // already past it (left through a goal): no bounce
       b.vx -= 2*vn*E.n[0]; b.vy -= 2*vn*E.n[1];
       b.x += E.n[0]*(BALL_R - d); b.y += E.n[1]*(BALL_R - d);
       return;
     }
-    const u = dx*E.e[0] + dy*E.e[1], half = E.plen/2;
+    const half = E.plen/2;
     if (Math.abs(u - PG.pads[k]) <= half + BALL_R && d > -BALL_R){   // paddle: angle depends on where it hits
       const off = Math.max(-1, Math.min(1, (u - PG.pads[k]) / half)), a = off * 0.9;
       const sp = Math.min(Math.hypot(b.vx, b.vy) * 1.08, 1050);
       b.vx = (E.n[0]*Math.cos(a) + E.e[0]*Math.sin(a)) * sp;
       b.vy = (E.n[1]*Math.cos(a) + E.e[1]*Math.sin(a)) * sp;
       b.x += E.n[0]*(BALL_R - d); b.y += E.n[1]*(BALL_R - d);
-      PG.hits[o]++; if (H) H.stats[players[o].id].hits = PG.hits[o];
+      PG.idle = 0; PG.hits[o]++; if (H) H.stats[players[o].id].hits = PG.hits[o];
     } else if (d < -BALL_R*1.5){
       pongGoal(k, o);
     }
@@ -1308,8 +1315,22 @@ function scoreStroke(stroke, fig){
   const acc = Math.max(0, 1 - mean / GABARIT);          // 1 = right on the centre line
   return { ok:cov >= 0.95, cov, acc };
 }
+// miss penalty depends on your rank: 1st loses 4 % of the track, last loses 1 % (2 % when alone)
+function missPenalty(){
+  const ids = Object.keys(D.d), n = ids.length, mine = D.d[me.id] || 0;
+  if (n <= 1) return 2;
+  const rank = 1 + ids.filter(id => id !== me.id && (D.d[id] || 0) > mine).length;
+  return 1 + 3 * (n - rank) / (n - 1);
+}
 function failStroke(st, why){
   D.stroke = null; D.flashT = 0.7; D.lastBad = st;
+  const before = D.d[me.id] || 0;
+  if (before > 0 && !D.done){
+    const pen = missPenalty();
+    D.d[me.id] = Math.max(0, before - pen);
+    toHost({ t:'dp', d:Math.round(D.d[me.id]*10)/10, s:D.shapes });
+    why += ' · −' + pen.toFixed(1).replace('.', ',') + ' %';
+  }
   const wrap = $('padwrap'); wrap.classList.remove('ok', 'ko'); void wrap.offsetWidth; wrap.classList.add('ko');
   setTimeout(() => wrap.classList.remove('ko'), 600);
   dToast(why);
@@ -1378,7 +1399,8 @@ dcv.addEventListener('lostpointercapture', endStroke);
 function derbyProgress(id, m){
   if (!H || H.over || H.game !== 'derby') return;
   const st = H.stats[id]; if (!st || st.left) return;
-  st.d = Math.max(st.d, Math.min(100, +m.d || 0)); st.shapes = m.s|0;
+  if (st.t) return;                                     // already finished
+  st.d = Math.max(0, Math.min(100, +m.d || 0)); st.shapes = m.s|0;
   broadcast({ t:'dr', id, d:st.d }, 'h');
   if (id !== 'h') derbyRemote({ id, d:st.d });
   if (st.d >= 100 && !st.t){ st.t = Math.round(performance.now() - H.t0 - 3000); derbyFinish(); }
@@ -1403,7 +1425,7 @@ function derbyFinish(){
 function derbyRemote(m){
   if (!D || m.id === me.id) return;
   const before = D.d[m.id] || 0;
-  D.d[m.id] = Math.max(before, +m.d || 0);
+  D.d[m.id] = Math.max(0, Math.min(100, +m.d || 0));
   if (before < 100 && D.d[m.id] >= 100){ const p = players.find(x => x.id === m.id); if (p) dToast(p.name + ' franchit la ligne !'); }
 }
 
