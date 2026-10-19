@@ -88,6 +88,8 @@ label{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--m
 .nvtime.low{color:var(--danger)}
 .nvwrap{position:relative;width:min(100%,74vh,700px)}
 #nvCv{display:block;width:100%;height:auto;aspect-ratio:1;touch-action:manipulation;cursor:crosshair}
+.nvconfirm{width:min(100%,74vh,700px);display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center;font-weight:600}
+.nvconfirm button{padding:10px 18px}
 .nvplayers{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px 14px;justify-content:center;font-size:13px}
 .nvplayers li{display:flex;align-items:center;gap:6px}
 .nvplayers li.dead{opacity:.45;text-decoration:line-through}
@@ -291,6 +293,11 @@ label{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--m
       <canvas id="nvCv" width="720" height="720" aria-label="Carte de la bataille"></canvas>
       <div class="msg pm" id="nvMsg"></div>
       <div class="toast pm" id="nvToast" aria-live="polite"></div>
+    </div>
+    <div class="nvconfirm" id="nvConfirm" hidden>
+      <span>Tirer sur la case visée ?</span>
+      <button id="nvFire">Feu !</button>
+      <button id="nvCancel" class="ghost">Annuler</button>
     </div>
     <ul class="nvplayers" id="nvPlayers"></ul>
     <p class="hint" style="text-align:center">À votre tour, touchez une case. Dans l'eau, vous seul voyez la distance du bateau ennemi le plus proche (en cases, diagonales comprises).</p>
@@ -1677,7 +1684,7 @@ function navalFire(id, x, y){
         hostEliminate(players[o].id, false);
       }
     }
-    if (!H.over) navalNextTurn(true);
+    if (!H.over) navalNextTurn(!(msg.hit && H.alive.has(id)));   // a hit earns another shot
   }, NV_FLIGHT + 900);
 }
 function navalSoloEnd(){
@@ -1701,7 +1708,8 @@ function startNaval(m){
   NV = { N, myIdx, solo:!!m.solo, cell:(NV_SIZE - 2*NV_M) / N, own:new Map(), ownShips:m.ships || [],
     marks:new Map(), dist:new Map(), pendingDist:{}, sunk:[], turnId:null, deadline:0, count:3,
     shots:[], fx:[], cannons:[], aim:{}, recoil:{}, hover:null, alive:players.map(() => true), afloat:players.map(() => NV_FLEET.reduce((a, b) => a + b, 0)), over:false };
-  NV.ownShips.forEach(cells => cells.forEach(([x, y]) => NV.own.set(nvKey(x, y), true)));
+  NV.shown = new Set();
+  NV.ownShips.forEach(cells => cells.forEach(([x, y]) => { NV.own.set(nvKey(x, y), true); NV.shown.add(nvKey(x, y)); }));
   // cannons around the sea, mine at the bottom
   const n = players.length, C = NV_SIZE/2, Rr = (NV_SIZE - 2*NV_M)/2 + NV_M*0.52;
   for (let k = 0; k < n; k++){
@@ -1735,6 +1743,7 @@ function renderNvPlayers(){
 }
 function navalTurn(m){
   if (!NV || NV.over) return;
+  NV.sel = null; $('nvConfirm').hidden = true;
   if (phase === 'count'){ phase = 'play'; navalMsg('', ''); }
   NV.turnId = m.id; NV.deadline = performance.now() + (m.ms|0);
   const i = players.findIndex(p => p.id === m.id);
@@ -1761,11 +1770,13 @@ function navalImpact(sh){
   const m = sh.m, k = nvKey(m.x, m.y);
   if (m.hit){
     NV.marks.set(k, { hit:true, owner:m.owner, t0:performance.now() });
+    if (m.by === me.id && !m.sunk) setTimeout(() => nvToast('Touché ! Rejouez'), 50);
     NV.fx.push({ kind:'boom', x:sh.to[0], y:sh.to[1], t:0, col:m.owner >= 0 ? players[m.owner].color : NV_GHOST,
       parts:Array.from({ length:18 }, () => ({ a:Math.random()*Math.PI*2, v:60 + Math.random()*140 })) });
     if (m.owner >= 0) NV.afloat[m.owner] = Math.max(0, NV.afloat[m.owner] - 1);
     if (m.sunk){
       NV.sunk.push({ owner:m.owner, cells:m.sunk });
+      m.sunk.forEach(([x, y]) => NV.shown.add(nvKey(x, y)));
       const who = m.owner >= 0 ? players[m.owner] : null;
       nvToast(who ? (who.id === me.id ? 'Un de vos bateaux est coulé !' : 'Bateau de ' + who.name + ' coulé !') : 'Bateau fantôme coulé !');
     } else if (m.owner === NV.myIdx) nvToast('Vous êtes touché !');
@@ -1814,9 +1825,20 @@ nvcv.addEventListener('click', e => {
   if (NV.own.has(k)) return nvToast('C\'est votre propre bateau !');
   if (NV.marks.has(k)) return nvToast('Case déjà visée');
   if (!nvCanShoot(c)) return;
+  if (NV.N >= 14 && !(NV.sel && NV.sel[0] === c[0] && NV.sel[1] === c[1])){
+    NV.sel = c; $('nvConfirm').hidden = false;       // big grid: select first, tap again or press Feu ! to shoot
+    return;
+  }
+  nvFireAt(c);
+});
+function nvFireAt(c){
+  if (!nvCanShoot(c)) return;
+  NV.sel = null; $('nvConfirm').hidden = true;
   NV.turnId = null;                                  // no double shot while the host answers
   toHost({ t:'nv_fire', x:c[0], y:c[1] });
-});
+}
+$('nvFire').onclick = () => { if (NV && NV.sel) nvFireAt(NV.sel); };
+$('nvCancel').onclick = () => { if (NV){ NV.sel = null; } $('nvConfirm').hidden = true; };
 
 // ---- loop & drawing ----
 function navalFrame(dtMs, now){
@@ -1833,6 +1855,53 @@ function navalFrame(dtMs, now){
   NV.fx = NV.fx.filter(f => f.t < 1.4);
   for (const i in NV.recoil) NV.recoil[i] = Math.max(0, NV.recoil[i] - dt*3);
   drawNaval(now);
+}
+// ship sprites, drawn along +x with the bow on the right, then rotated for vertical ships
+function nvDrawShip(ctx, cells, color, sunk, now){
+  const M = NV_M, c = NV.cell;
+  const xs = cells.map(p => p[0]), ys = cells.map(p => p[1]);
+  const hor = Math.max(...xs) !== Math.min(...xs) || cells.length === 1;
+  const len = cells.length, L = len*c, W = c;
+  const cx = M + (Math.min(...xs) + Math.max(...xs) + 1)/2*c, cy = M + (Math.min(...ys) + Math.max(...ys) + 1)/2*c;
+  ctx.save(); ctx.translate(cx, cy); if (!hor) ctx.rotate(-Math.PI/2);
+  if (sunk){ ctx.globalAlpha = .75; ctx.filter = 'grayscale(.5) brightness(.75)'; }
+  const hl = L/2 - c*.08, hw = W*.36;                  // half length, half beam
+  // wake
+  if (!sunk){ ctx.strokeStyle = 'rgba(220,240,255,.18)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(-hl, -hw*.6); ctx.lineTo(-hl - c*.35, -hw*1.1); ctx.moveTo(-hl, hw*.6); ctx.lineTo(-hl - c*.35, hw*1.1); ctx.stroke(); }
+  // hull: square stern, pointed bow
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.moveTo(-hl, -hw); ctx.lineTo(hl - c*.55, -hw); ctx.quadraticCurveTo(hl - c*.1, -hw*.8, hl, 0);
+  ctx.quadraticCurveTo(hl - c*.1, hw*.8, hl - c*.55, hw); ctx.lineTo(-hl, hw); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = 'rgba(0,0,0,.45)'; ctx.lineWidth = 1.5; ctx.stroke();
+  // deck
+  ctx.fillStyle = 'rgba(0,0,0,.22)';
+  ctx.beginPath(); ctx.moveTo(-hl + c*.12, -hw*.62); ctx.lineTo(hl - c*.6, -hw*.62); ctx.quadraticCurveTo(hl - c*.25, -hw*.4, hl - c*.18, 0);
+  ctx.quadraticCurveTo(hl - c*.25, hw*.4, hl - c*.6, hw*.62); ctx.lineTo(-hl + c*.12, hw*.62); ctx.closePath(); ctx.fill();
+  const turret = (x, r) => {
+    ctx.fillStyle = 'rgba(30,26,52,.9)'; ctx.beginPath(); ctx.arc(x, 0, r, 0, Math.PI*2); ctx.fill();
+    ctx.fillRect(x, -r*.18, r*1.9, r*.36);
+  };
+  const block = (x, w, h, col) => { ctx.fillStyle = col || '#E9E4F7'; ctx.fillRect(x - w/2, -h/2, w, h); ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.fillRect(x - w/2, h/2 - h*.25, w, h*.25); };
+  if (len >= 4){            // cuirassé: two turrets, tall bridge, funnel
+    turret(hl - c*1.0, c*.17); turret(-hl + c*.55, c*.17);
+    block(-c*.15, c*.9, hw*1.1); block(c*.05, c*.32, hw*.7, '#B9B2D6');
+    ctx.fillStyle = '#2A2548'; ctx.beginPath(); ctx.arc(-c*.45, 0, c*.11, 0, Math.PI*2); ctx.fill();
+  } else if (len === 3){    // frégate: one turret, bridge, mast
+    turret(hl - c*.85, c*.15);
+    block(-c*.15, c*.7, hw*1.0);
+    ctx.strokeStyle = '#2A2548'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(-c*.15, -hw*.7); ctx.lineTo(-c*.15, hw*.7); ctx.stroke();
+    ctx.fillStyle = '#2A2548'; ctx.beginPath(); ctx.arc(-hl + c*.45, 0, c*.08, 0, Math.PI*2); ctx.fill();
+  } else {                  // vedette: small cabin and windscreen
+    block(-c*.15, c*.55, hw*.95);
+    ctx.fillStyle = 'rgba(120,200,255,.8)'; ctx.fillRect(c*.12, -hw*.45, c*.07, hw*.9);
+  }
+  ctx.restore(); ctx.filter = 'none'; ctx.globalAlpha = 1;
+  if (sunk){                // dashed outline so the wreck reads as sunk
+    ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.setLineDash([5, 4]);
+    ctx.strokeRect(M + Math.min(...xs)*c + 2, M + Math.min(...ys)*c + 2, (Math.max(...xs) - Math.min(...xs) + 1)*c - 4, (Math.max(...ys) - Math.min(...ys) + 1)*c - 4);
+    ctx.setLineDash([]);
+  }
 }
 function nvShape(ctx, kind, r){
   ctx.beginPath();
@@ -1864,33 +1933,22 @@ function drawNaval(now){
   ctx.stroke();
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
   ctx.strokeStyle = 'rgba(160,200,240,.35)'; ctx.lineWidth = 2; ctx.strokeRect(M - 1, M - 1, B + 2, B + 2);
-  // my ships
+  // my ships, then sunk ships revealed to everyone (darkened)
   const mine = players[NV.myIdx];
-  for (const cells of NV.ownShips){
-    const xs = cells.map(p => p[0]), ys = cells.map(p => p[1]);
-    const x0 = M + Math.min(...xs)*c + 3, y0 = M + Math.min(...ys)*c + 3;
-    const w = (Math.max(...xs) - Math.min(...xs) + 1)*c - 6, h = (Math.max(...ys) - Math.min(...ys) + 1)*c - 6;
-    ctx.fillStyle = mine ? mine.color : '#ccc'; ctx.globalAlpha = .9;
-    ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x0, y0, w, h, Math.min(w, h)/2) : ctx.rect(x0, y0, w, h); ctx.fill();
-    ctx.globalAlpha = 1; ctx.fillStyle = 'rgba(0,0,0,.25)';
-    for (const [x, y] of cells){ ctx.beginPath(); ctx.arc(M + (x + .5)*c, M + (y + .5)*c, c*.13, 0, Math.PI*2); ctx.fill(); }
-  }
-  // sunk ships: outline for everyone
-  for (const s of NV.sunk){
-    const col = s.owner >= 0 ? players[s.owner].color : NV_GHOST;
-    const xs = s.cells.map(p => p[0]), ys = s.cells.map(p => p[1]);
-    ctx.strokeStyle = col; ctx.lineWidth = 3; ctx.setLineDash([6, 4]);
-    ctx.strokeRect(M + Math.min(...xs)*c + 2, M + Math.min(...ys)*c + 2, (Math.max(...xs) - Math.min(...xs) + 1)*c - 4, (Math.max(...ys) - Math.min(...ys) + 1)*c - 4);
-    ctx.setLineDash([]);
-  }
+  for (const cells of NV.ownShips) nvDrawShip(ctx, cells, mine ? mine.color : '#ccc', false, now);
+  for (const s of NV.sunk) if (s.owner !== NV.myIdx) nvDrawShip(ctx, s.cells, s.owner >= 0 ? players[s.owner].color : NV_GHOST, true, now);
   // marks
   for (const [k, mk] of NV.marks){
     if (mk.pending) continue;
     const [x, y] = k.split(',').map(Number), px = M + x*c, py = M + y*c;
     if (mk.hit){
       const col = mk.owner >= 0 ? players[mk.owner].color : NV_GHOST;
-      ctx.fillStyle = col; ctx.globalAlpha = .85; ctx.fillRect(px + 2, py + 2, c - 4, c - 4); ctx.globalAlpha = 1;
-      ctx.fillStyle = 'rgba(0,0,0,.45)'; ctx.fillRect(px + 2, py + 2, c - 4, c - 4);
+      if (!NV.shown.has(k)){                         // a ship cell nobody can see: coloured wreck tile
+        ctx.fillStyle = col; ctx.globalAlpha = .85; ctx.fillRect(px + 2, py + 2, c - 4, c - 4); ctx.globalAlpha = 1;
+        ctx.fillStyle = 'rgba(0,0,0,.45)'; ctx.fillRect(px + 2, py + 2, c - 4, c - 4);
+      } else {                                       // on a drawn ship: scorch mark only
+        ctx.fillStyle = 'rgba(20,10,10,.55)'; ctx.beginPath(); ctx.arc(px + c/2, py + c/2, c*.32, 0, Math.PI*2); ctx.fill();
+      }
       // flames
       for (let f = 0; f < 3; f++){
         const fx = px + c*(.3 + .2*f), fl = c*(.35 + .15*Math.sin(now/90 + f*2 + x*3 + y));
@@ -1907,6 +1965,13 @@ function drawNaval(now){
         ctx.fillText(d >= 99 ? '–' : String(d), px + c/2, py + c/2 + 1);
       }
     }
+  }
+  // selected target (big grids)
+  if (NV.sel && nvCanShoot(NV.sel)){
+    const [x, y] = NV.sel, px = M + x*c, py = M + y*c, pulse = .6 + .4*Math.sin(now/140);
+    ctx.fillStyle = mine ? mine.color : '#fff'; ctx.globalAlpha = .25*pulse; ctx.fillRect(px, py, c, c); ctx.globalAlpha = 1;
+    ctx.strokeStyle = mine ? mine.color : '#fff'; ctx.lineWidth = 3; ctx.strokeRect(px + 1.5, py + 1.5, c - 3, c - 3);
+    ctx.beginPath(); ctx.moveTo(px + c/2, py - c*.4); ctx.lineTo(px + c/2, py + c*1.4); ctx.moveTo(px - c*.4, py + c/2); ctx.lineTo(px + c*1.4, py + c/2); ctx.stroke();
   }
   // hover target
   if (NV.hover && nvCanShoot(NV.hover)){
