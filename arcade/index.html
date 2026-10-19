@@ -184,6 +184,7 @@ label{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--m
       <button id="btnJoin" class="ghost">Entrer</button>
     </div>
     <button id="btnBoard" class="ghost">Classement général</button>
+    <button id="btnSound" class="ghost">Son : activé</button>
     <p class="hint" id="menuHint">Créez un salon, partagez le code, puis choisissez le jeu : Tetris, Pong, Derby ou Armada. De 1 à 5 joueurs.</p>
   </div>
 </section>
@@ -300,7 +301,7 @@ label{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--m
       <button id="nvCancel" class="ghost">Annuler</button>
     </div>
     <ul class="nvplayers" id="nvPlayers"></ul>
-    <p class="hint" style="text-align:center">À votre tour, touchez une case. Dans l'eau, vous seul voyez la distance du bateau ennemi le plus proche (en cases, diagonales comprises).</p>
+    <p class="hint" style="text-align:center">À votre tour, touchez une case. Dans l'eau, vous seul voyez combien de cases de bateau entourent la case (diagonales comprises, coulées ou non). Éliminé, vous voyez les chiffres de tout le monde.</p>
   </div>
 </section>
 
@@ -385,7 +386,7 @@ let NV = null, HN = null;       // armada: my view / host's full map
 const GAME_DESC = {
   tetris:'Chaque ligne effacée envoie des briques gênantes à tous les adversaires : 1 ligne = 1 brique, 2 = 2, 3 = 4, 4 = 6.',
   pong:'Chaque joueur défend un côté avec 5 vies. Le terrain suit le nombre de joueurs : carré à 2, hexagone à 3, octogone à 4, décagone à 5. Le côté d\'un joueur éliminé devient un mur.',
-  naval:'Bataille navale à plusieurs sur une seule mer. Chacun voit ses bateaux, rien d\'autre. À tour de rôle, tirez au canon sur une case : touché, tout le monde voit la flamme ; dans l\'eau, vous seul apprenez la distance du bateau ennemi le plus proche. Le dernier à flot gagne.',
+  naval:'Bataille navale à plusieurs sur une seule mer. Chacun voit ses bateaux, rien d\'autre. À tour de rôle, tirez au canon sur une case : touché, tout le monde voit la flamme ; dans l\'eau, vous seul voyez combien de cases de bateau l\'entourent, comme au démineur. Le dernier à flot gagne.',
   derby:'Course de chevaux : tout le monde reçoit la même série de figures à tracer. Chaque figure réussie fait avancer votre cheval, plus loin si elle est complexe et bien tracée. Le premier à la ligne gagne.'
 };
 
@@ -574,7 +575,8 @@ function clientRecv(m){
     case 'nv_start': startNaval(m); break;
     case 'nv_turn': navalTurn(m); break;
     case 'nv_shot': navalShot(m); break;
-    case 'nv_dist': if (NV) NV.pendingDist[m.x + ',' + m.y] = m.d|0; break;
+    case 'nv_dist': if (NV){ const k = m.x + ',' + m.y, mk = NV.marks.get(k); if (mk && !mk.pending) NV.dist.set(k, m.d|0); else NV.pendingDist[k] = m.d|0; } break;
+    case 'nv_reveal': if (NV && Array.isArray(m.nums)){ for (const [x, y, d] of m.nums){ NV.dist.set(x + ',' + y, d|0); if (!NV.marks.has(x + ',' + y)) NV.marks.set(x + ',' + y, { hit:false }); } nvToast('Vous voyez maintenant les chiffres de tout le monde'); } break;
     case 'start': if (m.game === 'pong') startPong(m.players); else if (m.game === 'derby') startDerby(m.players, m.seed|0); else startGame(m.players); break;
     case 'dr': derbyRemote(m); break;
     case 'ps': pongState(m); break;
@@ -657,10 +659,10 @@ function rotate(dir){
   const r = (G.p.r + dir + 4) % 4;
   for (const [kx,ky] of KICKS){
     const np = { ...G.p, r, x:G.p.x+kx, y:G.p.y+ky };
-    if (fits(np)){ G.p = np; touched(); return; }
+    if (fits(np)){ G.p = np; touched(); sfx('rotate'); return; }
   }
 }
-function hardDrop(){ let n = 0; while (move(0,1)) n++; G.score += n*2; lock(); }
+function hardDrop(){ let n = 0; while (move(0,1)) n++; G.score += n*2; sfx('drop'); lock(); }
 function hold(){
   if (!G.canHold || !G.p) return;
   const t = { t:G.p.t, sp:G.p.sp };
@@ -690,6 +692,7 @@ function lock(){
   if (n){
     G.score += [0,100,300,500,800][n] * (level()+1);
     G.lines += n;
+    sfx('line', n);
     const k = [0, 1, 2, 4, 6][n];                     // bricks sent to every opponent
     if (k){ G.sent += k; toHost({ t:'atk', n:k }); }
   }
@@ -712,6 +715,7 @@ function receiveGarbage(from, cols, black){
   G.pending.push({ slot, black:!!black, cols:cols.map(c => Math.max(0, Math.min(COLS-1, c|0))) });
   if (black) toast('Brique noire de ' + players[slot].name);
   shake(cols.length);
+  sfx('garbage');
   drawMeter();
 }
 // Enemy bricks enter at the top of the well and fall straight down.
@@ -760,6 +764,7 @@ function die(){
 
 // ================= game flow =================
 function startGame(pl){
+  lastCountShown = null;
   players = pl; phase = 'count'; cur = 'tetris'; PG = null;
   $('scrEnd').hidden = true; show('scrGame');
   const mine = players.find(p => p.id === me.id) || { name:me.name, color:'#fff' };
@@ -830,6 +835,7 @@ function showEnd(ranking, game){
     tb.append(tr);
   });
   const win = ranking && ranking[0];
+  sfx(win && win.id === me.id ? 'win' : 'lose');
   (pong ? pongMsg : derby ? derbyMsg : naval ? navalMsg : setMsg)(win && win.id === me.id ? 'Victoire' : 'Terminé', '');
   $('btnAgain').hidden = false;
   $('endHint').textContent = me.host ? 'Tout le monde revient au salon : relancez le même jeu ou choisissez-en un autre.' : 'Vous attendrez au salon que le créateur relance.';
@@ -1049,6 +1055,7 @@ function pongArena(n){
 }
 
 function startPong(pl){
+  lastCountShown = null;
   players = pl; cur = 'pong'; G = null; phase = 'count';
   $('scrEnd').hidden = true; show('scrPong');
   const ar = pongArena(players.length);
@@ -1122,6 +1129,7 @@ function pongStep(h){
     if (o < 0 || !PG.alive[o]){                           // wall: mirror bounce
       if (d < -BALL_R) return;                            // already past it (left through a goal): no bounce
       b.vx -= 2*vn*E.n[0]; b.vy -= 2*vn*E.n[1];
+      PG.sw = (PG.sw || 0) + 1; sfx('wall');
       b.x += E.n[0]*(BALL_R - d); b.y += E.n[1]*(BALL_R - d);
       return;
     }
@@ -1132,7 +1140,7 @@ function pongStep(h){
       b.vx = (E.n[0]*Math.cos(a) + E.e[0]*Math.sin(a)) * sp;
       b.vy = (E.n[1]*Math.cos(a) + E.e[1]*Math.sin(a)) * sp;
       b.x += E.n[0]*(BALL_R - d); b.y += E.n[1]*(BALL_R - d);
-      PG.idle = 0; PG.hits[o]++; if (H) H.stats[players[o].id].hits = PG.hits[o];
+      PG.idle = 0; PG.sh = (PG.sh || 0) + 1; sfx('paddle'); PG.hits[o]++; if (H) H.stats[players[o].id].hits = PG.hits[o];
     } else if (d < -BALL_R*1.5){
       pongGoal(k, o);
     }
@@ -1147,10 +1155,14 @@ function pongState(m){
   if (Array.isArray(m.p)) m.p.forEach((u, k) => { if (k !== PG.mySide) PG.pads[k] = +u; });
   if (Array.isArray(m.l)) m.l.forEach((l, i) => { PG.lives[i] = l|0; PG.alive[i] = l > 0; });
   if (PG.ph !== 'over' && typeof m.ph === 'string') PG.ph = m.ph;
+  if (PG.sh !== undefined && (m.sh|0) > PG.sh) sfx('paddle');
+  else if (PG.sw !== undefined && (m.sw|0) > PG.sw) sfx('wall');
+  PG.sh = m.sh|0; PG.sw = m.sw|0;
 }
 function pongGoalFx(k){
   if (!PG) return;
   PG.flash[k] = 1;
+  sfx('goal');
   if (k === PG.mySide){
     const el = $('pwrap'); el.style.setProperty('--amp', '5px');
     el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake');
@@ -1211,7 +1223,7 @@ function pongFrame(dtMs, now){
   const dt = dtMs / 1000;
   if (phase === 'count'){
     PG.count -= dt;
-    if (PG.count <= 0){ phase = 'play'; pongMsg('', ''); } else pongMsg(String(Math.ceil(PG.count)), '');
+    if (PG.count <= 0){ phase = 'play'; pongMsg('', ''); countBeep(0); } else { pongMsg(String(Math.ceil(PG.count)), ''); countBeep(Math.ceil(PG.count)); }
   }
   // my paddle (edge 0 always runs right-to-left on screen, hence the minus sign)
   const mine = PG.mySide >= 0 && PG.alive[PG.myIdx] && phase === 'play';
@@ -1228,7 +1240,7 @@ function pongFrame(dtMs, now){
     if (now - PG.lastSend > 33){
       PG.lastSend = now;
       const b = PG.ball, r1 = v => Math.round(v*10)/10;
-      broadcast({ t:'ps', b:[r1(b.x), r1(b.y), r1(b.vx), r1(b.vy)], p:PG.pads.map(r1), l:PG.lives, ph:PG.ph }, 'h');
+      broadcast({ t:'ps', b:[r1(b.x), r1(b.y), r1(b.vx), r1(b.vy)], p:PG.pads.map(r1), l:PG.lives, ph:PG.ph, sh:PG.sh || 0, sw:PG.sw || 0 }, 'h');
     }
   } else if (!me.host && PG.ph === 'play'){
     PG.ball.x += PG.ball.vx*dt; PG.ball.y += PG.ball.vy*dt;   // dead reckoning between host updates
@@ -1375,6 +1387,7 @@ function missPenalty(){
   return 1 + 3 * (n - rank) / (n - 1);
 }
 function failStroke(st, why){
+  sfx('fail');
   D.stroke = null; D.flashT = 0.7; D.lastBad = st;
   const before = D.d[me.id] || 0;
   if (before > 0 && !D.done){
@@ -1389,6 +1402,7 @@ function failStroke(st, why){
 }
 
 function startDerby(pl, seed){
+  lastCountShown = null;
   players = pl; cur = 'derby'; G = null; PG = null; phase = 'count';
   $('scrEnd').hidden = true; show('scrDerby');
   D = { series:derbySeries(seed), k:0, d:{}, shown:{}, gait:{}, stroke:null, count:3, t:0, done:false, over:false, shapes:0, flashT:0 };
@@ -1436,7 +1450,7 @@ const endStroke = () => {
     const gain = TIER_GAIN[fig.tier] * (0.55 + 0.45 * Math.min(1, acc / 0.7));
     const d = Math.min(100, D.d[me.id] + gain);
     D.d[me.id] = d; D.shapes++; D.k++;
-    wrap.classList.add('ok'); dToast(Math.round(acc*100) + ' % · +' + gain.toFixed(1));
+    wrap.classList.add('ok'); sfx(d >= 100 ? 'finish' : 'ok'); dToast(Math.round(acc*100) + ' % · +' + gain.toFixed(1));
     toHost({ t:'dp', d:Math.round(d*10)/10, s:D.shapes });
     if (d >= 100){ D.done = true; derbyMsg('Arrivé !', 'En attente des autres chevaux'); }
     else derbyShowFig();
@@ -1485,7 +1499,7 @@ function derbyRemote(m){
 function derbyFrame(dtMs, now){
   if (!D) return;
   const dt = dtMs/1000;
-  if (phase === 'count'){ D.count -= dt; if (D.count <= 0){ phase = 'play'; derbyMsg('', ''); } else derbyMsg(String(Math.ceil(D.count)), ''); }
+  if (phase === 'count'){ D.count -= dt; if (D.count <= 0){ phase = 'play'; derbyMsg('', ''); countBeep(0); } else { derbyMsg(String(Math.ceil(D.count)), ''); countBeep(Math.ceil(D.count)); } }
   if (phase === 'play' && !D.done && !D.over){ D.t += dtMs; $('dTime').textContent = fmtSec(D.t); }
   for (const id in D.d){
     const diff = D.d[id] - D.shown[id];
@@ -1582,7 +1596,7 @@ function drawPad(){
 // ================= ARMADA : battleship x minesweeper, everyone on one sea =================
 // The host keeps the full map and is the referee; each player only receives the position of their own ships.
 const NV_FLEET = [4, 3, 2, 2];            // ship lengths per player
-const NV_TURN_MS = 25000, NV_FLIGHT = 1100, NV_SIZE = 720, NV_M = 64;
+const NV_TURN_MS = 15000, NV_FLIGHT = 900, NV_SIZE = 720, NV_M = 64;
 const NV_GHOST = '#8A84B0';
 const nvSide = n => [10, 12, 14, 15, 16][Math.max(0, Math.min(4, n - 1))];
 const nvKey = (x, y) => x + ',' + y;
@@ -1616,7 +1630,7 @@ function navalHostStart(){
   const owners = players.map((_, i) => i);
   if (n === 1) owners.push(-1);                     // solo: a ghost fleet to sink
   const { occ, ships } = nvPlace(N, owners);
-  HN = { N, occ, ships, shots:new Set(), order:players.map(p => p.id), turn:Math.floor(Math.random() * n), timer:null, busy:false };
+  HN = { N, occ, ships, shots:new Set(), nums:new Map(), order:players.map(p => p.id), turn:Math.floor(Math.random() * n), timer:null, busy:false };
   for (const p of players) H.stats[p.id].afloat = NV_FLEET.reduce((a, b) => a + b, 0);
   for (const [i, p] of players.entries()){
     const mine = ships.filter(sh => sh.owner === i).map(sh => sh.cells);
@@ -1663,15 +1677,14 @@ function navalFire(id, x, y){
     if (sh.owner >= 0){ const oid = players[sh.owner].id; H.stats[oid].afloat = Math.max(0, H.stats[oid].afloat - 1); }
     if (sh.hits.size === sh.cells.length) msg.sunk = sh.cells;
   } else {
-    // minesweeper clue for the shooter only: distance (king moves) to the nearest intact enemy ship cell
-    let best = 99;
-    HN.ships.forEach((sh, j) => {
-      if (sh.owner === pi) return;
-      if (sh.owner >= 0 && !H.alive.has(players[sh.owner].id)) return;
-      for (const [cx, cy] of sh.cells) if (!sh.hits.has(nvKey(cx, cy))) best = Math.min(best, Math.max(Math.abs(cx - x), Math.abs(cy - y)));
-    });
-    const dm = { t:'nv_dist', x, y, d:best };
-    if (id === 'h') clientRecv(dm); else { const c = net.conns.get(id); if (c && c.open) try { c.send(dm); } catch(_){} }
+    // minesweeper clue: how many ship cells (any fleet, sunk or not) touch this square, diagonals included.
+    // The shooter sees it; so do players already eliminated.
+    let cnt = 0;
+    for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++) if ((dx || dy) && HN.occ.has(nvKey(x + dx, y + dy))) cnt++;
+    HN.nums.set(k, cnt);
+    const dm = { t:'nv_dist', x, y, d:cnt };
+    nvSendTo(id, dm);
+    for (const p of players) if (p.id !== id && !H.alive.has(p.id) && !H.stats[p.id].left) nvSendTo(p.id, dm);
   }
   broadcast(msg);
   setTimeout(() => {
@@ -1681,11 +1694,17 @@ function navalFire(id, x, y){
       const fleetDown = HN.ships.filter(sh => sh.owner === o).every(sh => sh.hits.size === sh.cells.length);
       if (fleetDown){
         if (o < 0) return navalSoloEnd();
-        hostEliminate(players[o].id, false);
+        const lost = players[o].id;
+        hostEliminate(lost, false);
+        nvSendTo(lost, { t:'nv_reveal', nums:[...HN.nums].map(([kk, d]) => [...kk.split(',').map(Number), d]) });
       }
     }
     if (!H.over) navalNextTurn(!(msg.hit && H.alive.has(id)));   // a hit earns another shot
-  }, NV_FLIGHT + 900);
+  }, NV_FLIGHT + 600);
+}
+function nvSendTo(id, msg){
+  if (id === 'h') clientRecv(msg);
+  else { const c = net.conns.get(id); if (c && c.open) try { c.send(msg); } catch(_){} }
 }
 function navalSoloEnd(){
   H.over = true;
@@ -1702,6 +1721,7 @@ function navalDrop(id){
 // ---- every player ----
 const NV_SHAPES = ['ball', 'tri', 'square', 'diamond', 'star'];
 function startNaval(m){
+  lastCountShown = null;
   players = m.players; cur = 'naval'; G = null; PG = null; D = null; phase = 'count';
   $('scrEnd').hidden = true; show('scrNaval');
   const N = m.N, myIdx = players.findIndex(p => p.id === me.id);
@@ -1750,6 +1770,7 @@ function navalTurn(m){
   const el = $('nvTurn'); el.textContent = '';
   const d = document.createElement('span'); d.className = 'dot'; d.style.background = players[i] ? players[i].color : '#888';
   const t = document.createElement('span');
+  if (m.id === me.id) sfx('myturn');
   t.textContent = m.id === me.id ? 'À vous de tirer !' : 'Tour de ' + (players[i] ? players[i].name : '?');
   el.append(d, t); el.classList.toggle('mine', m.id === me.id);
   renderNvPlayers();
@@ -1763,6 +1784,7 @@ function navalShot(m){
   const tx = NV_M + (m.x + .5) * NV.cell, ty = NV_M + (m.y + .5) * NV.cell;
   NV.aim[i] = Math.atan2(ty - cy, tx - cx);
   NV.recoil[i] = 1;
+  sfx('fire');
   NV.marks.set(nvKey(m.x, m.y), { pending:true });
   NV.shots.push({ i, from:[cx, cy], to:[tx, ty], x:m.x, y:m.y, t:0, m });
 }
@@ -1771,6 +1793,7 @@ function navalImpact(sh){
   if (m.hit){
     NV.marks.set(k, { hit:true, owner:m.owner, t0:performance.now() });
     if (m.by === me.id && !m.sunk) setTimeout(() => nvToast('Touché ! Rejouez'), 50);
+    sfx(m.sunk ? 'sunk' : 'hit');
     NV.fx.push({ kind:'boom', x:sh.to[0], y:sh.to[1], t:0, col:m.owner >= 0 ? players[m.owner].color : NV_GHOST,
       parts:Array.from({ length:18 }, () => ({ a:Math.random()*Math.PI*2, v:60 + Math.random()*140 })) });
     if (m.owner >= 0) NV.afloat[m.owner] = Math.max(0, NV.afloat[m.owner] - 1);
@@ -1787,6 +1810,7 @@ function navalImpact(sh){
     renderNvPlayers();
   } else {
     NV.marks.set(k, { hit:false });
+    sfx('splash');
     NV.fx.push({ kind:'splash', x:sh.to[0], y:sh.to[1], t:0,
       drops:Array.from({ length:10 }, () => ({ a:-Math.PI/2 + (Math.random() - .5)*2.2, v:50 + Math.random()*70 })) });
     if (NV.pendingDist[k] !== undefined){ NV.dist.set(k, NV.pendingDist[k]); delete NV.pendingDist[k]; }
@@ -1844,7 +1868,7 @@ $('nvCancel').onclick = () => { if (NV){ NV.sel = null; } $('nvConfirm').hidden 
 function navalFrame(dtMs, now){
   if (!NV) return;
   const dt = dtMs/1000;
-  if (phase === 'count'){ NV.count -= dt; if (NV.count > 0) navalMsg(String(Math.ceil(NV.count)), ''); else navalMsg('', ''); }
+  if (phase === 'count'){ NV.count -= dt; if (NV.count > 0){ navalMsg(String(Math.ceil(NV.count)), ''); countBeep(Math.ceil(NV.count)); } else { navalMsg('', ''); countBeep(0); } }
   if (NV.turnId && !NV.over){
     const left = Math.max(0, NV.deadline - now), el = $('nvTime');
     el.textContent = Math.ceil(left/1000) + ' s'; el.classList.toggle('low', left < 6000);
@@ -1911,7 +1935,7 @@ function nvShape(ctx, kind, r){
   else if (kind === 'diamond'){ ctx.moveTo(0, -r*1.3); ctx.lineTo(r, 0); ctx.lineTo(0, r*1.3); ctx.lineTo(-r, 0); ctx.closePath(); }
   else { for (let k = 0; k < 10; k++){ const a = -Math.PI/2 + k*Math.PI/5, rr = k % 2 ? r*.55 : r*1.3; k ? ctx.lineTo(Math.cos(a)*rr, Math.sin(a)*rr) : ctx.moveTo(Math.cos(a)*rr, Math.sin(a)*rr); } ctx.closePath(); }
 }
-const NV_NUM = ['#FF5D73','#FF5D73','#FF8A3D','#FFC93C','#3DDC97','#4EA8FF','#9A94BF'];
+const NV_NUM = ['#9A94BF','#4EA8FF','#3DDC97','#FFC93C','#FF8A3D','#FF5D73','#FF5D73','#FF5D73','#FF5D73'];
 function drawNaval(now){
   const ctx = nvctx, S = NV_SIZE, M = NV_M, c = NV.cell, N = NV.N, B = c*N;
   ctx.fillStyle = '#141225'; ctx.fillRect(0, 0, S, S);
@@ -1961,8 +1985,8 @@ function drawNaval(now){
       const d = NV.dist.get(k);
       if (d !== undefined){
         ctx.fillStyle = 'rgba(10,20,40,.55)'; ctx.fillRect(px + 1, py + 1, c - 2, c - 2);
-        ctx.fillStyle = NV_NUM[Math.min(d, 6)]; ctx.font = '700 ' + Math.round(c*.55) + 'px "JetBrains Mono", monospace';
-        ctx.fillText(d >= 99 ? '–' : String(d), px + c/2, py + c/2 + 1);
+        ctx.fillStyle = NV_NUM[Math.min(d, 8)]; ctx.font = '700 ' + Math.round(c*.55) + 'px "JetBrains Mono", monospace';
+        ctx.fillText(String(d), px + c/2, py + c/2 + 1);
       }
     }
   }
@@ -2032,6 +2056,73 @@ function drawNaval(now){
   }
 }
 document.querySelector('.nvwrap').addEventListener('animationend', e => e.currentTarget.classList.remove('shake'));
+
+
+// ================= sounds: small synthesized effects, no files =================
+const SND = { on:true, ctx:null };
+try { SND.on = localStorage.getItem('tm-sound') !== '0'; } catch(_){}
+function sndCtx(){
+  if (!SND.on) return null;
+  if (!SND.ctx){ const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null; try { SND.ctx = new AC(); } catch(_){ return null; } }
+  if (SND.ctx.state === 'suspended') SND.ctx.resume().catch(() => {});
+  return SND.ctx;
+}
+addEventListener('pointerdown', () => sndCtx(), { capture:true });
+addEventListener('keydown', () => sndCtx(), { capture:true });
+function tone(freq, dur, type, vol, slideTo, delay){
+  const c = sndCtx(); if (!c) return;
+  const t0 = c.currentTime + (delay || 0);
+  const o = c.createOscillator(), g = c.createGain();
+  o.type = type || 'square'; o.frequency.setValueAtTime(freq, t0);
+  if (slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, t0 + dur);
+  g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(vol || .12, t0 + .01); g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  o.connect(g).connect(c.destination); o.start(t0); o.stop(t0 + dur + .02);
+}
+function noise(dur, vol, fFrom, fTo, delay, q){
+  const c = sndCtx(); if (!c) return;
+  const t0 = c.currentTime + (delay || 0), n = Math.floor(c.sampleRate * dur);
+  const buf = c.createBuffer(1, n, c.sampleRate), d = buf.getChannelData(0);
+  for (let i = 0; i < n; i++) d[i] = Math.random()*2 - 1;
+  const src = c.createBufferSource(); src.buffer = buf;
+  const f = c.createBiquadFilter(); f.type = 'lowpass'; f.Q.value = q || 1; f.frequency.setValueAtTime(fFrom, t0); f.frequency.exponentialRampToValueAtTime(fTo, t0 + dur);
+  const g = c.createGain(); g.gain.setValueAtTime(vol, t0); g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  src.connect(f).connect(g).connect(c.destination); src.start(t0); src.stop(t0 + dur + .02);
+}
+const SFX = {
+  count:  () => tone(660, .12, 'square', .08),
+  go:     () => tone(990, .25, 'square', .1),
+  rotate: () => tone(520, .04, 'square', .035),
+  drop:   () => { tone(140, .09, 'triangle', .14, 70); noise(.06, .08, 1200, 200); },
+  line:   n => [0, 1, 2, 3].slice(0, n).forEach((k, i) => tone(523 * Math.pow(1.26, k), .12, 'square', .08, null, i*.06)),
+  garbage:() => { noise(.35, .14, 400, 60); tone(90, .3, 'sawtooth', .05, 50); },
+  paddle: () => tone(440, .06, 'square', .09),
+  wall:   () => tone(300, .05, 'square', .06),
+  goal:   () => tone(220, .35, 'sawtooth', .09, 80),
+  ok:     () => { tone(660, .08, 'square', .08); tone(880, .12, 'square', .08, null, .07); },
+  fail:   () => tone(180, .28, 'sawtooth', .1, 90),
+  finish: () => [523, 659, 784, 1047].forEach((f, i) => tone(f, .16, 'square', .08, null, i*.09)),
+  fire:   () => { noise(.25, .25, 900, 80); tone(110, .18, 'triangle', .14, 55); },
+  hit:    () => { noise(.6, .3, 2000, 60, 0, .7); tone(70, .45, 'sawtooth', .1, 35); },
+  splash: () => { noise(.35, .12, 3500, 300, 0, 3); tone(900, .12, 'sine', .04, 300, .02); },
+  myturn: () => { tone(784, .1, 'triangle', .1); tone(1175, .16, 'triangle', .1, null, .1); },
+  sunk:   () => { noise(.9, .25, 800, 40); tone(160, .8, 'sawtooth', .07, 40, .1); },
+  win:    () => [523, 659, 784, 1047, 784, 1047].forEach((f, i) => tone(f, .18, 'square', .08, null, i*.11)),
+  lose:   () => [392, 330, 262, 196].forEach((f, i) => tone(f, .22, 'triangle', .1, null, i*.16))
+};
+function sfx(name, arg){ if (!SND.on) return; try { SFX[name] && SFX[name](arg); } catch(_){} }
+// countdown beeps shared by every game: call with the number on screen, 0 when it starts
+let lastCountShown = null;
+function countBeep(n){
+  if (n === lastCountShown) return;
+  lastCountShown = n;
+  if (n > 0) sfx('count'); else if (n === 0) sfx('go');
+}
+function syncSoundBtn(){ $('btnSound').textContent = 'Son : ' + (SND.on ? 'activé' : 'coupé'); }
+$('btnSound').onclick = () => {
+  SND.on = !SND.on; try { localStorage.setItem('tm-sound', SND.on ? '1' : '0'); } catch(_){}
+  syncSoundBtn(); if (SND.on) sfx('ok');
+};
+syncSoundBtn();
 
 // ================= leaderboard: finished games kept in this browser =================
 const HIST_KEY = 'tm-history', HIST_MAX = 200;
@@ -2115,8 +2206,8 @@ function frame(now){
   if (cur === 'naval') navalFrame(dt, now);
   if (cur === 'tetris' && G && phase === 'count'){
     G.count -= dt/1000;
-    if (G.count <= 0){ phase = 'play'; setMsg('', ''); }
-    else setMsg(String(Math.ceil(G.count)), '');
+    if (G.count <= 0){ phase = 'play'; setMsg('', ''); countBeep(0); }
+    else { setMsg(String(Math.ceil(G.count)), ''); countBeep(Math.ceil(G.count)); }
   }
   if (cur === 'tetris' && G && phase === 'play' && G.alive){
     G.elapsed += dt;
