@@ -91,7 +91,7 @@ label{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--m
 #gamePick, #boardTabs{flex-wrap:wrap}
 #gamePick button, #boardTabs button{padding:10px 4px;font-size:13px;min-width:0}
 .naval{display:flex;flex-direction:column;align-items:center;gap:10px;max-width:760px;margin:0 auto}
-.nvhead{width:min(100%,74vh,700px);display:flex;justify-content:flex-start;padding-right:90px;align-items:center;gap:12px;min-height:34px}
+.nvhead{width:min(100%,74vh,700px);display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:34px}
 .nvturn{font-family:var(--display);font-size:clamp(15px,4vw,20px);display:flex;align-items:center;gap:8px;min-width:0}
 .nvturn.mine{color:var(--accent)}
 .nvtime{font-weight:700;font-variant-numeric:tabular-nums;font-size:18px}
@@ -160,7 +160,9 @@ label{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--m
 @media (prefers-reduced-motion:reduce){ .shake{animation:none} }
 
 /* ---- ranking ---- */
-.abort{position:fixed;z-index:4;top:calc(env(safe-area-inset-top,0px) + 10px);right:calc(env(safe-area-inset-right,0px) + 12px);padding:8px 12px;font-size:13px;background:var(--panel);color:var(--fg);border:1px solid var(--line)}
+.gameart{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:6px;border:1px solid var(--line)}
+.abortbar{display:flex;justify-content:flex-end;max-width:1100px;margin:0 auto 6px}
+.abort{padding:5px 10px;font-size:12px;background:transparent;color:var(--muted);border:1px solid var(--line)}
 .abort::before{content:"← "}
 .abort.armed{background:var(--danger);color:#fff;border-color:var(--danger)}
 .overlay{position:fixed;inset:0;background:rgba(10,8,22,.82);display:flex;align-items:center;justify-content:center;padding:16px;z-index:5}
@@ -177,7 +179,7 @@ label{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--m
 </head>
 <body>
 
-<button id="btnAbort" class="abort" hidden aria-label="Arrêter la partie et revenir au salon">Salon</button>
+<div class="abortbar" id="abortBar" hidden><button id="btnAbort" class="abort" aria-label="Arrêter la partie et revenir au salon">Salon</button></div>
 
 <!-- MENU -->
 <section id="scrMenu" class="center">
@@ -216,6 +218,7 @@ label{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--m
         <button data-g="naval" aria-pressed="false">Armada</button>
         <button data-g="mole" aria-pressed="false">Taupes</button>
       </div>
+      <img id="gameArt" class="gameart" alt="" hidden>
       <p class="hint" id="gameDesc"></p>
     </div>
     <div class="field">
@@ -667,6 +670,8 @@ function renderLobby(){
     b.disabled = !me.host;
   }
   $('gameDesc').textContent = GAME_DESC[gameKind];
+  const art = $('gameArt'), src = 'img/' + gameKind + '.jpg';
+  if (art.dataset.src !== src){ art.dataset.src = src; art.hidden = true; art.onload = () => { art.hidden = false; }; art.onerror = () => { art.hidden = true; }; art.src = src; }
   $('btnStart').hidden = !me.host;
   $('lobbyHint').textContent = me.host
     ? (players.length < 2 ? 'Seul, vous jouerez contre un robot de niveau moyen. Ou attendez les autres.' : 'Lancez quand tout le monde est là.')
@@ -2535,7 +2540,13 @@ function botTetrisStep(){
   }
   if (!moves.length) return botTetrisDie();
   moves.sort((a, b) => b.score - a.score);
-  const pick = Math.random() < 0.22 ? moves[Math.min(moves.length-1, 1 + Math.floor(Math.random()*3))] : moves[0];   // medium: not always the best
+  // adaptive: skill rises when the robot is behind the player in lines, falls when it is ahead
+  const human = Object.keys(H.stats).filter(id => id !== 'ai'), hl = Math.max(...human.map(id => H.stats[id].ln || 0), 0);
+  const ratio = (T.lines + 2) / (hl + 2);
+  T.skill = Math.max(0, Math.min(1, (T.skill ?? 0.3) + 0.05 * (1 - ratio)));
+  const errP = 0.55 - 0.45*T.skill;                     // 55 % of weaker moves at skill 0, 10 % at skill 1
+  const depth = Math.max(2, Math.round(moves.length * (0.35 - 0.25*T.skill)));
+  const pick = Math.random() < errP ? moves[Math.min(moves.length-1, 1 + Math.floor(Math.random()*depth))] : moves[0];
   if (pick.top < HID) return botTetrisDie();
   T.board = pick.b;
   if (pick.n){
@@ -2546,7 +2557,8 @@ function botTetrisStep(){
   hostHandle('ai', { t:'bd', s:T.board.slice(HID*COLS).map(c => c ? c[0] : '.').join(''), sc:T.sc, ln:T.lines });
   // thinks a bit faster as the game goes on, like the players' gravity
   const lvl = Math.floor((performance.now() - T.t0) / 30000);
-  botLater(botTetrisStep, Math.max(450, 1500 * Math.pow(0.88, lvl)) * (0.8 + Math.random()*0.5));
+  const pace = 2600 - 1700*T.skill;                     // 2,6 s per piece when weak, 0,9 s when strong
+  botLater(botTetrisStep, Math.max(450, pace * Math.pow(0.93, lvl)) * (0.8 + Math.random()*0.5));
 }
 function botTetrisDie(){ const T = BOT.tet; T.alive = false; hostHandle('ai', { t:'dead', sc:T.sc, ln:T.lines }); }
 
@@ -2859,8 +2871,9 @@ $('btnAgain').onclick = backToLobby;
 // creator only: stop the current game and bring everyone back to the lobby (two taps)
 let abortArmed = false, abortT = null;
 function syncAbort(){
+  const show = me.host && (phase === 'count' || phase === 'play');
+  $('abortBar').hidden = !show;
   const b = $('btnAbort');
-  b.hidden = !(me.host && (phase === 'count' || phase === 'play'));
   b.textContent = abortArmed ? 'Confirmer ?' : 'Salon';
   b.classList.toggle('armed', abortArmed);
 }
