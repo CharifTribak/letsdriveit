@@ -4,6 +4,18 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Baston !</title>
+<meta name="description" content="Cinq jeux multijoueurs dans le navigateur : Tetris, Pong, Derby, Armada et Tape-taupe. Un salon, un code, de 1 à 5 joueurs.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Baston !">
+<meta property="og:description" content="Cinq jeux multijoueurs dans le navigateur. Créez un salon, partagez le code, et que le meilleur gagne.">
+<meta property="og:image" content="https://chariftribak.github.io/letsdriveit/arcade/img/share.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#FFD93B">
+<link rel="icon" type="image/png" sizes="64x64" href="img/icon-64.png">
+<link rel="icon" type="image/png" sizes="192x192" href="img/icon-192.png">
+<link rel="apple-touch-icon" href="img/icon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bangers&family=Nunito:wght@600;700;800;900&display=swap">
 <style>
@@ -42,6 +54,9 @@ label{font-size:13px;font-weight:900;color:var(--fg)}
 .center{min-height:100%;display:flex;align-items:center;justify-content:center}
 .card{width:100%;max-width:400px;display:flex;flex-direction:column;gap:16px;background:var(--panel);border:3px solid var(--line);box-shadow:7px 7px 0 var(--line);padding:22px 18px}
 .logo{font-size:clamp(56px,17vw,76px);line-height:.9;color:#fff;-webkit-text-stroke:3px var(--line);text-shadow:5px 5px 0 var(--line);transform:rotate(-4deg);align-self:flex-start;padding:4px 6px 0 0}
+.logosvg{margin:-8px 0 -4px -10px;width:min(300px,82%);line-height:0}
+.logosvg svg{width:100%;height:auto;display:block;overflow:visible}
+.logosvg.small{width:min(210px,56%);margin:0 0 0 -8px}
 .tagline{margin:-4px 0 0;font-weight:800;font-size:14px;background:var(--blue);color:#fff;border:3px solid var(--line);padding:5px 10px;align-self:flex-start;transform:rotate(1deg)}
 .field{display:flex;flex-direction:column;gap:6px}
 .row{display:flex;gap:10px}
@@ -51,7 +66,7 @@ label{font-size:13px;font-weight:900;color:var(--fg)}
 .lobby{max-width:440px;background:transparent;border:0;box-shadow:none;padding:0}
 .lobbyhead{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .lobbyhead .logo{font-size:clamp(48px,14vw,64px)}
-.burst{width:132px;height:132px;flex:none;background:var(--accent);clip-path:polygon(50% 0%,61% 18%,82% 8%,80% 30%,100% 36%,85% 52%,98% 70%,76% 72%,76% 94%,57% 82%,44% 100%,36% 80%,14% 90%,18% 68%,0% 60%,16% 46%,4% 26%,26% 24%,26% 4%,42% 16%);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;transform:rotate(6deg)}
+.burst{width:132px;height:132px;flex:none;background:var(--blue);clip-path:polygon(50% 0%,61% 18%,82% 8%,80% 30%,100% 36%,85% 52%,98% 70%,76% 72%,76% 94%,57% 82%,44% 100%,36% 80%,14% 90%,18% 68%,0% 60%,16% 46%,4% 26%,26% 24%,26% 4%,42% 16%);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;transform:rotate(6deg)}
 .burst span{font-weight:900;font-size:11px}
 .burst b{font-family:var(--display);font-weight:400;font-size:36px;line-height:1;letter-spacing:.06em}
 .feature{background:var(--panel);border:3px solid var(--line);box-shadow:7px 7px 0 var(--line);display:flex;flex-direction:column}
@@ -103,6 +118,17 @@ label{font-size:13px;font-weight:900;color:var(--fg)}
 .abort{padding:4px 12px;font-family:var(--body);font-weight:900;font-size:13px;background:#fff;color:#000;box-shadow:2px 2px 0 #000;border-width:2px}
 .abort::before{content:"← "}
 .abort.armed{background:var(--accent);color:#fff}
+.boom{position:absolute;z-index:6;pointer-events:none;filter:drop-shadow(3px 0 0 #000) drop-shadow(-3px 0 0 #000) drop-shadow(0 3px 0 #000) drop-shadow(0 -3px 0 #000) drop-shadow(5px 5px 0 #000);animation:boomin .8s ease-out forwards}
+.boom .bk{display:block;padding:26px 34px;clip-path:polygon(50% 0%,61% 18%,82% 8%,80% 30%,100% 36%,85% 52%,98% 70%,76% 72%,76% 94%,57% 82%,44% 100%,36% 80%,14% 90%,18% 68%,0% 60%,16% 46%,4% 26%,26% 24%,26% 4%,42% 16%);font-family:var(--display);line-height:1;letter-spacing:.04em;white-space:nowrap;-webkit-text-stroke:1.5px #000}
+.boom.big .bk{padding:46px 60px}
+@keyframes boomin{0%{opacity:1;transform:translate(-50%,-50%) rotate(var(--r)) scale(.2)}18%{transform:translate(-50%,-50%) rotate(var(--r)) scale(1.18)}32%{transform:translate(-50%,-50%) rotate(var(--r)) scale(1)}78%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) rotate(var(--r)) scale(1.06)}}
+@media (prefers-reduced-motion:reduce){ @keyframes boomin{0%,80%{opacity:1;transform:translate(-50%,-50%) rotate(var(--r))}100%{opacity:0;transform:translate(-50%,-50%) rotate(var(--r))}} }
+.winpanel{border:3px solid #000;box-shadow:5px 5px 0 #000;padding:16px 14px 14px;display:flex;flex-direction:column;align-items:center;gap:8px;position:relative;margin-top:26px}
+.endburst{position:absolute;top:-34px;left:50%;transform:translateX(-50%) rotate(-5deg);filter:drop-shadow(3px 0 0 #000) drop-shadow(-3px 0 0 #000) drop-shadow(0 3px 0 #000) drop-shadow(0 -3px 0 #000) drop-shadow(4px 4px 0 #000)}
+.endburst span{display:block;padding:18px 30px;background:#E6262B;color:#fff;font-family:var(--display);font-size:30px;letter-spacing:.04em;white-space:nowrap;-webkit-text-stroke:1px #000;clip-path:polygon(50% 0%,61% 18%,82% 8%,80% 30%,100% 36%,85% 52%,98% 70%,76% 72%,76% 94%,57% 82%,44% 100%,36% 80%,14% 90%,18% 68%,0% 60%,16% 46%,4% 26%,26% 24%,26% 4%,42% 16%)}
+.endburst.lost span{background:#1E5BFF}
+.wname{font-family:var(--display);font-size:clamp(34px,10vw,48px);line-height:1;color:#fff;-webkit-text-stroke:2px #000;text-shadow:3px 3px 0 #000;text-align:center;margin-top:18px;overflow-wrap:anywhere}
+.wsub{margin:0;font-weight:900;font-size:14px;background:#fff;border:2px solid #000;padding:3px 10px}
 .panelcv{border:3px solid #000;box-shadow:6px 6px 0 #000}
 
 /* ---- tetris ---- */
@@ -233,7 +259,7 @@ label{font-size:13px;font-weight:900;color:var(--fg)}
 <!-- MENU -->
 <section id="scrMenu" class="center">
   <div class="card">
-    <h1 class="logo" data-appname>Baston !</h1>
+    <h1 class="logosvg" data-appname><svg viewBox="0 0 520 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Baston !"><polygon points="260,8 292,62 352,22 356,86 428,58 404,118 494,120 438,166 508,214 428,226 456,292 384,270 372,322 318,276 262,318 222,270 156,306 152,248 76,262 104,206 18,184 92,148 36,92 116,94 102,30 172,62 204,8 228,58" fill="#000" transform="translate(7,7)"/><polygon points="260,8 292,62 352,22 356,86 428,58 404,118 494,120 438,166 508,214 428,226 456,292 384,270 372,322 318,276 262,318 222,270 156,306 152,248 76,262 104,206 18,184 92,148 36,92 116,94 102,30 172,62 204,8 228,58" fill="#E6262B" stroke="#000" stroke-width="5" stroke-linejoin="round"/><g transform="rotate(-6 260 168)"><text x="264" y="196" text-anchor="middle" font-family="Bangers, Impact, sans-serif" font-size="112" letter-spacing="3" fill="#000">BASTON !</text><text x="258" y="190" text-anchor="middle" font-family="Bangers, Impact, sans-serif" font-size="112" letter-spacing="3" fill="#fff" stroke="#000" stroke-width="6" paint-order="stroke" stroke-linejoin="round">BASTON !</text></g><path d="M60 46 l26 14 M44 76 l30 6 M462 260 l-26 -12 M476 232 l-30 -4" stroke="#000" stroke-width="5" stroke-linecap="round"/></svg></h1>
     <p class="tagline">Cinq jeux, de 1 à 5 joueurs</p>
     <div class="field">
       <label for="nameIn">Votre nom</label>
@@ -255,7 +281,7 @@ label{font-size:13px;font-weight:900;color:var(--fg)}
 <section id="scrLobby" class="center" hidden>
   <div class="card lobby">
     <div class="lobbyhead">
-      <h1 class="logo" data-appname>Baston !</h1>
+      <h1 class="logosvg small" data-appname><svg viewBox="0 0 520 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Baston !"><polygon points="260,8 292,62 352,22 356,86 428,58 404,118 494,120 438,166 508,214 428,226 456,292 384,270 372,322 318,276 262,318 222,270 156,306 152,248 76,262 104,206 18,184 92,148 36,92 116,94 102,30 172,62 204,8 228,58" fill="#000" transform="translate(7,7)"/><polygon points="260,8 292,62 352,22 356,86 428,58 404,118 494,120 438,166 508,214 428,226 456,292 384,270 372,322 318,276 262,318 222,270 156,306 152,248 76,262 104,206 18,184 92,148 36,92 116,94 102,30 172,62 204,8 228,58" fill="#E6262B" stroke="#000" stroke-width="5" stroke-linejoin="round"/><g transform="rotate(-6 260 168)"><text x="264" y="196" text-anchor="middle" font-family="Bangers, Impact, sans-serif" font-size="112" letter-spacing="3" fill="#000">BASTON !</text><text x="258" y="190" text-anchor="middle" font-family="Bangers, Impact, sans-serif" font-size="112" letter-spacing="3" fill="#fff" stroke="#000" stroke-width="6" paint-order="stroke" stroke-linejoin="round">BASTON !</text></g><path d="M60 46 l26 14 M44 76 l30 6 M462 260 l-26 -12 M476 232 l-30 -4" stroke="#000" stroke-width="5" stroke-linecap="round"/></svg></h1>
       <div class="burst"><span>Code</span><b id="lobbyCode">----</b></div>
     </div>
     <p class="hint">Les autres joueurs saisissent ce code depuis le menu.</p>
@@ -408,7 +434,11 @@ label{font-size:13px;font-weight:900;color:var(--fg)}
 <!-- RANKING -->
 <div class="overlay" id="scrEnd" hidden>
   <div class="card" style="max-width:480px">
-    <h1 style="font-size:24px">Classement</h1>
+    <div class="winpanel" id="winPanel">
+      <div class="endburst" id="endBurst"><span id="endWord">Victoire !</span></div>
+      <div class="wname" id="winName"></div>
+      <p class="wsub" id="myPlace"></p>
+    </div>
     <div class="rank"><table>
       <thead><tr id="rankHead"></tr></thead>
       <tbody id="rankBody"></tbody>
@@ -705,7 +735,7 @@ function clientRecv(m){
     case 'tt_res': moleRes(m); break;
     case 'tt_pen': if (ML){ ML.scores = m.scores || ML.scores; renderMoleScores(); const u = ML.up.get(m.mid);
       if (u) ML.fx.push({ kind:'plus', x:ML_PAD + (u.x + .5)*mlCell, y:ML_PAD + (u.y + .2)*mlCell, t:0, col:'#FF5D73', txt:'−2' });
-      if (m.id === me.id){ sfx('fail'); moleToast('Votre propre taupe : −2 points'); } else { const p = molePlayer(m.id); if (p) moleToast(p.name + ' a tapé sa propre taupe : −2'); } } break;
+      if (m.id === me.id){ sfx('fail'); moleToast('Votre propre taupe : −2 points'); if (u) boom('AÏE !', { size:24, x:(u.x + .5) / ML_N, y:Math.max(.1, (u.y + .2) / ML_N), pal:BOOM_COLORS[2], ms:650 }); } else { const p = molePlayer(m.id); if (p) moleToast(p.name + ' a tapé sa propre taupe : −2'); } } break;
     case 'nv_turn': navalTurn(m); break;
     case 'nv_shot': navalShot(m); break;
     case 'nv_dist': if (NV){ const k = m.x + ',' + m.y, mk = NV.marks.get(k); if (mk && !mk.pending) NV.dist.set(k, m.d|0); else NV.pendingDist[k] = m.d|0; } break;
@@ -832,6 +862,7 @@ function lock(){
     G.score += [0,100,300,500,800][n] * (level()+1);
     G.lines += n;
     sfx('line', n);
+    boom(['', 'CRAC !', 'PAF !', 'BING !', 'BAM !'][n], { size:28 + n*6, x:.5, y:.55 });
     const k = [0, 1, 2, 4, 6][n];                     // bricks sent to every opponent
     if (k){ G.sent += k; toHost({ t:'atk', n:k }); }
   }
@@ -855,6 +886,7 @@ function receiveGarbage(from, cols, black){
   if (black) toast('Brique noire de ' + players[slot].name);
   shake(cols.length);
   sfx('garbage');
+  boom('AÏE !', { size:30, x:.5, y:.2, pal:BOOM_COLORS[2] });
   drawMeter();
 }
 // Enemy bricks enter at the top of the well and fall straight down.
@@ -913,7 +945,7 @@ function startGame(pl){
   tag.append(d, n);
   buildOpps();
   newGame(); drawMeter(); updateStats();
-  setMsg('3', '');
+  setMsg('', '');
 }
 function buildOpps(){
   const box = $('opps'); box.textContent = ''; opps.clear();
@@ -977,7 +1009,14 @@ function showEnd(ranking, game){
   });
   const win = ranking && ranking[0];
   sfx(win && win.id === me.id ? 'win' : 'lose');
-  (pong ? pongMsg : derby ? derbyMsg : naval ? navalMsg : mole ? moleMsg : setMsg)(win && win.id === me.id ? 'Victoire' : 'Terminé', '');
+  const mine = (ranking || []).find(r => r.id === me.id);
+  const iWon = !!(win && win.id === me.id);
+  $('endWord').textContent = iWon ? 'Victoire !' : 'Perdu !';
+  $('endBurst').classList.toggle('lost', !iWon);
+  $('winPanel').style.background = win ? win.color : '#FFD93B';
+  $('winName').textContent = win ? (iWon ? 'Vous gagnez !' : win.name + ' gagne !') : '';
+  $('myPlace').textContent = (GAME_NAMES[game] || 'Tetris') + (mine ? ' · vous finissez ' + (mine.place === 1 ? '1er' : mine.place + 'e') + ' sur ' + ranking.length : '');
+  (pong ? pongMsg : derby ? derbyMsg : naval ? navalMsg : mole ? moleMsg : setMsg)('', '');
   $('btnAgain').hidden = false;
   $('endHint').textContent = me.host ? 'Tout le monde revient au salon : relancez le même jeu ou choisissez-en un autre.' : 'Vous attendrez au salon que le créateur relance.';
   saveGame(ranking, game);
@@ -1205,7 +1244,7 @@ function startPong(pl){
     hits:players.map(() => 0), ball:{ x:ar.C[0], y:ar.C[1], vx:0, vy:0 }, ph:'serve', t:1.2, count:3,
     flash:new Array(ar.M).fill(0), myIdx, mySide:ar.owner.indexOf(myIdx), lastSend:0, sentU:-1 };
   PG.rot = PG.mySide > 0 ? -2*Math.PI*PG.mySide/ar.M : 0;
-  pongMsg('3', '');
+  pongMsg('', '');
 }
 const pongMsg = (big, small) => {
   const m = $('pongMsg'); m.textContent = '';
@@ -1304,6 +1343,7 @@ function pongGoalFx(k){
   if (!PG) return;
   PG.flash[k] = 1;
   sfx('goal');
+  boom(k === PG.mySide ? 'AÏE !' : 'PAF !', { size:38, x:.5, y:k === PG.mySide ? .78 : .3, pal:k === PG.mySide ? BOOM_COLORS[2] : BOOM_COLORS[0] });
   if (k === PG.mySide){
     const el = $('pwrap'); el.style.setProperty('--amp', '5px');
     el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake');
@@ -1364,7 +1404,7 @@ function pongFrame(dtMs, now){
   const dt = dtMs / 1000;
   if (phase === 'count'){
     PG.count -= dt;
-    if (PG.count <= 0){ phase = 'play'; pongMsg('', ''); countBeep(0); } else { pongMsg(String(Math.ceil(PG.count)), ''); countBeep(Math.ceil(PG.count)); }
+    if (PG.count <= 0){ phase = 'play'; pongMsg('', ''); countBeep(0); } else { pongMsg('', ''); countBeep(Math.ceil(PG.count)); }
   }
   // my paddle (edge 0 always runs right-to-left on screen, hence the minus sign)
   const mine = PG.mySide >= 0 && PG.alive[PG.myIdx] && phase === 'play';
@@ -1530,6 +1570,7 @@ function missPenalty(){
 }
 function failStroke(st, why){
   sfx('fail');
+  boom('OUPS !', { size:34, x:.5, y:.3, pal:BOOM_COLORS[1] });
   D.stroke = null; D.flashT = 0.7; D.lastBad = st;
   const before = D.d[me.id] || 0;
   if (before > 0 && !D.done){
@@ -1551,7 +1592,7 @@ function startDerby(pl, seed){
   for (const p of players){ D.d[p.id] = 0; D.shown[p.id] = 0; D.gait[p.id] = Math.random()*6; }
   const n = players.length;
   sizeTrack();
-  derbyMsg('3', '');
+  derbyMsg('', '');
   derbyShowFig();
 }
 const derbyMsg = (big, small) => {
@@ -1592,7 +1633,8 @@ const endStroke = () => {
     const gain = TIER_GAIN[fig.tier] * (0.55 + 0.45 * Math.min(1, acc / 0.7));
     const d = Math.min(100, D.d[me.id] + gain);
     D.d[me.id] = d; D.shapes++; D.k++;
-    wrap.classList.add('ok'); sfx(d >= 100 ? 'finish' : 'ok'); dToast(Math.round(acc*100) + ' % · +' + gain.toFixed(1));
+    wrap.classList.add('ok'); sfx(d >= 100 ? 'finish' : 'ok');
+    boom(d >= 100 ? 'ARRIVÉ !' : 'HUE !', { size:d >= 100 ? 48 : 36, x:.5, y:.3, pal:BOOM_COLORS[0] }); dToast(Math.round(acc*100) + ' % · +' + gain.toFixed(1));
     toHost({ t:'dp', d:Math.round(d*10)/10, s:D.shapes });
     if (d >= 100){ D.done = true; derbyMsg('Arrivé !', 'En attente des autres chevaux'); }
     else derbyShowFig();
@@ -1641,7 +1683,7 @@ function derbyRemote(m){
 function derbyFrame(dtMs, now){
   if (!D) return;
   const dt = dtMs/1000;
-  if (phase === 'count'){ D.count -= dt; if (D.count <= 0){ phase = 'play'; derbyMsg('', ''); countBeep(0); } else { derbyMsg(String(Math.ceil(D.count)), ''); countBeep(Math.ceil(D.count)); } }
+  if (phase === 'count'){ D.count -= dt; if (D.count <= 0){ phase = 'play'; derbyMsg('', ''); countBeep(0); } else { derbyMsg('', ''); countBeep(Math.ceil(D.count)); } }
   if (phase === 'play' && !D.done && !D.over){ D.t += dtMs; $('dTime').textContent = fmtSec(D.t); }
   for (const id in D.d){
     const diff = D.d[id] - D.shown[id];
@@ -1881,7 +1923,7 @@ function startNaval(m){
     NV.cannons[i] = [C + dx*f, C + dy*f];
     NV.aim[i] = Math.atan2(C - (C + dy*f), C - (C + dx*f));
   }
-  navalMsg('3', '');
+  navalMsg('', '');
   renderNvPlayers();
 }
 const navalMsg = (big, small) => {
@@ -1937,6 +1979,7 @@ function navalImpact(sh){
     NV.marks.set(k, { hit:true, owner:m.owner, t0:performance.now() });
     if (m.by === me.id && !m.sunk) setTimeout(() => nvToast('Touché ! Rejouez'), 50);
     sfx(m.sunk ? 'sunk' : 'hit');
+    boom(m.sunk ? 'GLOU GLOU !' : 'BOUM !', { size:m.sunk ? 30 : 26, x:sh.to[0] / NV_SIZE, y:Math.max(.12, sh.to[1] / NV_SIZE - .07), pal:m.sunk ? BOOM_COLORS[1] : BOOM_COLORS[0] });
     NV.fx.push({ kind:'boom', x:sh.to[0], y:sh.to[1], t:0, col:m.owner >= 0 ? players[m.owner].color : NV_GHOST,
       parts:Array.from({ length:18 }, () => ({ a:Math.random()*Math.PI*2, v:60 + Math.random()*140 })) });
     if (m.owner >= 0) NV.afloat[m.owner] = Math.max(0, NV.afloat[m.owner] - 1);
@@ -1954,6 +1997,7 @@ function navalImpact(sh){
   } else {
     NV.marks.set(k, { hit:false });
     sfx('splash');
+    boom('PLOUF !', { size:20, x:sh.to[0] / NV_SIZE, y:Math.max(.1, sh.to[1] / NV_SIZE - .06), pal:BOOM_COLORS[1], ms:650 });
     NV.fx.push({ kind:'splash', x:sh.to[0], y:sh.to[1], t:0,
       drops:Array.from({ length:10 }, () => ({ a:-Math.PI/2 + (Math.random() - .5)*2.2, v:50 + Math.random()*70 })) });
     if (NV.pendingDist[k] !== undefined){ NV.dist.set(k, NV.pendingDist[k]); delete NV.pendingDist[k]; }
@@ -2011,7 +2055,7 @@ $('nvCancel').onclick = () => { if (NV){ NV.sel = null; } $('nvConfirm').hidden 
 function navalFrame(dtMs, now){
   if (!NV) return;
   const dt = dtMs/1000;
-  if (phase === 'count'){ NV.count -= dt; if (NV.count > 0){ navalMsg(String(Math.ceil(NV.count)), ''); countBeep(Math.ceil(NV.count)); } else { navalMsg('', ''); countBeep(0); } }
+  if (phase === 'count'){ NV.count -= dt; if (NV.count > 0){ navalMsg('', ''); countBeep(Math.ceil(NV.count)); } else { navalMsg('', ''); countBeep(0); } }
   if (NV.turnId && !NV.over){
     const left = Math.max(0, NV.deadline - now), el = $('nvTime');
     el.textContent = Math.ceil(left/1000) + ' s'; el.classList.toggle('low', left < 6000);
@@ -2326,7 +2370,7 @@ function startMole(m){
   lastCountShown = null;
   $('scrEnd').hidden = true; show('scrMole');
   ML = { count:3, scores:Object.fromEntries(players.map(p => [p.id, 0])), placing:null, deadline:0, sel:[], mine:[], up:new Map(), fx:[], hover:null, over:false, round:0 };
-  moleMsg('3', ''); renderMoleScores();
+  moleMsg('', ''); renderMoleScores();
 }
 const moleMsg = (big, small) => {
   const m = $('mlMsg'); m.textContent = '';
@@ -2417,6 +2461,7 @@ function moleRes(m){
     ML.fx.push({ kind:'plus', x:px, y:py - mlCell*.3, t:0, col:moleColor(m.by), txt:'+1' });
     ML.fx.push({ kind:'stars', x:px, y:py - mlCell*.15, t:0 });
     sfx('bonk');
+    boom('TOC !', { size:22, x:px / ML_SIZE, y:Math.max(.1, py / ML_SIZE - .08), ms:600 });
     if (m.owner === me.id) moleToast((molePlayer(m.by) || {}).name + ' a tapé votre taupe');
   } else {
     if (m.owner) ML.fx.push({ kind:'plus', x:px, y:py - mlCell*.3, t:0, col:moleColor(m.owner), txt:'+1' });
@@ -2463,7 +2508,7 @@ mlcv.addEventListener('pointerdown', e => {
 function moleFrame(dtMs, now){
   if (!ML) return;
   const dt = dtMs/1000;
-  if (phase === 'count'){ ML.count -= dt; if (ML.count > 0){ moleMsg(String(Math.ceil(ML.count)), ''); countBeep(Math.ceil(ML.count)); } }
+  if (phase === 'count'){ ML.count -= dt; if (ML.count > 0){ moleMsg('', ''); countBeep(Math.ceil(ML.count)); } }
   if ((ML.placing || (ML.sent && ML.deadline > now)) && !ML.over){
     const left = Math.max(0, ML.deadline - now), te = $('mlTime');
     te.textContent = Math.ceil(left/1000) + ' s'; te.classList.toggle('low', left < 4000);
@@ -2729,6 +2774,29 @@ function botMoleSees(m){
   if (rt < HM.dur) moleLater(() => moleHit('ai', m.mid, Math.round(rt)), rt);
 }
 
+
+// ================= comic sound effects in bursts =================
+const BOOM_COLORS = [['#FFD93B','#E6262B'], ['#FFFFFF','#1E5BFF'], ['#E6262B','#FFFFFF'], ['#1E5BFF','#FFD93B']];
+function gameWrap(){
+  return cur === 'tetris' ? document.querySelector('#play .well') : cur === 'pong' ? $('pwrap') : cur === 'derby' ? $('padwrap')
+    : cur === 'naval' ? document.querySelector('#scrNaval .nvwrap') : cur === 'mole' ? $('mlWrap') : null;
+}
+// x, y: position in the wrap (0..1); size in px; pal: one of BOOM_COLORS
+function boom(text, o = {}){
+  const wrap = o.fixed ? document.body : (o.wrap || gameWrap()); if (!wrap) return;
+  const pal = o.pal || BOOM_COLORS[Math.floor(Math.random() * BOOM_COLORS.length)];
+  const el = document.createElement('div'); el.className = 'boom' + (o.big ? ' big' : '');
+  if (o.fixed) el.style.position = 'fixed';
+  el.style.left = ((o.x ?? .5) * 100) + '%'; el.style.top = ((o.y ?? .4) * 100) + '%';
+  el.style.setProperty('--r', (o.rot ?? (Math.random()*16 - 8)) + 'deg');
+  if (o.ms) el.style.animationDuration = o.ms + 'ms';
+  const bk = document.createElement('span'); bk.className = 'bk'; bk.textContent = text;
+  bk.style.background = pal[0]; bk.style.color = pal[1]; bk.style.fontSize = (o.size || 34) + 'px';
+  el.append(bk); wrap.append(el);
+  el.addEventListener('animationend', () => el.remove());
+  setTimeout(() => el.remove(), (o.ms || 800) + 400);
+}
+
 // ================= sounds: small synthesized effects, no files =================
 const SND = { on:true, ctx:null };
 try { SND.on = localStorage.getItem('tm-sound') !== '0'; } catch(_){}
@@ -2790,7 +2858,8 @@ let lastCountShown = null;
 function countBeep(n){
   if (n === lastCountShown) return;
   lastCountShown = n;
-  if (n > 0) sfx('count'); else if (n === 0) sfx('go');
+  if (n > 0){ sfx('count'); boom(String(n), { fixed:true, big:true, size:72, x:.5, y:.45, ms:900, pal:BOOM_COLORS[n % 2 ? 0 : 1] }); }
+  else if (n === 0){ sfx('go'); boom('BASTON !', { fixed:true, big:true, size:Math.min(64, innerWidth / 7), x:.5, y:.45, ms:1100, rot:-6, pal:BOOM_COLORS[2] }); }
 }
 function syncSoundBtn(){ $('btnSound').textContent = 'Son : ' + (SND.on ? 'activé' : 'coupé'); }
 $('btnSound').onclick = () => {
@@ -2926,7 +2995,7 @@ function frame(now){
   if (cur === 'tetris' && G && phase === 'count'){
     G.count -= dt/1000;
     if (G.count <= 0){ phase = 'play'; setMsg('', ''); countBeep(0); }
-    else { setMsg(String(Math.ceil(G.count)), ''); countBeep(Math.ceil(G.count)); }
+    else { setMsg('', ''); countBeep(Math.ceil(G.count)); }
   }
   if (cur === 'tetris' && G && phase === 'play' && G.alive){
     G.elapsed += dt;
