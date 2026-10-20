@@ -111,7 +111,7 @@ label{font-size:13px;font-weight:900;color:var(--fg)}
 .msg small{color:#fff;font-weight:900;text-shadow:0 2px 0 #000,2px 0 0 #000,-2px 0 0 #000,0 -2px 0 #000}
 .toast{position:absolute;left:50%;top:14%;width:max-content;max-width:88%;text-align:center;background:#fff;color:#000;border:3px solid #000;border-radius:18px;padding:6px 14px;font-weight:900;font-size:15px;box-shadow:3px 3px 0 #000;opacity:0;transform:translate(-50%,8px);transition:opacity .2s,transform .2s;pointer-events:none;z-index:2}
 .toast.on{opacity:1;transform:translate(-50%,0)}
-.pm{inset:0}
+.msg.pm{inset:0}
 .toast.pm{top:46%}
 .keys{color:var(--muted);font-size:13px;text-align:center}
 .abortbar{display:flex;justify-content:flex-end;max-width:1100px;margin:0 auto 8px}
@@ -2521,51 +2521,91 @@ function moleFrame(dtMs, now){
   ML.fx = ML.fx.filter(f => f.t < 0.9);
   drawMole(now);
 }
-function drawMoleBody(ctx, cx, cy, s, col, rise, squash, now, whackedBy){
-  // rise: 0 hidden .. 1 fully out ; drawn clipped to the hole
-  ctx.save();
-  ctx.beginPath(); ctx.rect(cx - s, cy - s*1.4, s*2, s*1.4 + s*.02); ctx.clip();
-  const h = s*1.05, by = cy + h*(1 - rise) - h*.15;
-  ctx.translate(cx, by); ctx.scale(1 + squash*.25, 1 - squash*.35);
-  ctx.fillStyle = col;
-  ctx.beginPath(); ctx.ellipse(0, 0, s*.48, s*.62, 0, Math.PI, 0); ctx.lineTo(s*.48, s*.4); ctx.lineTo(-s*.48, s*.4); ctx.closePath(); ctx.fill();
-  ctx.fillStyle = 'rgba(255,255,255,.25)'; ctx.beginPath(); ctx.ellipse(0, -s*.05, s*.3, s*.35, 0, Math.PI, 0); ctx.fill();   // belly
-  ctx.fillStyle = '#F7B6C2'; ctx.beginPath(); ctx.ellipse(0, -s*.3, s*.1, s*.07, 0, 0, Math.PI*2); ctx.fill();          // nose
-  ctx.fillStyle = '#141225';
-  if (squash > 0){                                    // dazed eyes
-    ctx.strokeStyle = '#141225'; ctx.lineWidth = 2.5;
-    for (const ex of [-.17, .17]){ ctx.beginPath(); ctx.moveTo(s*(ex - .06), -s*.48); ctx.lineTo(s*(ex + .06), -s*.4); ctx.moveTo(s*(ex + .06), -s*.48); ctx.lineTo(s*(ex - .06), -s*.4); ctx.stroke(); }
-  } else {
-    for (const ex of [-.17, .17]){ ctx.beginPath(); ctx.arc(s*ex, -s*.44, s*.055, 0, Math.PI*2); ctx.fill(); }
+// ---- ink & halftone drawing (comic style) ----
+const INK = '#000';
+function halftone(ctx, alpha){
+  // tiny dot tile reused as a fill pattern for shading
+  const key = 'ht' + alpha;
+  if (!halftone[key]){
+    const t = document.createElement('canvas'); t.width = t.height = 7;
+    const g = t.getContext('2d'); g.fillStyle = 'rgba(0,0,0,' + alpha + ')'; g.beginPath(); g.arc(3.5, 3.5, 1.6, 0, Math.PI*2); g.fill();
+    halftone[key] = t;
   }
-  ctx.fillStyle = '#FFF'; ctx.fillRect(-s*.07, -s*.24, s*.06, s*.08); ctx.fillRect(s*.01, -s*.24, s*.06, s*.08);           // teeth
+  return ctx.createPattern(halftone[key], 'repeat');
+}
+function star(ctx, x, y, r){
+  ctx.beginPath();
+  for (let k = 0; k < 10; k++){ const a = -Math.PI/2 + k*Math.PI/5, rr = k % 2 ? r*.45 : r; k ? ctx.lineTo(x + Math.cos(a)*rr, y + Math.sin(a)*rr) : ctx.moveTo(x + Math.cos(a)*rr, y + Math.sin(a)*rr); }
+  ctx.closePath();
+}
+function drawMoleBody(ctx, cx, cy, s, col, rise, squash, now){
+  // rise: 0 hidden .. 1 fully out ; clipped at the hole line so it pops out of the ground
+  ctx.save();
+  ctx.beginPath(); ctx.rect(cx - s, cy - s*1.5, s*2, s*1.5 + s*.02); ctx.clip();
+  const h = s*1.05, by = cy + h*(1 - rise) - h*.15, lw = Math.max(2, s*.055);
+  ctx.translate(cx, by); ctx.scale(1 + squash*.25, 1 - squash*.35);
+  const body = () => { ctx.beginPath(); ctx.ellipse(0, 0, s*.46, s*.62, 0, Math.PI, 0); ctx.lineTo(s*.46, s*.45); ctx.lineTo(-s*.46, s*.45); ctx.closePath(); };
+  body(); ctx.fillStyle = col; ctx.fill();
+  ctx.save(); body(); ctx.clip();                                         // halftone shade on the right flank
+  ctx.fillStyle = halftone(ctx, .35); ctx.fillRect(s*.12, -s*.7, s*.4, s*1.2); ctx.restore();
+  ctx.fillStyle = 'rgba(255,255,255,.55)'; ctx.beginPath(); ctx.ellipse(-s*.02, s*.02, s*.27, s*.3, 0, Math.PI, 0); ctx.fill();   // belly
+  body(); ctx.strokeStyle = INK; ctx.lineWidth = lw; ctx.lineJoin = 'round'; ctx.stroke();
+  // eyes
+  ctx.lineWidth = lw*.8;
+  if (squash > 0){
+    for (const ex of [-.17, .17]){ ctx.beginPath(); ctx.moveTo(s*(ex - .07), -s*.5); ctx.lineTo(s*(ex + .07), -s*.38); ctx.moveTo(s*(ex + .07), -s*.5); ctx.lineTo(s*(ex - .07), -s*.38); ctx.stroke(); }
+  } else {
+    for (const ex of [-.16, .16]){
+      ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.ellipse(s*ex, -s*.43, s*.085, s*.1, 0, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = INK; ctx.beginPath(); ctx.arc(s*ex + s*.02, -s*.42, s*.042, 0, Math.PI*2); ctx.fill();
+    }
+  }
+  ctx.fillStyle = 'rgba(255,90,120,.45)';                                   // cheeks
+  for (const ex of [-.3, .3]){ ctx.beginPath(); ctx.ellipse(s*ex, -s*.26, s*.07, s*.04, 0, 0, Math.PI*2); ctx.fill(); }
+  ctx.fillStyle = '#FF9BB0'; ctx.beginPath(); ctx.ellipse(0, -s*.3, s*.1, s*.07, 0, 0, Math.PI*2); ctx.fill(); ctx.stroke();   // nose
+  ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.rect(-s*.075, -s*.22, s*.07, s*.09); ctx.rect(s*.005, -s*.22, s*.07, s*.09); ctx.fill(); ctx.stroke();   // teeth
   ctx.restore();
+}
+function drawHole(ctx, cx, cy, c){
+  const lw = Math.max(2, c*.04);
+  ctx.fillStyle = '#B07443'; ctx.beginPath(); ctx.ellipse(cx, cy + 2, c*.37, c*.16, 0, 0, Math.PI*2); ctx.fill();
+  ctx.strokeStyle = INK; ctx.lineWidth = lw; ctx.stroke();
+  ctx.fillStyle = '#2A160B'; ctx.beginPath(); ctx.ellipse(cx, cy, c*.29, c*.1, 0, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+}
+function drawHoleFront(ctx, cx, cy, c){
+  // the front lip of the rim, drawn over a mole so it really comes out of the ground
+  const lw = Math.max(2, c*.04);
+  ctx.save(); ctx.beginPath(); ctx.rect(cx - c*.5, cy, c, c*.3); ctx.clip();
+  ctx.fillStyle = '#B07443'; ctx.beginPath(); ctx.ellipse(cx, cy + 2, c*.37, c*.16, 0, 0, Math.PI*2); ctx.fill();
+  ctx.strokeStyle = INK; ctx.lineWidth = lw; ctx.stroke();
+  ctx.restore();
+  ctx.strokeStyle = INK; ctx.lineWidth = lw; ctx.beginPath(); ctx.ellipse(cx, cy, c*.29, c*.1, 0, 0, Math.PI); ctx.stroke();
 }
 function drawMole(now){
   const ctx = mlctx, S = ML_SIZE, c = mlCell;
-  // meadow
-  ctx.fillStyle = '#2E5E2A'; ctx.fillRect(0, 0, S, S);
+  // meadow: flat greens, ink grid, light halftone
+  ctx.fillStyle = '#6FC24E'; ctx.fillRect(0, 0, S, S);
   for (let y = 0; y < ML_N; y++) for (let x = 0; x < ML_N; x++){
-    ctx.fillStyle = (x + y) % 2 ? '#3B7334' : '#356A2F'; ctx.fillRect(ML_PAD + x*c, ML_PAD + y*c, c, c);
+    ctx.fillStyle = (x + y) % 2 ? '#8FD86A' : '#7FCC5C'; ctx.fillRect(ML_PAD + x*c, ML_PAD + y*c, c, c);
   }
+  ctx.fillStyle = halftone(ctx, .09); ctx.fillRect(0, 0, S, S);
+  ctx.strokeStyle = INK; ctx.lineWidth = 3; ctx.strokeRect(ML_PAD, ML_PAD, c*ML_N, c*ML_N);
+  // grass tufts on the border band
+  ctx.strokeStyle = '#2F7A22'; ctx.lineWidth = 2;
+  for (let k = 0; k < 40; k++){ const t = k/40, x = ML_PAD + t*c*ML_N; for (const y of [ML_PAD - 4, S - ML_PAD + 12]){ ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x - 3, y - 7); ctx.moveTo(x, y); ctx.lineTo(x + 3, y - 8); ctx.stroke(); } }
+  for (let y = 0; y < ML_N; y++) for (let x = 0; x < ML_N; x++) drawHole(ctx, ML_PAD + (x + .5)*c, ML_PAD + (y + .62)*c, c);
   const mineCol = moleColor(me.id);
-  for (let y = 0; y < ML_N; y++) for (let x = 0; x < ML_N; x++){
-    const cx = ML_PAD + (x + .5)*c, cy = ML_PAD + (y + .62)*c;
-    ctx.fillStyle = '#5A3B22'; ctx.beginPath(); ctx.ellipse(cx, cy + 2, c*.36, c*.15, 0, 0, Math.PI*2); ctx.fill();        // dirt rim
-    ctx.fillStyle = '#1C120A'; ctx.beginPath(); ctx.ellipse(cx, cy, c*.3, c*.11, 0, 0, Math.PI*2); ctx.fill();            // hole
-  }
   // my hidden moles (only I can see them) and my current selection
-  const marks = ML.placing === me.id ? ML.sel : ML.mine;
+  const placing = ML.placing === me.id, marks = placing ? ML.sel : ML.mine;
   for (const [x, y] of marks){
     const cx = ML_PAD + (x + .5)*c, cy = ML_PAD + (y + .5)*c;
-    ctx.strokeStyle = mineCol; ctx.lineWidth = 4; ctx.globalAlpha = ML.placing === me.id ? 1 : .55;
-    ctx.beginPath(); ctx.arc(cx, cy, c*.4, 0, Math.PI*2); ctx.stroke();
-    if (ML.placing === me.id) drawMoleBody(ctx, cx, ML_PAD + (y + .62)*c, c*.8, mineCol, .55, 0, now);
-    ctx.globalAlpha = 1;
+    ctx.setLineDash([7, 5]); ctx.strokeStyle = INK; ctx.lineWidth = 5; ctx.beginPath(); ctx.arc(cx, cy, c*.43, 0, Math.PI*2); ctx.stroke();
+    ctx.strokeStyle = mineCol; ctx.lineWidth = 3; ctx.stroke(); ctx.setLineDash([]);
+    if (placing){ drawMoleBody(ctx, cx, ML_PAD + (y + .62)*c, c*.8, mineCol, .55, 0, now); drawHoleFront(ctx, cx, ML_PAD + (y + .62)*c, c); }
   }
-  if (ML.placing === me.id && ML.hover){
-    const [x, y] = ML.hover; ctx.strokeStyle = 'rgba(255,255,255,.5)'; ctx.lineWidth = 2;
-    ctx.strokeRect(ML_PAD + x*c + 3, ML_PAD + y*c + 3, c - 6, c - 6);
+  if (placing && ML.hover){
+    const [x, y] = ML.hover; ctx.strokeStyle = INK; ctx.lineWidth = 3; ctx.setLineDash([5, 4]);
+    ctx.strokeRect(ML_PAD + x*c + 4, ML_PAD + y*c + 4, c - 8, c - 8); ctx.setLineDash([]);
   }
   // moles out of their holes
   for (const u of ML.up.values()){
@@ -2576,30 +2616,36 @@ function drawMole(now){
     else if (u.state === 'whacked'){ const k = (now - u.t1) / 450; squash = 1; rise = Math.max(0, 1 - k*1.2); }
     else { rise = Math.max(0, 1 - (now - u.t1) / 160); }
     drawMoleBody(ctx, cx, cy, c*.8, col, rise, squash, now);
-    ctx.fillStyle = '#5A3B22'; ctx.beginPath(); ctx.ellipse(cx, cy + 2, c*.36, c*.15, 0, 0, Math.PI); ctx.fill();   // front rim over the mole
-    if (u.owner === me.id && u.state === 'up'){       // your own mole: little flag so you do not tap it
-      ctx.fillStyle = '#F2E8D5'; ctx.font = '700 ' + Math.round(c*.2) + 'px Nunito, sans-serif'; ctx.textAlign = 'center';
-      ctx.fillText('à vous', cx, ML_PAD + (u.y + .97)*c);
+    drawHoleFront(ctx, cx, cy, c);
+    if (u.owner === me.id && u.state === 'up'){       // your own mole: a tag so you do not tap it
+      const ty = ML_PAD + (u.y + .9)*c, fs = Math.round(c*.19);
+      ctx.font = '900 ' + fs + 'px Nunito, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      const w = ctx.measureText('à vous').width + 10;
+      ctx.fillStyle = '#fff'; ctx.fillRect(cx - w/2, ty - fs*.7, w, fs*1.4); ctx.strokeStyle = INK; ctx.lineWidth = 2; ctx.strokeRect(cx - w/2, ty - fs*.7, w, fs*1.4);
+      ctx.fillStyle = INK; ctx.fillText('à vous', cx, ty + 1);
     }
   }
   // effects
   for (const f of ML.fx){
     if (f.kind === 'plus'){
-      ctx.globalAlpha = Math.max(0, 1 - f.t/.9); ctx.fillStyle = f.col; ctx.strokeStyle = '#141225'; ctx.lineWidth = 4;
-      ctx.font = '700 ' + Math.round(c*.42) + 'px Bangers, Impact, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.globalAlpha = Math.max(0, 1 - f.t/.9); ctx.fillStyle = f.col; ctx.strokeStyle = INK; ctx.lineWidth = 5; ctx.lineJoin = 'round';
+      ctx.font = Math.round(c*.5) + 'px Bangers, Impact, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       ctx.strokeText(f.txt, f.x, f.y - f.t*40); ctx.fillText(f.txt, f.x, f.y - f.t*40); ctx.globalAlpha = 1;
     } else if (f.kind === 'stars'){
-      ctx.fillStyle = '#FFC93C';
-      for (let k = 0; k < 5; k++){ const a = k*2*Math.PI/5 + f.t*6, r = c*(.3 + f.t*.4); ctx.globalAlpha = Math.max(0, 1 - f.t/.7); ctx.beginPath(); ctx.arc(f.x + Math.cos(a)*r, f.y + Math.sin(a)*r*.5, 4, 0, Math.PI*2); ctx.fill(); }
+      ctx.globalAlpha = Math.max(0, 1 - f.t/.7);
+      for (let k = 0; k < 5; k++){
+        const a = k*2*Math.PI/5 + f.t*6, r = c*(.3 + f.t*.4);
+        star(ctx, f.x + Math.cos(a)*r, f.y + Math.sin(a)*r*.5, c*.09);
+        ctx.fillStyle = '#FFD93B'; ctx.fill(); ctx.strokeStyle = INK; ctx.lineWidth = 2; ctx.stroke();
+      }
       ctx.globalAlpha = 1;
     } else if (f.kind === 'ring' || f.kind === 'miss'){
-      ctx.strokeStyle = f.kind === 'ring' ? f.col : 'rgba(255,255,255,.6)'; ctx.lineWidth = 3; ctx.globalAlpha = Math.max(0, 1 - f.t/.35);
-      ctx.beginPath(); ctx.arc(f.x, f.y, c*(.2 + f.t*1.2), 0, Math.PI*2); ctx.stroke(); ctx.globalAlpha = 1;
+      ctx.globalAlpha = Math.max(0, 1 - f.t/.35);
+      ctx.strokeStyle = INK; ctx.lineWidth = 6; ctx.beginPath(); ctx.arc(f.x, f.y, c*(.2 + f.t*1.2), 0, Math.PI*2); ctx.stroke();
+      ctx.strokeStyle = f.kind === 'ring' ? f.col : '#fff'; ctx.lineWidth = 3; ctx.stroke(); ctx.globalAlpha = 1;
     }
   }
 }
-
-
 // ================= ROBOT : a medium opponent when one person plays alone =================
 // It runs inside the creator's page and acts through the same host functions a real player triggers.
 function botLater(fn, ms){ setTimeout(() => { if (H && !H.over && BOT) fn(); }, ms); }
