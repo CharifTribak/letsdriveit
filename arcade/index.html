@@ -329,7 +329,7 @@ label{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--m
       <div class="toast pm" id="mlToast" aria-live="polite"></div>
     </div>
     <div class="nvconfirm" id="mlConfirm" hidden>
-      <span id="mlCount">0 / 5 taupes</span>
+      <span id="mlCount">0 / 8 taupes</span>
       <button id="mlOk" disabled>Valider</button>
       <button id="mlRand" class="ghost">Au hasard</button>
     </div>
@@ -416,11 +416,12 @@ let cur = null;                 // game being played: 'tetris' | 'pong'
 let PG = null;                  // pong state (host simulates, guests mirror)
 let D = null;                   // derby state
 let NV = null, HN = null;       // armada: my view / host's full map
+let BOT = null;                  // host-side robot when someone plays alone
 let ML = null, HM = null;       // tape-taupe: my view / host referee
 const GAME_DESC = {
   tetris:'Chaque ligne effacée envoie des briques gênantes à tous les adversaires : 1 ligne = 1 brique, 2 = 2, 3 = 4, 4 = 6.',
   pong:'Chaque joueur défend un côté avec 5 vies. Le terrain suit le nombre de joueurs : carré à 2, hexagone à 3, octogone à 4, décagone à 5. Le côté d\'un joueur éliminé devient un mur.',
-  mole:'En même temps, chacun cache 5 taupes à sa couleur dans le pré (8×8). Puis elles sortent une à une, vite : la première personne à taper une taupe d\'un autre gagne 1 point, une taupe que personne ne tape rapporte 1 point à son propriétaire. Premier à 20 points.',
+  mole:'En même temps, chacun cache 8 taupes à sa couleur dans le pré (8×8). Puis elles sortent une à une, vite : la première personne à taper une taupe d\'un autre gagne 1 point (taper la sienne coûte 2 points), une taupe que personne ne tape rapporte 1 point à son propriétaire. Premier à 20 points.',
   naval:'Bataille navale à plusieurs sur une seule mer. Chacun voit ses bateaux, rien d\'autre. À tour de rôle, tirez au canon sur une case : touché, tout le monde voit la flamme ; dans l\'eau, vous seul voyez combien de cases de bateau l\'entourent, comme au démineur. Le dernier à flot gagne.',
   derby:'Course de chevaux : tout le monde reçoit la même série de figures à tracer. Chaque figure réussie fait avancer votre cheval, plus loin si elle est complexe et bien tracée. Le premier à la ligne gagne.'
 };
@@ -539,12 +540,17 @@ function toHost(msg){
 function hostStart(){
   // drop anyone who left meanwhile
   players = players.filter(p => p.id === 'h' || net.conns.has(p.id));
+  BOT = null;
+  if (players.length === 1){                             // alone: a medium-level robot joins
+    players.push({ id:'ai', name:'Robot', color:pickColor(), bot:true });
+  }
   H = { game:gameKind, alive:new Set(players.map(p => p.id)), deaths:[], stats:{}, n:players.length, over:false };
   for (const p of players) H.stats[p.id] = gameKind === 'pong' ? { lives:PONG_LIVES, hits:0, left:false }
     : gameKind === 'derby' ? { d:0, shapes:0, t:0, left:false }
     : gameKind === 'naval' ? { shots:0, hits:0, afloat:0, left:false }
     : gameKind === 'mole' ? { pts:0, whacks:0, escaped:0, left:false } : { sc:0, ln:0, sent:0, left:false };
   H.t0 = performance.now();
+  if (H.alive.has('ai')) botInit(gameKind);
   if (gameKind === 'naval') return navalHostStart();
   if (gameKind === 'mole') return moleHostStart();
   broadcast({ t:'start', players, game:gameKind, seed:Math.floor(Math.random() * 2**31) });
@@ -562,6 +568,7 @@ function hostHandle(id, m){
     st.sent += n;
     const cols = Array.from({ length:n }, () => Math.floor(Math.random() * COLS));
     broadcast({ t:'gb', from:id, cols });          // everyone gets the same bricks
+    if (id !== 'ai' && BOT && BOT.tet) BOT.tet.pending.push({ from:id, cols });
   } else if (m.t === 'blk-removed'){
     // one black brick for one opponent; re-pick if the requested target is gone
     if (!H.alive.has(id)) return;
@@ -621,6 +628,9 @@ function clientRecv(m){
     case 'tt_round': moleRound(m); break;
     case 'tt_up': moleUp(m); break;
     case 'tt_res': moleRes(m); break;
+    case 'tt_pen': if (ML){ ML.scores = m.scores || ML.scores; renderMoleScores(); const u = ML.up.get(m.mid);
+      if (u) ML.fx.push({ kind:'plus', x:ML_PAD + (u.x + .5)*mlCell, y:ML_PAD + (u.y + .2)*mlCell, t:0, col:'#FF5D73', txt:'−2' });
+      if (m.id === me.id){ sfx('fail'); moleToast('Votre propre taupe : −2 points'); } else { const p = molePlayer(m.id); if (p) moleToast(p.name + ' a tapé sa propre taupe : −2'); } } break;
     case 'nv_turn': navalTurn(m); break;
     case 'nv_shot': navalShot(m); break;
     case 'nv_dist': if (NV){ const k = m.x + ',' + m.y, mk = NV.marks.get(k); if (mk && !mk.pending) NV.dist.set(k, m.d|0); else NV.pendingDist[k] = m.d|0; } break;
@@ -659,7 +669,7 @@ function renderLobby(){
   $('gameDesc').textContent = GAME_DESC[gameKind];
   $('btnStart').hidden = !me.host;
   $('lobbyHint').textContent = me.host
-    ? (players.length < 2 ? 'Vous pouvez lancer seul pour tester, ou attendre les autres.' : 'Lancez quand tout le monde est là.')
+    ? (players.length < 2 ? 'Seul, vous jouerez contre un robot de niveau moyen. Ou attendez les autres.' : 'Lancez quand tout le monde est là.')
     : 'En attente du lancement par le créateur…';
 }
 
@@ -1288,6 +1298,7 @@ function pongFrame(dtMs, now){
   if (me.host && phase === 'play' && PG.ph !== 'over'){
     if (PG.ph === 'serve'){ PG.t -= dt; if (PG.t <= 0) pongServe(); }
     else { const n = Math.ceil(dt / (1/240)); for (let i = 0; i < n && PG.ph === 'play'; i++) pongStep(dt / n); }
+    botPong(dt);
     if (now - PG.lastSend > 33){
       PG.lastSend = now;
       const b = PG.ball, r1 = v => Math.round(v*10)/10;
@@ -1681,7 +1692,7 @@ function navalHostStart(){
   const owners = players.map((_, i) => i);
   if (n === 1) owners.push(-1);                     // solo: a ghost fleet to sink
   const { occ, ships } = nvPlace(N, owners);
-  HN = { N, occ, ships, shots:new Set(), nums:new Map(), order:players.map(p => p.id), turn:Math.floor(Math.random() * n), timer:null, busy:false };
+  HN = { N, occ, ships, shots:new Set(), shotBy:new Map(), nums:new Map(), order:players.map(p => p.id), turn:Math.floor(Math.random() * n), timer:null, busy:false };
   for (const p of players) H.stats[p.id].afloat = NV_FLEET.reduce((a, b) => a + b, 0);
   for (const [i, p] of players.entries()){
     const mine = ships.filter(sh => sh.owner === i).map(sh => sh.cells);
@@ -1703,6 +1714,7 @@ function navalNextTurn(advance){
   const id = HN.order[HN.turn];
   HN.busy = false;
   broadcast({ t:'nv_turn', id, ms:NV_TURN_MS });
+  if (id === 'ai') botLater(() => botNavalShoot(), 900 + Math.random()*900);
   HN.timer = setTimeout(() => {                    // nobody fired in time: the turn passes
     if (!H || H.over || HN.busy) return;
     broadcast({ t:'nv_shot', by:id, skip:true });
@@ -1717,7 +1729,7 @@ function navalFire(id, x, y){
   const si = HN.occ.get(k);
   if (si !== undefined && HN.ships[si].owner === pi) return;   // never on your own ships
   HN.busy = true; clearTimeout(HN.timer);
-  HN.shots.add(k);
+  HN.shots.add(k); HN.shotBy.set(k, id);
   H.stats[id].shots++;
   const msg = { t:'nv_shot', by:id, x, y, hit:false };
   if (si !== undefined){
@@ -2111,7 +2123,7 @@ document.querySelector('.nvwrap').addEventListener('animationend', e => e.curren
 
 
 // ================= TAPE-TAUPE : hide 5 moles each, then whack the others' =================
-const ML_N = 8, ML_PER = 5, ML_GOAL = 20, ML_PLACE_MS = 12000, ML_SIZE = 640, ML_PAD = 20;
+const ML_N = 8, ML_PER = 8, ML_GOAL = 20, ML_PLACE_MS = 12000, ML_SIZE = 640, ML_PAD = 20;
 const mlCell = (ML_SIZE - 2*ML_PAD) / ML_N;
 const ML_GHOST = '#8A84B0';
 
@@ -2134,6 +2146,7 @@ function moleNextRound(){
   // everyone hides their moles at the same time; the round starts when all have confirmed
   HM.waiting = new Set(moleActive());
   broadcast({ t:'tt_place', id:'all', ms:ML_PLACE_MS, round:HM.round, total:HM.waiting.size });
+  if (HM.waiting.has('ai')) botLater(() => molePut('ai', null), 1500 + Math.random()*3000);
   clearTimeout(HM.placeTimer);
   HM.placeTimer = moleLater(() => { for (const id of [...HM.waiting]) molePut(id, null); }, ML_PLACE_MS + 1500);   // too slow: placed at random
 }
@@ -2157,8 +2170,8 @@ function moleWhack(){
   const q = HM.moles.slice();
   for (let i = q.length - 1; i > 0; i--){ const j = Math.floor(Math.random()*(i+1)); [q[i], q[j]] = [q[j], q[i]]; }
   const r = HM.round;
-  HM.gap = Math.max(380, 760 - 70*(r - 1));            // ms between two moles
-  HM.dur = Math.max(650, 1150 - 80*(r - 1));           // ms a mole stays up
+  HM.gap = Math.round(Math.max(380, 760 - 70*(r - 1)) / 1.5);   // ms between two moles
+  HM.dur = Math.round(Math.max(650, 1150 - 80*(r - 1)) / 1.5);  // ms a mole stays up
   HM.queue = q; HM.up = new Map(); HM.left = q.length;
   broadcast({ t:'tt_round', round:r, count:q.length });
   moleLater(() => {
@@ -2173,6 +2186,7 @@ function moleWhack(){
       m.mid = ++HM.seq; m.taps = []; m.done = false;
       HM.up.set(m.mid, m);
       broadcast({ t:'tt_up', mid:m.mid, x:m.x, y:m.y, owner:m.owner, dur:HM.dur });
+      botMoleSees(m);
       moleLater(() => moleResolve(m), HM.dur + 220);
     }, HM.gap);
   }, 1600);
@@ -2180,7 +2194,14 @@ function moleWhack(){
 function moleHit(id, mid, rt){
   if (!HM || !HM.up) return;
   const m = HM.up.get(mid);
-  if (!m || m.done || m.owner === id || !H.alive.has(id) || !(rt >= 0) || rt > HM.dur + 150) return;
+  if (!m || m.done || !H.alive.has(id) || !(rt >= 0) || rt > HM.dur + 150) return;
+  if (m.owner === id){                                  // tapping your own mole costs 2 points
+    m.pen = m.pen || new Set(); if (m.pen.has(id)) return; m.pen.add(id);
+    H.stats[id].pts -= 2;
+    const scores = {}; for (const k in H.stats) scores[k] = H.stats[k].pts;
+    broadcast({ t:'tt_pen', id, mid, scores });
+    return;
+  }
   m.taps.push({ id, rt });
   // fairness over the network: gather taps for a short moment, the fastest reaction wins
   if (m.taps.length === 1) moleLater(() => moleResolve(m), 160);
@@ -2248,7 +2269,7 @@ function renderMoleScores(){
     const bar = document.createElement('span'); bar.className = 'bar';
     const i = document.createElement('i'); i.style.background = p.color; i.style.width = Math.min(100, 100 * (ML.scores[p.id] || 0) / ML_GOAL) + '%';
     bar.append(i);
-    const b = document.createElement('b'); b.textContent = (ML.scores[p.id] || 0) + '/' + ML_GOAL;
+    const b = document.createElement('b'); b.textContent = (ML.scores[p.id] || 0) + '/' + ML_GOAL; if ((ML.scores[p.id] || 0) < 0) b.style.color = 'var(--danger)';
     li.append(nm, bar, b); ul.append(li);
   });
 }
@@ -2264,7 +2285,7 @@ function molePlaceTurn(m){
   const active = !ML.out;
   ML.placing = active ? me.id : null; ML.sent = !active; ML.deadline = performance.now() + (m.ms|0); ML.sel = []; ML.total = m.total|0;
   $('mlPhase').classList.toggle('mine', active);
-  setMolePhase(active ? 'Cachez vos 5 taupes (tout le monde en même temps)' : 'Les autres cachent leurs taupes…', active ? moleColor(me.id) : null);
+  setMolePhase(active ? 'Cachez vos ' + ML_PER + ' taupes (tout le monde en même temps)' : 'Les autres cachent leurs taupes…', active ? moleColor(me.id) : null);
   $('mlConfirm').hidden = !active; syncMoleConfirm();
   if (active) sfx('myturn');
 }
@@ -2341,7 +2362,7 @@ mlcv.addEventListener('pointerdown', e => {
     const i = ML.sel.findIndex(s => s[0] === c[0] && s[1] === c[1]);
     if (i >= 0) ML.sel.splice(i, 1);
     else if (ML.sel.length < ML_PER) ML.sel.push(c);
-    else return moleToast('5 taupes maximum : retirez-en une');
+    else return moleToast(ML_PER + ' taupes maximum : retirez-en une');
     sfx('place'); syncMoleConfirm();
     return;
   }
@@ -2349,8 +2370,8 @@ mlcv.addEventListener('pointerdown', e => {
   const now = performance.now();
   for (const u of ML.up.values()){
     if (u.x !== c[0] || u.y !== c[1] || u.state !== 'up' || u.tapped) continue;
-    if (u.owner === me.id){ moleToast('C\'est votre taupe !'); return; }
     u.tapped = true;
+    if (u.owner === me.id){ toHost({ t:'tt_hit', mid:u.mid, rt:Math.round(now - u.t0) }); return; }
     ML.fx.push({ kind:'ring', x:ML_PAD + (c[0] + .5)*mlCell, y:ML_PAD + (c[1] + .5)*mlCell, t:0, col:moleColor(me.id) });
     toHost({ t:'tt_hit', mid:u.mid, rt:Math.round(now - u.t0) });
     return;
@@ -2451,6 +2472,174 @@ function drawMole(now){
       ctx.beginPath(); ctx.arc(f.x, f.y, c*(.2 + f.t*1.2), 0, Math.PI*2); ctx.stroke(); ctx.globalAlpha = 1;
     }
   }
+}
+
+
+// ================= ROBOT : a medium opponent when one person plays alone =================
+// It runs inside the creator's page and acts through the same host functions a real player triggers.
+function botLater(fn, ms){ setTimeout(() => { if (H && !H.over && BOT) fn(); }, ms); }
+function botInit(game){
+  BOT = { game };
+  if (game === 'tetris') botTetrisStart();
+  if (game === 'derby') botLater(botDerbyStep, 3200 + 1500);
+}
+
+// ---- Tetris: evaluates every rotation and column, sometimes picks a lesser move ----
+function botTetrisStart(){
+  const T = BOT.tet = { board:new Array(ROWS*COLS).fill(''), bag:[], pending:[], lines:0, sc:0, alive:true, t0:performance.now() + 3000 };
+  const next = () => { if (!T.bag.length){ T.bag = Object.keys(SH); for (let i = T.bag.length-1; i > 0; i--){ const j = Math.floor(Math.random()*(i+1)); [T.bag[i], T.bag[j]] = [T.bag[j], T.bag[i]]; } } return T.bag.pop(); };
+  T.next = next;
+  botLater(botTetrisStep, 3600);
+}
+function botFits(b, t, r, x, y){
+  for (const [cx, cy] of ROT[t][r]){ const X = x + cx, Y = y + cy; if (X < 0 || X >= COLS || Y >= ROWS || Y < 0 || b[Y*COLS+X]) return false; }
+  return true;
+}
+function botClear(b){
+  let n = 0;
+  for (let y = ROWS-1; y >= 0; y--){
+    let full = true; for (let x = 0; x < COLS; x++) if (!b[y*COLS+x]){ full = false; break; }
+    if (full){ b.splice(y*COLS, COLS); b.unshift(...new Array(COLS).fill('')); n++; y++; }
+  }
+  return n;
+}
+function botEval(b, lines){
+  let agg = 0, holes = 0, bump = 0, prev = -1, maxH = 0;
+  for (let x = 0; x < COLS; x++){
+    let h = 0, seen = false;
+    for (let y = 0; y < ROWS; y++){ if (b[y*COLS+x]){ if (!seen){ h = ROWS - y; seen = true; } } else if (seen) holes++; }
+    agg += h; maxH = Math.max(maxH, h); if (prev >= 0) bump += Math.abs(h - prev); prev = h;
+  }
+  return -0.51*agg + 0.76*lines - 0.36*holes - 0.18*bump - (maxH > 15 ? 3 : 0);
+}
+function botTetrisStep(){
+  const T = BOT.tet; if (!T || !T.alive) return;
+  // incoming bricks land on top of the stack
+  while (T.pending.length){
+    const g = T.pending.shift(), slot = players.findIndex(p => p.id === g.from);
+    for (const col of g.cols){
+      let top = ROWS; for (let y = 0; y < ROWS; y++) if (T.board[y*COLS+col]){ top = y; break; }
+      if (top - 1 < HID) return botTetrisDie();
+      T.board[(top-1)*COLS+col] = String(Math.max(0, slot));
+    }
+    botClear(T.board);
+  }
+  const t = T.next(), moves = [];
+  for (let r = 0; r < 4; r++) for (let x = -3; x < COLS; x++){
+    if (!botFits(T.board, t, r, x, 0)) continue;
+    let y = 0; while (botFits(T.board, t, r, x, y+1)) y++;
+    const b = T.board.slice();
+    for (const [cx, cy] of ROT[t][r]) b[(y+cy)*COLS + x+cx] = t;
+    const n = botClear(b);
+    moves.push({ b, n, score:botEval(b, n), top:Math.min(...ROT[t][r].map(c => y + c[1])) });
+  }
+  if (!moves.length) return botTetrisDie();
+  moves.sort((a, b) => b.score - a.score);
+  const pick = Math.random() < 0.22 ? moves[Math.min(moves.length-1, 1 + Math.floor(Math.random()*3))] : moves[0];   // medium: not always the best
+  if (pick.top < HID) return botTetrisDie();
+  T.board = pick.b;
+  if (pick.n){
+    T.lines += pick.n; T.sc += [0,100,300,500,800][pick.n];
+    const k = [0, 1, 2, 4, 6][pick.n];
+    if (k) hostHandle('ai', { t:'atk', n:k });
+  }
+  hostHandle('ai', { t:'bd', s:T.board.slice(HID*COLS).map(c => c ? c[0] : '.').join(''), sc:T.sc, ln:T.lines });
+  // thinks a bit faster as the game goes on, like the players' gravity
+  const lvl = Math.floor((performance.now() - T.t0) / 30000);
+  botLater(botTetrisStep, Math.max(450, 1500 * Math.pow(0.88, lvl)) * (0.8 + Math.random()*0.5));
+}
+function botTetrisDie(){ const T = BOT.tet; T.alive = false; hostHandle('ai', { t:'dead', sc:T.sc, ln:T.lines }); }
+
+// ---- Pong: follows the predicted impact point, with a limited speed and an aiming error ----
+function botPong(dt){
+  if (!BOT || BOT.game !== 'pong' || !PG) return;
+  const idx = players.findIndex(p => p.id === 'ai'), side = PG.ar.owner.indexOf(idx);
+  if (side < 0 || !PG.alive[idx]) return;
+  const E = PG.ar.edges[side], b = PG.ball;
+  const dx = b.x - E.a[0], dy = b.y - E.a[1];
+  const d = dx*E.n[0] + dy*E.n[1], u = dx*E.e[0] + dy*E.e[1];
+  const vn = b.vx*E.n[0] + b.vy*E.n[1], ve = b.vx*E.e[0] + b.vy*E.e[1];
+  let target = E.L/2;
+  if (PG.ph === 'play' && vn < -1){ const t = d / -vn; target = u + ve*t; }
+  if (BOT.err === undefined || BOT.lastHits !== PG.sh){ BOT.lastHits = PG.sh; BOT.err = (Math.random()*2 - 1) * E.plen * 0.6; }
+  target = Math.max(E.plen/2, Math.min(E.L - E.plen/2, target + BOT.err));
+  const cur = PG.pads[side], step = 290 * dt;
+  PG.pads[side] = Math.abs(target - cur) < step ? target : cur + Math.sign(target - cur) * step;
+}
+
+// ---- Derby: traces at a human pace, misses now and then ----
+function botDerbyStep(){
+  if (!D || !H.stats.ai || H.stats.ai.t) return;
+  const st = H.stats.ai, fig = FIGS[D.series[(BOT.k || 0) % D.series.length]];
+  const ok = Math.random() < [0.85, 0.75, 0.62][fig.tier];
+  let d = st.d;
+  if (ok){
+    const acc = 0.3 + Math.random()*0.6;
+    d = Math.min(100, d + TIER_GAIN[fig.tier] * (0.55 + 0.45*acc));
+    BOT.k = (BOT.k || 0) + 1; BOT.s = (BOT.s || 0) + 1;
+  } else if (d > 0){
+    const ids = Object.keys(H.stats), n = ids.length, rank = 1 + ids.filter(i => i !== 'ai' && H.stats[i].d > d).length;
+    d = Math.max(0, d - (n <= 1 ? 2 : 1 + 3 * (n - rank) / (n - 1)));
+  }
+  derbyProgress('ai', { d:Math.round(d*10)/10, s:BOT.s || 0 });
+  if (d < 100) botLater(botDerbyStep, [2400, 3600, 4800][fig.tier] * (0.8 + Math.random()*0.5));
+}
+
+// ---- Armada: hunts around known hits, reads its own clues, otherwise shoots on a checkerboard ----
+function botNavalShoot(){
+  if (!HN || HN.order[HN.turn] !== 'ai' || HN.busy) return;
+  const N = HN.N, me2 = players.findIndex(p => p.id === 'ai');
+  const own = new Set(), hits = new Set();
+  HN.ships.forEach(sh => {
+    if (sh.owner === me2) sh.cells.forEach(([x, y]) => own.add(nvKey(x, y)));
+    const sunk = sh.hits.size === sh.cells.length;
+    if (!sunk && sh.owner !== me2) sh.hits.forEach(k => hits.add(k));     // flames everyone can see
+  });
+  const free = (x, y) => x >= 0 && y >= 0 && x < N && y < N && !HN.shots.has(nvKey(x, y)) && !own.has(nvKey(x, y));
+  const cand = new Map(), add = (x, y, w) => { if (free(x, y)){ const k = nvKey(x, y); cand.set(k, (cand.get(k) || 0) + w); } };
+  // 1) finish wounded ships: neighbours of hits, more weight along a line of two hits
+  for (const k of hits){
+    const [x, y] = k.split(',').map(Number);
+    for (const [dx, dy] of [[1,0],[-1,0],[0,1],[0,-1]]){
+      const line = hits.has(nvKey(x - dx, y - dy)) ? 6 : 3;
+      add(x + dx, y + dy, line);
+    }
+  }
+  // 2) its own minesweeper clues: remaining unknown ship cells spread over unknown neighbours
+  if (!cand.size) for (const [k, c] of HN.nums){
+    if (HN.shotBy.get(k) !== 'ai' || !c) continue;
+    const [x, y] = k.split(',').map(Number), unk = [];
+    let known = 0;
+    for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++){
+      if (!dx && !dy) continue;
+      const kk = nvKey(x + dx, y + dy);
+      if (own.has(kk) || HN.occ.has(kk) && HN.shots.has(kk)) known++;
+      else if (free(x + dx, y + dy)) unk.push([x + dx, y + dy]);
+    }
+    const left = c - known;
+    if (left > 0) unk.forEach(([ux, uy]) => add(ux, uy, left / unk.length));
+  }
+  let pick = null;
+  if (cand.size && Math.random() > 0.15){                 // medium: sometimes ignores the lead
+    const best = Math.max(...cand.values()), top = [...cand].filter(([, w]) => w >= best - 1e-9);
+    pick = top[Math.floor(Math.random()*top.length)][0].split(',').map(Number);
+  }
+  if (!pick){
+    const all = [];
+    for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) if (free(x, y) && (x + y) % 2 === 0) all.push([x, y]);
+    if (!all.length) for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) if (free(x, y)) all.push([x, y]);
+    if (!all.length) return;
+    pick = all[Math.floor(Math.random()*all.length)];
+  }
+  navalFire('ai', pick[0], pick[1]);
+}
+
+// ---- Tape-taupe: hides its moles at random, taps about half of the others' with human reaction times ----
+function botMoleSees(m){
+  if (!BOT || !H.alive.has('ai') || m.owner === 'ai') return;
+  if (Math.random() > 0.5) return;
+  const rt = 260 + Math.random() * 420;
+  if (rt < HM.dur) moleLater(() => moleHit('ai', m.mid, Math.round(rt)), rt);
 }
 
 // ================= sounds: small synthesized effects, no files =================
