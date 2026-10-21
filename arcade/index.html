@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Baston !</title>
-<meta name="description" content="Cinq jeux multijoueurs dans le navigateur : Tetris, Pong, Derby, Armada et Tape-taupe. Un salon, un code, de 1 à 5 joueurs.">
+<meta name="description" content="Six jeux multijoueurs dans le navigateur : Tetris, Pong, Derby, Armada, Tape-taupe et Curling. Un salon, un code, de 1 à 5 joueurs.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Baston !">
-<meta property="og:description" content="Cinq jeux multijoueurs dans le navigateur. Créez un salon, partagez le code, et que le meilleur gagne.">
+<meta property="og:description" content="Six jeux multijoueurs dans le navigateur. Créez un salon, partagez le code, et que le meilleur gagne.">
 <meta property="og:image" content="https://chariftribak.github.io/letsdriveit/arcade/img/share.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -77,9 +77,9 @@ label{font-size:13px;font-weight:900;color:var(--fg)}
 .featbody{padding:10px 12px 12px;display:flex;flex-direction:column;gap:4px}
 .featbody h2{font-size:32px;color:var(--accent)}
 .featbody p{margin:0;font-size:14px;line-height:1.45}
-.tiles{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px}
+.tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px 10px}
 .tiles button{padding:0;background:var(--panel);color:var(--fg);box-shadow:3px 3px 0 var(--line);display:flex;flex-direction:column;font-size:15px;min-width:0}
-.tiles button:nth-child(1){transform:rotate(-3deg)}.tiles button:nth-child(2){transform:rotate(2deg)}.tiles button:nth-child(3){transform:rotate(-1deg)}.tiles button:nth-child(4){transform:rotate(3deg)}.tiles button:nth-child(5){transform:rotate(-2deg)}
+.tiles button:nth-child(1){transform:rotate(-3deg)}.tiles button:nth-child(2){transform:rotate(2deg)}.tiles button:nth-child(3){transform:rotate(-1deg)}.tiles button:nth-child(4){transform:rotate(3deg)}.tiles button:nth-child(5){transform:rotate(-2deg)}.tiles button:nth-child(6){transform:rotate(2deg)}
 .tiles img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;border-bottom:3px solid var(--line)}
 .tiles span{padding:3px 0;width:100%;text-align:center;overflow:hidden;white-space:nowrap}
 .tiles button[aria-pressed="true"]{background:var(--accent);color:#fff}
@@ -192,6 +192,19 @@ label{font-size:13px;font-weight:900;color:var(--fg)}
 #padwrap.ok #drawCv{border-color:#13A35B;box-shadow:6px 6px 0 #13A35B}
 #padwrap.ko #drawCv{border-color:var(--danger);box-shadow:6px 6px 0 var(--danger)}
 
+/* ---- curling ---- */
+.curl{display:flex;flex-direction:column;align-items:center;gap:10px;max-width:560px;margin:0 auto}
+.cuhead{width:min(100%,52vh,440px)}
+.cuend{font-weight:900;font-size:13px;background:#fff;border:3px solid #000;padding:2px 8px;white-space:nowrap}
+.cuwrap{position:relative;width:min(100%,37vh,440px)}
+#cuCv{display:block;width:100%;height:auto;aspect-ratio:5/9;background:#EAF6FF;touch-action:none;border:3px solid #000;box-shadow:6px 6px 0 #000;user-select:none;-webkit-user-select:none}
+.cuctl{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.cuctl.off{visibility:hidden}
+.cuctl button{padding:7px 12px;font-size:14px}
+.cuctl button[aria-pressed="true"]{background:var(--accent);color:#fff}
+.cust{letter-spacing:1px;font-size:11px}
+@media (pointer:coarse){ .curl .keys{display:none} }
+
 /* ---- armada & tape-taupe ---- */
 .naval,.mole{display:flex;flex-direction:column;align-items:center;gap:12px;max-width:760px;margin:0 auto}
 .nvhead{width:min(100%,72vh,700px);display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:40px}
@@ -262,7 +275,7 @@ label{font-size:13px;font-weight:900;color:var(--fg)}
 <section id="scrMenu" class="center">
   <div class="card">
     <h1 class="logosvg" data-appname><svg viewBox="0 0 520 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Baston !"><polygon points="260,8 292,62 352,22 356,86 428,58 404,118 494,120 438,166 508,214 428,226 456,292 384,270 372,322 318,276 262,318 222,270 156,306 152,248 76,262 104,206 18,184 92,148 36,92 116,94 102,30 172,62 204,8 228,58" fill="#000" transform="translate(7,7)"/><polygon points="260,8 292,62 352,22 356,86 428,58 404,118 494,120 438,166 508,214 428,226 456,292 384,270 372,322 318,276 262,318 222,270 156,306 152,248 76,262 104,206 18,184 92,148 36,92 116,94 102,30 172,62 204,8 228,58" fill="#E6262B" stroke="#000" stroke-width="5" stroke-linejoin="round"/><g transform="rotate(-6 260 168)"><text x="264" y="196" text-anchor="middle" font-family="Bangers, Impact, sans-serif" font-size="112" letter-spacing="3" fill="#000">BASTON !</text><text x="258" y="190" text-anchor="middle" font-family="Bangers, Impact, sans-serif" font-size="112" letter-spacing="3" fill="#fff" stroke="#000" stroke-width="6" paint-order="stroke" stroke-linejoin="round">BASTON !</text></g><path d="M60 46 l26 14 M44 76 l30 6 M462 260 l-26 -12 M476 232 l-30 -4" stroke="#000" stroke-width="5" stroke-linecap="round"/></svg></h1>
-    <p class="tagline">Cinq jeux, de 1 à 5 joueurs</p>
+    <p class="tagline">Six jeux, de 1 à 5 joueurs</p>
     <div class="field">
       <label for="nameIn">Votre nom</label>
       <input id="nameIn" maxlength="14" autocomplete="nickname" placeholder="Votre nom">
@@ -275,7 +288,7 @@ label{font-size:13px;font-weight:900;color:var(--fg)}
     </div>
     <button id="btnBoard" class="ghost">Classement général</button>
     <button id="btnSound" class="ghost">Son : activé</button>
-    <p class="hint" id="menuHint">Créez un salon, partagez le code, puis choisissez le jeu : Tetris, Pong, Derby, Armada ou Tape-taupe. De 1 à 5 joueurs.</p>
+    <p class="hint" id="menuHint">Créez un salon, partagez le code, puis choisissez le jeu : Tetris, Pong, Derby, Armada, Tape-taupe ou Curling. De 1 à 5 joueurs.</p>
   </div>
 </section>
 
@@ -301,6 +314,7 @@ label{font-size:13px;font-weight:900;color:var(--fg)}
       <button data-g="derby" aria-pressed="false"><img src="img/derby.jpg" alt=""><span>Derby</span></button>
       <button data-g="naval" aria-pressed="false"><img src="img/naval.jpg" alt=""><span>Armada</span></button>
       <button data-g="mole" aria-pressed="false"><img src="img/mole.jpg" alt=""><span>Taupes</span></button>
+      <button data-g="curling" aria-pressed="false"><img src="img/curling.jpg" alt=""><span>Curling</span></button>
     </div>
     <div class="field">
       <label id="lobbyCount">Joueurs</label>
@@ -433,6 +447,29 @@ label{font-size:13px;font-weight:900;color:var(--fg)}
   </div>
 </section>
 
+<!-- CURLING -->
+<section id="scrCurl" hidden>
+  <div class="curl">
+    <div class="nvhead cuhead">
+      <div class="nvturn" id="cuTurn">Préparation…</div>
+      <div class="cuend" id="cuEnd">Mène 1</div>
+      <div class="nvtime" id="cuTime"></div>
+    </div>
+    <div class="cuwrap" id="cuWrap">
+      <canvas id="cuCv" width="500" height="900" aria-label="Piste de curling"></canvas>
+      <div class="msg pm" id="cuMsg"></div>
+      <div class="toast pm" id="cuToast" aria-live="polite"></div>
+    </div>
+    <div class="cuctl" id="cuCtl">
+      <button id="cuL" class="ghost" aria-pressed="false">↺ Effet à gauche</button>
+      <button id="cuR" class="ghost" aria-pressed="true">Effet à droite ↻</button>
+    </div>
+    <ul class="nvplayers" id="cuPlayers"></ul>
+    <p class="hint" id="cuHelp" style="text-align:center"></p>
+    <p class="keys">Clavier : ← → viser · ↑ ↓ puissance · Q ou D effet · Entrée lancer · Espace balayer</p>
+  </div>
+</section>
+
 <!-- RANKING -->
 <div class="overlay" id="scrEnd" hidden>
   <div class="card" style="max-width:480px">
@@ -464,6 +501,7 @@ label{font-size:13px;font-weight:900;color:var(--fg)}
       <button data-f="derby" aria-pressed="false">Derby</button>
       <button data-f="naval" aria-pressed="false">Armada</button>
       <button data-f="mole" aria-pressed="false">Taupes</button>
+      <button data-f="curling" aria-pressed="false">Curling</button>
     </div>
     <div class="rank"><table>
       <thead><tr id="lbHead"></tr></thead>
@@ -518,18 +556,19 @@ let D = null;                   // derby state
 let NV = null, HN = null;       // armada: my view / host's full map
 let BOT = null;                  // host-side robot when someone plays alone
 let ML = null, HM = null;       // tape-taupe: my view / host referee
-const GAME_NAMES = { tetris:'Tetris', pong:'Pong', derby:'Derby', naval:'Armada', mole:'Tape-taupe' };
+const GAME_NAMES = { tetris:'Tetris', pong:'Pong', derby:'Derby', naval:'Armada', mole:'Tape-taupe', curling:'Curling' };
 const GAME_DESC = {
   tetris:'Chaque ligne effacée envoie des briques gênantes à tous les adversaires : 1 ligne = 1 brique, 2 = 2, 3 = 4, 4 = 6.',
   pong:'Chaque joueur défend un côté avec 5 vies. Le terrain suit le nombre de joueurs : carré à 2, hexagone à 3, octogone à 4, décagone à 5. Le côté d\'un joueur éliminé devient un mur.',
   mole:'En même temps, chacun cache 8 taupes à sa couleur dans le pré (8×8). Puis elles sortent une à une, vite : la première personne à taper une taupe d\'un autre gagne 1 point (taper la sienne coûte 2 points), une taupe que personne ne tape rapporte 1 point à son propriétaire. Premier à 20 points.',
   naval:'Bataille navale à plusieurs sur une seule mer. Chacun voit ses bateaux, rien d\'autre. À tour de rôle, tirez au canon sur une case : touché, tout le monde voit la flamme ; dans l\'eau, vous seul voyez combien de cases de bateau l\'entourent, comme au démineur. Le dernier à flot gagne.',
+  curling:'Curling à plusieurs : chacun lance ses pierres à tour de rôle vers la maison, la cible au bout de la piste. Tirez vers l\'arrière pour viser et doser, choisissez l\'effet, puis frottez la glace pour balayer : la pierre glisse plus loin et tourne moins. À chaque mène, le joueur le plus proche du centre marque 1 point par pierre mieux placée que toutes les autres.',
   derby:'Course de chevaux : tout le monde reçoit la même série de figures à tracer. Chaque figure réussie fait avancer votre cheval, plus loin si elle est complexe et bien tracée. Le premier à la ligne gagne.'
 };
 
 const cleanName = s => String(s || '').replace(/[\u0000-\u001f<>]/g,'').trim().slice(0,14) || 'Joueur';
 const genCode = () => { const a='ABCDEFGHJKMNPQRSTUVWXYZ23456789'; let s=''; for(let i=0;i<4;i++) s+=a[Math.floor(Math.random()*a.length)]; return s; };
-const show = id => { for (const s of ['scrMenu','scrLobby','scrGame','scrPong','scrDerby','scrNaval','scrMole']) $(s).hidden = s !== id; };
+const show = id => { for (const s of ['scrMenu','scrLobby','scrGame','scrPong','scrDerby','scrNaval','scrMole','scrCurl']) $(s).hidden = s !== id; };
 const store = { get(k){ try { return localStorage.getItem(k); } catch(_) { return null; } }, set(k,v){ try { localStorage.setItem(k,v); } catch(_){} } };
 
 $('nameIn').value = store.get('tm-name') || ('Joueur' + Math.floor(Math.random()*90+10));
@@ -540,6 +579,8 @@ function teardown(){
   if (net && net.peer){ try { net.peer.destroy(); } catch(_){} }
   if (HN && HN.timer) clearTimeout(HN.timer);
   if (HM) moleClearTimers();
+  if (HC) clearTimeout(HC.timer);
+  HC = null; CU = null;
   CHAT.length = 0; renderChat();
   net = null; H = null; G = null; PG = null; D = null; NV = null; HN = null; cur = null; me.host = false; me.id = null; players = []; opps.clear();
 }
@@ -624,7 +665,7 @@ function hostDrop(conn){
   net.conns.delete(id);
   if (phase === 'lobby'){ const p = players.find(x => x.id === id); players = players.filter(p => p.id !== id); sendLobby(false); if (p) chatSys(p.name + ' a quitté le salon'); return; }
   if (H && H.alive.has(id)){
-    if (H.game === 'pong') pongDrop(id); else if (H.game === 'derby') derbyDrop(id); else if (H.game === 'naval') navalDrop(id); else if (H.game === 'mole') moleDrop(id); else hostHandle(id, { t:'dead', left:true });
+    if (H.game === 'pong') pongDrop(id); else if (H.game === 'curling') curlDrop(id); else if (H.game === 'derby') derbyDrop(id); else if (H.game === 'naval') navalDrop(id); else if (H.game === 'mole') moleDrop(id); else hostHandle(id, { t:'dead', left:true });
   }
 }
 
@@ -653,11 +694,13 @@ function hostStart(){
   for (const p of players) H.stats[p.id] = gameKind === 'pong' ? { lives:PONG_LIVES, hits:0, left:false }
     : gameKind === 'derby' ? { d:0, shapes:0, t:0, left:false }
     : gameKind === 'naval' ? { shots:0, hits:0, afloat:0, left:false }
-    : gameKind === 'mole' ? { pts:0, whacks:0, escaped:0, left:false } : { sc:0, ln:0, sent:0, left:false };
+    : gameKind === 'mole' ? { pts:0, whacks:0, escaped:0, left:false }
+    : gameKind === 'curling' ? { pts:0, house:0, best:null, left:false } : { sc:0, ln:0, sent:0, left:false };
   H.t0 = performance.now();
   if (H.alive.has('ai')) botInit(gameKind);
   if (gameKind === 'naval') return navalHostStart();
   if (gameKind === 'mole') return moleHostStart();
+  if (gameKind === 'curling') return curlHostStart();
   broadcast({ t:'start', players, game:gameKind, seed:Math.floor(Math.random() * 2**31) });
 }
 
@@ -693,6 +736,10 @@ function hostHandle(id, m){
     navalFire(id, m.x|0, m.y|0);
   } else if (m.t === 'dp'){
     derbyProgress(id, m);
+  } else if (m.t === 'cu_throw'){
+    curlThrow(id, m.a, m.p, m.c);
+  } else if (m.t === 'cu_sw'){
+    curlSweep(id, m.on);
   } else if (m.t === 'pp'){
     pongSetPad(id, +m.u);
   }
@@ -723,9 +770,9 @@ function clientRecv(m){
     case 'lobby':
       players = Array.isArray(m.players) ? m.players : [];
       if (m.you) me.id = m.you;
-      if (['tetris','pong','derby','naval','mole'].includes(m.game)) gameKind = m.game;
+      if (['tetris','pong','derby','naval','mole','curling'].includes(m.game)) gameKind = m.game;
       if (phase === 'menu' || phase === 'lobby' || m.back){
-        phase = 'lobby'; $('scrEnd').hidden = true; G = null; PG = null; D = null; NV = null; ML = null; cur = null; show('scrLobby'); renderLobby();
+        phase = 'lobby'; $('scrEnd').hidden = true; G = null; PG = null; D = null; NV = null; ML = null; CU = null; cur = null; show('scrLobby'); renderLobby();
       }
       break;
     case 'nv_start': startNaval(m); break;
@@ -742,7 +789,8 @@ function clientRecv(m){
     case 'nv_shot': navalShot(m); break;
     case 'nv_dist': if (NV){ const k = m.x + ',' + m.y, mk = NV.marks.get(k); if (mk && !mk.pending) NV.dist.set(k, m.d|0); else NV.pendingDist[k] = m.d|0; } break;
     case 'nv_reveal': if (NV && Array.isArray(m.nums)){ for (const [x, y, d] of m.nums){ NV.dist.set(x + ',' + y, d|0); if (!NV.marks.has(x + ',' + y)) NV.marks.set(x + ',' + y, { hit:false }); } nvToast('Vous voyez maintenant les chiffres de tout le monde'); } break;
-    case 'start': if (m.game === 'pong') startPong(m.players); else if (m.game === 'derby') startDerby(m.players, m.seed|0); else startGame(m.players); break;
+    case 'cu_turn': case 'cu_go': case 'cu_s': case 'cu_out': case 'cu_skip': case 'cu_score': curlRecv(m); break;
+    case 'start': if (m.game === 'curling') startCurling(m); else if (m.game === 'pong') startPong(m.players); else if (m.game === 'derby') startDerby(m.players, m.seed|0); else startGame(m.players); break;
     case 'dr': derbyRemote(m); break;
     case 'ps': pongState(m); break;
     case 'pg': pongGoalFx(m.side|0); break;
@@ -985,15 +1033,16 @@ function showEnd(ranking, game){
   phase = 'end';
   if (G) G.p = null;
   if (PG) PG.ph = 'over';
-  const pong = game === 'pong', derby = game === 'derby', naval = game === 'naval', mole = game === 'mole';
+  const pong = game === 'pong', derby = game === 'derby', naval = game === 'naval', mole = game === 'mole', curl = game === 'curling';
   if (ML) ML.over = true;
   if (NV) NV.over = true;
   if (D) D.over = true;
+  if (CU){ CU.over = true; CU.turnId = null; }
   const hd = $('rankHead'); hd.textContent = '';
-  for (const h of ['#','Joueur', ...(pong ? ['Vies','Renvois'] : derby ? ['Figures','Distance','Temps'] : naval ? ['Tirs','Touchés','À flot'] : mole ? ['Points','Tapées','Échappées'] : ['Lignes','Briques','Score'])]){
+  for (const h of ['#','Joueur', ...(curl ? ['Points','Maison','Meilleure'] : pong ? ['Vies','Renvois'] : derby ? ['Figures','Distance','Temps'] : naval ? ['Tirs','Touchés','À flot'] : mole ? ['Points','Tapées','Échappées'] : ['Lignes','Briques','Score'])]){
     const th = document.createElement('th'); th.textContent = h; hd.append(th);
   }
-  $('rankNote').textContent = mole ? '« Tapées » : taupes adverses tapées. « Échappées » : vos taupes que personne n\'a eues.' : naval ? '« À flot » : cases de bateau encore intactes à la fin.' : pong ? '« Renvois » : balles renvoyées avec la raquette.' : derby ? '« Temps » : durée pour franchir la ligne, pour ceux qui l\'ont franchie.' : '« Briques » : nombre de briques envoyées aux adversaires.';
+  $('rankNote').textContent = curl ? '« Maison » : pierres dans la maison en fin de mène. « Meilleure » : pierre la plus proche du centre.' : mole ? '« Tapées » : taupes adverses tapées. « Échappées » : vos taupes que personne n\'a eues.' : naval ? '« À flot » : cases de bateau encore intactes à la fin.' : pong ? '« Renvois » : balles renvoyées avec la raquette.' : derby ? '« Temps » : durée pour franchir la ligne, pour ceux qui l\'ont franchie.' : '« Briques » : nombre de briques envoyées aux adversaires.';
   const tb = $('rankBody'); tb.textContent = '';
   (ranking || []).forEach(r => {
     const tr = document.createElement('tr'); if (r.place === 1) tr.className = 'win';
@@ -1002,7 +1051,8 @@ function showEnd(ranking, game){
     const d = document.createElement('span'); d.className = 'dot'; d.style.background = r.color;
     const s = document.createElement('span'); s.textContent = r.name + (r.id === me.id ? ' (vous)' : '') + (r.left ? ' · parti' : '');
     w.append(d, s); nm.append(w);
-    if (pong) tr.append(td(r.place), nm, td(r.lives|0), td(r.hits|0));
+    if (curl) tr.append(td(r.place), nm, td(r.pts|0), td(r.house|0), td(r.best != null ? r.best + ' cm' : '–'));
+    else if (pong) tr.append(td(r.place), nm, td(r.lives|0), td(r.hits|0));
     else if (mole) tr.append(td(r.place), nm, td(r.pts|0), td(r.whacks|0), td(r.escaped|0));
     else if (naval) tr.append(td(r.place), nm, td(r.shots|0), td(r.hits|0), td(r.afloat|0));
     else if (derby) tr.append(td(r.place), nm, td(r.shapes|0), td(Math.round(r.d||0) + ' %'), td(r.t ? fmtSec(r.t) : '–'));
@@ -1018,7 +1068,7 @@ function showEnd(ranking, game){
   $('winPanel').style.background = win ? win.color : '#FFD93B';
   $('winName').textContent = win ? (iWon ? 'Vous gagnez !' : win.name + ' gagne !') : '';
   $('myPlace').textContent = (GAME_NAMES[game] || 'Tetris') + (mine ? ' · vous finissez ' + (mine.place === 1 ? '1er' : mine.place + 'e') + ' sur ' + ranking.length : '');
-  (pong ? pongMsg : derby ? derbyMsg : naval ? navalMsg : mole ? moleMsg : setMsg)('', '');
+  (curl ? curlMsg : pong ? pongMsg : derby ? derbyMsg : naval ? navalMsg : mole ? moleMsg : setMsg)('', '');
   $('btnAgain').hidden = false;
   $('endHint').textContent = me.host ? 'Tout le monde revient au salon : relancez le même jeu ou choisissez-en un autre.' : 'Vous attendrez au salon que le créateur relance.';
   saveGame(ranking, game);
@@ -1182,6 +1232,7 @@ function release(a){
 const KEYMAP = { arrowleft:'left', arrowright:'right', arrowdown:'down', arrowup:'rotr', x:'rotr', z:'rotl', w:'rotl', control:'rotl', ' ':'drop', c:'hold', shift:'hold' };
 addEventListener('keydown', e => {
   if (e.target.tagName === 'INPUT') return;
+  if (cur === 'curl') return;
   if (cur === 'pong'){ const k = PKEYS[e.key.toLowerCase()]; if (k){ e.preventDefault(); pin[k] = true; } return; }
   const a = KEYMAP[e.key.toLowerCase()]; if (!a) return;
   e.preventDefault();
@@ -2676,6 +2727,480 @@ function drawMole(now){
     }
   }
 }
+// ================= CURLING : throw, sweep, closest to the button scores =================
+// Host simulates every stone; the thrower sends the throw (angle, power, curl) then sweep on/off.
+const CU_W = 500, CU_H = 900, CU_R = 15, CU_BACK = 60, CU_TEE = 200, CU_HOG = 470, CU_HACK = 830;
+const CU_RINGS = [[95, '#1E5BFF'], [64, '#FFFFFF'], [34, '#E6262B'], [10, '#FFFFFF']], CU_HOUSE = 95;
+const CU_A = 110, CU_A_SWEEP = 90, CU_MAXA = 0.21, CU_TURN_MS = 20000, CU_CM = 1.93;
+const CU_ZONES = [[0, .31, '#FFD93B', 'GARDE'], [.31, .71, '#4EA8FF', 'MAISON'], [.71, 1, '#E6262B', 'FRAPPE']];
+const cuSpeed = p => 300 + Math.max(0, Math.min(1, p)) * 140;
+let HC = null, CU = null;               // host referee / my view
+
+// one physics step for one stone; returns false once it has stopped
+function cuMove(s, h, sweep){
+  const sp = Math.hypot(s.vx, s.vy);
+  if (sp < 1.5){ s.vx = 0; s.vy = 0; return false; }
+  const ux = s.vx/sp, uy = s.vy/sp;
+  let vx = s.vx, vy = s.vy;
+  if (s.curl){                                   // curls more as it slows down, less when swept
+    const al = s.curl * (10 + 28 * (1 - Math.min(1, sp/450))) * (sweep ? .5 : 1);
+    vx += -uy * al * h; vy += ux * al * h;
+  }
+  const sp2 = Math.hypot(vx, vy), ns = Math.max(0, sp - (sweep ? CU_A_SWEEP : CU_A) * h);
+  s.vx = vx/sp2 * ns; s.vy = vy/sp2 * ns;
+  s.x += s.vx * h; s.y += s.vy * h;
+  return true;
+}
+
+// ---- host side ----
+function curlLater(fn, ms){ const hc = HC; setTimeout(() => { if (HC === hc && H && !H.over) fn(); }, ms); }
+function curlHostStart(){
+  const n = players.length;
+  HC = { n, spp:n <= 2 ? 3 : 2, ends:n <= 3 ? 3 : 2, end:0, k:0, order:[], left:{}, stones:[], nid:0, ph:'wait',
+    cur:null, thrower:null, sweep:false, clack:0, timer:null, lastSend:0, runT:0, hit:false };
+  broadcast({ t:'start', players, game:'curling', spp:HC.spp, ends:HC.ends });
+  curlLater(curlNewEnd, 3200);
+}
+function curlNewEnd(){
+  HC.stones = []; HC.k = 0;
+  const ids = players.map(p => p.id), sh = HC.end % ids.length;
+  HC.order = ids.slice(sh).concat(ids.slice(0, sh));          // the last stone (hammer) rotates
+  ids.forEach(id => HC.left[id] = HC.spp);
+  curlNextTurn();
+}
+const curlLeftArr = () => players.map(p => HC.left[p.id] || 0);
+const curlSnap = () => HC.stones.map(s => [s.id, Math.round(s.x*10)/10, Math.round(s.y*10)/10, s.o]);
+function curlNextTurn(){
+  if (!H || H.over || !HC) return;
+  clearTimeout(HC.timer);
+  const total = HC.order.length * HC.spp;
+  while (HC.k < total){
+    const id = HC.order[HC.k % HC.order.length];
+    if (!H.stats[id].left && HC.left[id] > 0) break;
+    HC.k++;
+  }
+  if (HC.k >= total) return curlScoreEnd();
+  const id = HC.order[HC.k % HC.order.length];
+  HC.ph = 'aim'; HC.thrower = id; HC.sweep = false; HC.cur = null;
+  broadcast({ t:'cu_turn', id, end:HC.end, ms:CU_TURN_MS, left:curlLeftArr(), s:curlSnap() });
+  if (id === 'ai') botLater(botCurlThrow, 1500 + Math.random()*1200);
+  const hc = HC;
+  HC.timer = setTimeout(() => {                    // nobody threw in time: that stone is lost
+    if (HC !== hc || !H || H.over || HC.ph !== 'aim' || HC.thrower !== id) return;
+    HC.left[id]--; HC.k++;
+    broadcast({ t:'cu_skip', id });
+    curlNextTurn();
+  }, CU_TURN_MS + 400);
+}
+function curlThrow(id, a, p, c){
+  if (!H || H.over || !HC || HC.ph !== 'aim' || HC.thrower !== id) return;
+  a = +a; p = +p; if (!isFinite(a) || !isFinite(p)) return;
+  a = Math.max(-CU_MAXA, Math.min(CU_MAXA, a)); p = Math.max(0, Math.min(1, p));
+  clearTimeout(HC.timer);
+  const v = cuSpeed(p), o = players.findIndex(q => q.id === id);
+  const s = { id:++HC.nid, x:CU_W/2, y:CU_HACK, vx:Math.sin(a)*v, vy:-Math.cos(a)*v, o, curl:c < 0 ? -1 : 1 };
+  HC.stones.push(s); HC.cur = s; HC.hit = false; HC.ph = 'run'; HC.runT = 0;
+  HC.left[id]--; HC.k++;
+  broadcast({ t:'cu_go', id, sid:s.id, o, left:curlLeftArr() });
+}
+function curlSweep(id, on){ if (HC && HC.ph === 'run' && HC.thrower === id) HC.sweep = !!on; }
+function curlStep(h){
+  const st = HC.stones;
+  for (const s of st) if (s.vx || s.vy) cuMove(s, h, HC.sweep && s === HC.cur);
+  for (let i = 0; i < st.length; i++) for (let j = i + 1; j < st.length; j++){
+    const A = st[i], B = st[j], dx = B.x - A.x, dy = B.y - A.y, d = Math.hypot(dx, dy);
+    if (d >= 2*CU_R || d === 0) continue;
+    const nx = dx/d, ny = dy/d, ov = (2*CU_R - d)/2;
+    A.x -= nx*ov; A.y -= ny*ov; B.x += nx*ov; B.y += ny*ov;
+    const rel = (A.vx - B.vx)*nx + (A.vy - B.vy)*ny;
+    if (rel <= 0) continue;
+    const J = rel * (1 + 0.9) / 2;                 // equal masses, slightly inelastic
+    A.vx -= J*nx; A.vy -= J*ny; B.vx += J*nx; B.vy += J*ny;
+    A.curl = 0; B.curl = 0; HC.hit = true; HC.clack++;
+  }
+  let gone = null;
+  for (const s of st){
+    const why = (s.x < CU_R || s.x > CU_W - CU_R || s.y > CU_H - CU_R) ? 'board' : s.y < CU_BACK - CU_R ? 'back' : null;
+    if (why){ (gone = gone || []).push([s, why]); }
+  }
+  if (gone){
+    HC.stones = st.filter(s => !gone.some(g => g[0] === s));
+    for (const [s, why] of gone) broadcast({ t:'cu_out', o:s.o, why, sid:s.id, x:Math.round(s.x), y:Math.round(s.y) });
+  }
+}
+function curlHostFrame(dt, now){
+  if (!HC || HC.ph !== 'run' || !H || H.over) return;
+  const n = Math.ceil(dt / (1/240));
+  for (let i = 0; i < n; i++) curlStep(dt/n);
+  HC.runT += dt;
+  const moving = HC.stones.some(s => s.vx || s.vy);
+  if (now - HC.lastSend > 33){ HC.lastSend = now; broadcast({ t:'cu_s', s:curlSnap(), sw:HC.sweep ? 1 : 0, cl:HC.clack }); }
+  if (moving && HC.runT < 16) return;
+  for (const s of HC.stones){ s.vx = 0; s.vy = 0; }
+  HC.ph = 'rest';
+  const c = HC.cur;                                // a stone that does not clear the hog line is removed
+  if (c && HC.stones.includes(c) && !HC.hit && c.y > CU_HOG - CU_R){
+    HC.stones = HC.stones.filter(s => s !== c);
+    broadcast({ t:'cu_out', o:c.o, why:'hog', sid:c.id, x:Math.round(c.x), y:Math.round(c.y) });
+  }
+  broadcast({ t:'cu_s', s:curlSnap(), sw:0, cl:HC.clack });
+  curlLater(curlNextTurn, 900);
+}
+function curlRanked(){
+  return HC.stones.map(s => ({ s, d:Math.hypot(s.x - CU_W/2, s.y - CU_TEE) })).filter(e => e.d <= CU_HOUSE + CU_R).sort((a, b) => a.d - b.d);
+}
+function curlScoreEnd(){
+  HC.ph = 'score'; clearTimeout(HC.timer);
+  const ins = curlRanked();
+  let scorer = -1, pts = 0;
+  if (ins.length){ scorer = ins[0].s.o; for (const e of ins){ if (e.s.o !== scorer) break; pts++; } }
+  for (const e of ins){
+    const p = players[e.s.o]; if (!p || !H.stats[p.id]) continue;
+    const st = H.stats[p.id], cm = Math.round(e.d * CU_CM);
+    st.house++; if (st.best == null || cm < st.best) st.best = cm;
+  }
+  if (scorer >= 0 && players[scorer]) H.stats[players[scorer].id].pts += pts;
+  broadcast({ t:'cu_score', end:HC.end, o:scorer, pts, marks:ins.slice(0, pts).map(e => e.s.id), scores:players.map(p => H.stats[p.id].pts) });
+  HC.end++;
+  curlLater(() => { if (HC.end >= HC.ends) curlFinish(); else curlNewEnd(); }, 3800);
+}
+function curlFinish(){
+  if (!H || H.over) return;
+  H.over = true; if (HC) clearTimeout(HC.timer);
+  const ids = Object.keys(H.stats).sort((a, b) => {
+    const A = H.stats[a], B = H.stats[b];
+    if (A.left !== B.left) return A.left ? 1 : -1;
+    return B.pts - A.pts || B.house - A.house || (A.best ?? 1e9) - (B.best ?? 1e9);
+  });
+  const ranking = ids.map((pid, i) => { const p = players.find(x => x.id === pid) || { name:'?', color:'#888' }; return { id:pid, name:p.name, color:p.color, place:i+1, ...H.stats[pid] }; });
+  setTimeout(() => broadcast({ t:'end', ranking, game:'curling' }), 700);
+}
+function curlDrop(id){
+  if (!H || H.over || !H.stats[id]) return;
+  H.stats[id].left = true;
+  broadcast({ t:'cu_skip', id, left:true });
+  if (Object.keys(H.stats).filter(i => !H.stats[i].left).length <= 1) return curlFinish();
+  if (HC && HC.ph === 'aim' && HC.thrower === id){ HC.left[id] = 0; curlNextTurn(); }
+  else if (HC && HC.ph === 'run' && HC.thrower === id) HC.sweep = false;
+}
+
+// ---- robot: draws to the button, or knocks out the stone that is winning ----
+function cuPredict(a, p, c, ty){
+  const v = cuSpeed(p), s = { x:CU_W/2, y:CU_HACK, vx:Math.sin(a)*v, vy:-Math.cos(a)*v, curl:c };
+  for (let i = 0; i < 1500; i++){ if (!cuMove(s, 1/60, false)) break; if (ty != null && s.y <= ty) break; }
+  return s;
+}
+function botCurlThrow(){
+  if (!HC || HC.ph !== 'aim' || HC.thrower !== 'ai') return;
+  const mine = players.findIndex(p => p.id === 'ai'), ins = curlRanked(), c = Math.random() < .5 ? 1 : -1;
+  let best = null;
+  if (ins.length && ins[0].s.o !== mine && Math.random() < .55){
+    const T = ins[0].s;                                  // take-out: a hard throw through the leading stone
+    for (let a = -CU_MAXA; a <= CU_MAXA; a += .003){ const r = cuPredict(a, .92, c, T.y); const e = Math.abs(r.x - T.x); if (!best || e < best.e) best = { a, p:.92, e }; }
+  } else {
+    const guard = ins.length && ins[0].s.o === mine && Math.random() < .35;
+    const tx = CU_W/2 + (Math.random() - .5) * (guard ? 60 : 24), ty = guard ? CU_HOG - 90 : CU_TEE + (Math.random() - .5) * 24;
+    const p0 = (Math.sqrt(2 * CU_A * (CU_HACK - ty)) - 300) / 140;
+    for (let a = -CU_MAXA; a <= CU_MAXA; a += .004){ const r = cuPredict(a, p0, c); const e = Math.hypot(r.x - tx, r.y - ty); if (!best || e < best.e) best = { a, p:p0, e }; }
+    for (let p = p0 - .04; p <= p0 + .04; p += .005){ const r = cuPredict(best.a, p, c); const e = Math.hypot(r.x - tx, r.y - ty); if (e < best.e) best = { a:best.a, p, e }; }
+  }
+  curlThrow('ai', best.a + (Math.random() - .5) * .05, best.p + (Math.random() - .5) * .1, c);     // medium level: a human-sized error
+}
+
+// ---- my view ----
+const cucv = $('cuCv'), cuctx = cucv.getContext('2d');
+function startCurling(m){
+  lastCountShown = null;
+  players = m.players; cur = 'curl'; G = null; PG = null; D = null; phase = 'count';
+  $('scrEnd').hidden = true; show('scrCurl');
+  const spp = m.spp|0 || 2;
+  CU = { myIdx:players.findIndex(p => p.id === me.id), stones:new Map(), turnId:null, deadline:0, count:3, end:0, ends:m.ends|0 || 2, spp,
+    left:players.map(() => spp), scores:players.map(() => 0), curl:CU ? CU.curl : 1, ph:'wait', aim:null, ka:0, kp:.5, kbd:false,
+    rub:[], down:false, keySw:false, swOn:false, sw:false, cl:0, myStone:null, marks:null, fx:[], over:false, swT:0, swBoom:false };
+  syncCurlBtns(); curlMsg('', ''); renderCuPlayers(); curlHeader();
+}
+const curlMsg = (big, small) => {
+  const m = $('cuMsg'); m.textContent = '';
+  if (!big) return;
+  const s = document.createElement('strong'); s.textContent = big; m.append(s);
+  if (small){ const t = document.createElement('small'); t.textContent = small; m.append(t); }
+};
+let cuToastT = null;
+function cuToast(t){ const el = $('cuToast'); el.textContent = t; el.classList.add('on'); clearTimeout(cuToastT); cuToastT = setTimeout(() => el.classList.remove('on'), 1800); }
+const cuName = id => { const p = players.find(x => x.id === id); return p ? p.name : '?'; };
+function renderCuPlayers(){
+  const ul = $('cuPlayers'); ul.textContent = '';
+  players.forEach((p, i) => {
+    const li = document.createElement('li');
+    if (CU.turnId === p.id) li.classList.add('turn');
+    const d = document.createElement('span'); d.className = 'dot'; d.style.background = p.color;
+    const t = document.createElement('span');
+    t.textContent = p.name + (p.id === me.id ? ' (vous)' : '') + ' · ' + CU.scores[i] + ' pt' + (CU.scores[i] > 1 ? 's' : '');
+    const st = document.createElement('span'); st.className = 'cust'; st.textContent = '●'.repeat(Math.max(0, CU.left[i])) + '○'.repeat(Math.max(0, CU.spp - CU.left[i]));
+    st.title = 'pierres restantes dans cette mène';
+    li.append(d, t, st); ul.append(li);
+  });
+}
+function curlHeader(){
+  $('cuEnd').textContent = 'Mène ' + Math.min(CU.end + 1, CU.ends) + '/' + CU.ends;
+  const el = $('cuTurn'); el.textContent = '';
+  const mine = CU.turnId === me.id;
+  if (CU.turnId){
+    const i = players.findIndex(p => p.id === CU.turnId);
+    const d = document.createElement('span'); d.className = 'dot'; d.style.background = players[i] ? players[i].color : '#888';
+    const t = document.createElement('span');
+    t.textContent = mine ? (CU.ph === 'run' ? 'Balayez !' : 'À vous de lancer !') : (CU.ph === 'run' ? 'Lancer de ' : 'Tour de ') + cuName(CU.turnId);
+    el.append(d, t);
+  } else el.textContent = CU.ph === 'score' ? 'Fin de la mène' : 'Préparation…';
+  el.classList.toggle('mine', mine);
+  $('cuCtl').classList.toggle('off', !(mine && CU.ph === 'aim'));
+  $('cuHelp').textContent = mine && CU.ph === 'aim'
+    ? 'Tirez vers l\'arrière depuis n\'importe où sur la piste, puis relâchez : plus vous tirez, plus c\'est fort. L\'effet fait tourner la pierre en fin de course.'
+    : mine && CU.ph === 'run'
+    ? 'Frottez la glace devant la pierre (glissez vite le doigt ou la souris, ou maintenez Espace) : elle va plus loin et tourne moins.'
+    : 'À la fin de la mène, le joueur le plus proche du centre marque 1 point par pierre mieux placée que la meilleure des autres.';
+}
+function syncCurlBtns(){ $('cuL').setAttribute('aria-pressed', String(CU.curl < 0)); $('cuR').setAttribute('aria-pressed', String(CU.curl > 0)); }
+$('cuL').onclick = () => { if (CU){ CU.curl = -1; syncCurlBtns(); } };
+$('cuR').onclick = () => { if (CU){ CU.curl = 1; syncCurlBtns(); } };
+function cuSetStones(arr){
+  if (!CU || !Array.isArray(arr)) return;
+  const seen = new Set();
+  for (const [id, x, y, o] of arr){
+    seen.add(id);
+    const s = CU.stones.get(id);
+    if (s){ s.tx = +x; s.ty = +y; }
+    else CU.stones.set(id, { x:+x, y:+y, tx:+x, ty:+y, o:o|0 });
+  }
+  for (const id of [...CU.stones.keys()]) if (!seen.has(id)) CU.stones.delete(id);
+}
+function curlRecv(m){
+  if (!CU) return;
+  switch (m.t){
+    case 'cu_turn': {
+      if (phase === 'count'){ phase = 'play'; curlMsg('', ''); }
+      if ((m.end|0) !== CU.end || CU.ph === 'score'){ CU.marks = null; }
+      CU.end = m.end|0; CU.turnId = m.id; CU.deadline = performance.now() + (m.ms|0); CU.ph = 'aim'; CU.aim = null; CU.myStone = null;
+      CU.swBoom = false;
+      if (Array.isArray(m.left)) CU.left = m.left;
+      cuSetStones(m.s); for (const s of CU.stones.values()){ s.x = s.tx; s.y = s.ty; }
+      if (m.id === me.id){ sfx('myturn'); CU.kp = .5; CU.ka = 0; }
+      renderCuPlayers(); curlHeader();
+      break;
+    }
+    case 'cu_go':
+      CU.ph = 'run'; CU.deadline = 0; $('cuTime').textContent = '';
+      if (m.id === me.id) CU.myStone = m.sid;
+      if (Array.isArray(m.left)) CU.left = m.left;
+      CU.stones.set(m.sid, { x:CU_W/2, y:CU_HACK, tx:CU_W/2, ty:CU_HACK, o:m.o|0 });
+      sfx('slide'); renderCuPlayers(); curlHeader();
+      break;
+    case 'cu_s':
+      cuSetStones(m.s);
+      CU.sw = !!m.sw;
+      if ((m.cl|0) > CU.cl){
+        CU.cl = m.cl|0; sfx('clack');
+        let bp = null, bd = 1e9;                         // the closest pair is where it hit
+        const st = [...CU.stones.values()];
+        for (let i = 0; i < st.length; i++) for (let j = i+1; j < st.length; j++){ const d = Math.hypot(st[i].tx - st[j].tx, st[i].ty - st[j].ty); if (d < bd){ bd = d; bp = [(st[i].tx + st[j].tx)/2, (st[i].ty + st[j].ty)/2]; } }
+        if (bp) boom(Math.random() < .5 ? 'CLAC !' : 'TOC !', { size:26, x:bp[0]/CU_W, y:Math.max(.05, bp[1]/CU_H - .04), pal:BOOM_COLORS[1], ms:600 });
+      }
+      break;
+    case 'cu_out': {
+      CU.stones.delete(m.sid);
+      CU.fx.push({ x:+m.x, y:+m.y, t:0, col:players[m.o] ? players[m.o].color : '#888' });
+      const who = players[m.o] ? players[m.o].name : '?';
+      cuToast(m.why === 'hog' ? 'Trop court : la pierre de ' + who + ' n\'a pas passé la ligne de jeu' : m.why === 'back' ? 'La pierre de ' + who + ' sort au fond' : 'La pierre de ' + who + ' touche la bande : retirée');
+      sfx('fail');
+      break;
+    }
+    case 'cu_skip':
+      cuToast(m.left ? cuName(m.id) + ' a quitté la partie' : cuName(m.id) + ' n\'a pas lancé à temps');
+      break;
+    case 'cu_score': {
+      CU.ph = 'score'; CU.turnId = null; CU.marks = new Set(m.marks || []); $('cuTime').textContent = '';
+      if (Array.isArray(m.scores)) CU.scores = m.scores;
+      const p = players[m.o];
+      if (p && m.pts > 0){
+        cuToast(p.name + ' marque ' + m.pts + ' point' + (m.pts > 1 ? 's' : ''));
+        boom('+' + m.pts + ' !', { size:46, x:.5, y:CU_TEE/CU_H + .02, pal:p.id === me.id ? BOOM_COLORS[0] : BOOM_COLORS[3], ms:1400 });
+        sfx(p.id === me.id ? 'finish' : 'ok');
+      } else { cuToast('Mène blanche : aucune pierre dans la maison'); boom('BLANCHE !', { size:34, x:.5, y:.25, pal:BOOM_COLORS[1], ms:1200 }); }
+      renderCuPlayers(); curlHeader();
+      break;
+    }
+  }
+}
+
+// ---- input: pull back to aim, then rub to sweep ----
+function cuPoint(e){ const r = cucv.getBoundingClientRect(); return [(e.clientX - r.left) / r.width * CU_W, (e.clientY - r.top) / r.height * CU_H]; }
+const cuMyAim = () => CU && CU.turnId === me.id && CU.ph === 'aim' && phase === 'play' && !CU.over;
+const cuMyRun = () => CU && CU.turnId === me.id && CU.ph === 'run' && CU.myStone != null && CU.stones.has(CU.myStone);
+function cuAimOf(){
+  if (CU.aim){
+    const dx = CU.aim.x0 - CU.aim.x, dy = CU.aim.y0 - CU.aim.y;     // pulling back (down) throws forward (up)
+    if (dy >= -4) return { a:0, p:0 };
+    return { a:Math.max(-CU_MAXA, Math.min(CU_MAXA, Math.atan2(dx, -dy))), p:Math.min(1, Math.hypot(dx, dy) / 300) };
+  }
+  return CU.kbd ? { a:CU.ka, p:CU.kp } : null;
+}
+cucv.addEventListener('pointerdown', e => {
+  if (!CU) return;
+  e.preventDefault(); cucv.setPointerCapture(e.pointerId);
+  const [x, y] = cuPoint(e);
+  if (cuMyAim()){ CU.aim = { x0:x, y0:y, x, y }; CU.kbd = false; }
+  CU.down = true; CU.rub = [[performance.now(), x, y]];
+});
+cucv.addEventListener('pointermove', e => {
+  if (!CU || !CU.down) return;
+  const [x, y] = cuPoint(e);
+  if (CU.aim){ CU.aim.x = x; CU.aim.y = y; }
+  CU.rub.push([performance.now(), x, y]);
+});
+function cuRelease(){
+  if (!CU) return;
+  CU.down = false; CU.rub = [];
+  if (!CU.aim) return;
+  const r = cuAimOf(); CU.aim = null;
+  if (!cuMyAim()) return;
+  if (r.p < .06){ cuToast('Tirez plus loin vers l\'arrière pour lancer'); return; }
+  cuThrowNow(r);
+}
+function cuThrowNow(r){ CU.ph = 'sent'; CU.kbd = false; toHost({ t:'cu_throw', a:Math.round(r.a*10000)/10000, p:Math.round(r.p*1000)/1000, c:CU.curl }); }
+cucv.addEventListener('pointerup', cuRelease);
+cucv.addEventListener('pointercancel', cuRelease);
+addEventListener('keydown', e => {
+  if (cur !== 'curl' || !CU || e.target.tagName === 'INPUT') return;
+  const k = e.key.toLowerCase();
+  if (k === ' '){ e.preventDefault(); CU.keySw = true; return; }
+  if (!cuMyAim()) return;
+  if (k === 'arrowleft' || k === 'arrowright'){ e.preventDefault(); CU.kbd = true; CU.ka = Math.max(-CU_MAXA, Math.min(CU_MAXA, CU.ka + (k === 'arrowleft' ? -.006 : .006))); }
+  else if (k === 'arrowup' || k === 'arrowdown'){ e.preventDefault(); CU.kbd = true; CU.kp = Math.max(0, Math.min(1, CU.kp + (k === 'arrowup' ? .01 : -.01))); }
+  else if (k === 'q' || k === 'a'){ CU.curl = -1; syncCurlBtns(); }
+  else if (k === 'd'){ CU.curl = 1; syncCurlBtns(); }
+  else if (k === 'enter'){ e.preventDefault(); if (!e.repeat) cuThrowNow({ a:CU.ka, p:CU.kp }); }
+});
+addEventListener('keyup', e => { if (CU && e.key === ' ') CU.keySw = false; });
+
+// ---- loop ----
+function curlFrame(dtMs, now){
+  if (!CU) return;
+  const dt = dtMs / 1000;
+  if (phase === 'count'){ CU.count -= dt; if (CU.count > 0){ curlMsg('', ''); countBeep(Math.ceil(CU.count)); } else { countBeep(0); } }
+  if (me.host) curlHostFrame(dt, now);
+  if (CU.deadline && CU.ph === 'aim'){
+    const left = Math.max(0, CU.deadline - now), el = $('cuTime');
+    el.textContent = Math.ceil(left/1000) + ' s'; el.classList.toggle('low', left < 6000);
+  }
+  // sweeping: the finger (or mouse) must keep moving fast, or Space is held
+  if (cuMyRun()){
+    const t0 = now - 220; CU.rub = CU.rub.filter(r => r[0] >= t0);
+    let dist = 0; for (let i = 1; i < CU.rub.length; i++) dist += Math.hypot(CU.rub[i][1] - CU.rub[i-1][1], CU.rub[i][2] - CU.rub[i-1][2]);
+    const on = CU.keySw || (CU.down && dist > 40);
+    if (on !== CU.swOn){ CU.swOn = on; toHost({ t:'cu_sw', on }); }
+    if (on && !CU.swBoom){ CU.swBoom = true; const s = CU.stones.get(CU.myStone); if (s) boom('FROTTE !', { size:24, x:Math.min(.8, Math.max(.2, s.x/CU_W)), y:Math.max(.08, s.y/CU_H - .1), pal:BOOM_COLORS[0], ms:700 }); }
+  } else if (CU.swOn){ CU.swOn = false; }
+  if (CU.sw && CU.ph === 'run'){ CU.swT -= dt; if (CU.swT <= 0){ CU.swT = .16; sfx('sweep'); } }
+  const k = Math.min(1, dt * 18);
+  for (const s of CU.stones.values()){ s.x += (s.tx - s.x) * k; s.y += (s.ty - s.y) * k; }
+  for (const f of CU.fx) f.t += dt;
+  CU.fx = CU.fx.filter(f => f.t < .8);
+  drawCurl(now);
+}
+
+// ---- drawing ----
+function cuStone(ctx, x, y, col, mark, now){
+  const R = CU_R;
+  if (mark){
+    ctx.save(); ctx.translate(x, y); ctx.rotate(now/900);
+    star(ctx, 0, 0, R*2.1); ctx.fillStyle = '#FFD93B'; ctx.fill(); ctx.strokeStyle = '#000'; ctx.lineWidth = 2.5; ctx.stroke();
+    ctx.restore();
+  }
+  ctx.fillStyle = 'rgba(0,0,0,.18)'; ctx.beginPath(); ctx.ellipse(x + 3, y + 4, R, R*.9, 0, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(x, y, R, 0, Math.PI*2); ctx.fillStyle = '#C9CCD8'; ctx.fill();
+  ctx.save(); ctx.clip(); ctx.fillStyle = halftone(ctx, .35); ctx.fillRect(x - R, y, R*2, R); ctx.restore();
+  ctx.strokeStyle = '#000'; ctx.lineWidth = 3; ctx.stroke();
+  ctx.beginPath(); ctx.arc(x, y, R*.64, 0, Math.PI*2); ctx.fillStyle = col; ctx.fill(); ctx.lineWidth = 2.5; ctx.stroke();
+  ctx.fillStyle = '#000'; ctx.fillRect(x - R*.5, y - R*.13, R, R*.26);       // handle
+  ctx.fillStyle = 'rgba(255,255,255,.7)'; ctx.beginPath(); ctx.arc(x - R*.45, y - R*.5, R*.16, 0, Math.PI*2); ctx.fill();
+}
+function drawCurl(now){
+  const ctx = cuctx, W = CU_W, Hh = CU_H, cx = W/2;
+  ctx.fillStyle = '#EAF6FF'; ctx.fillRect(0, 0, W, Hh);
+  ctx.fillStyle = halftone(ctx, .045); ctx.fillRect(0, 0, W, Hh);
+  ctx.fillStyle = 'rgba(30,91,255,.12)'; ctx.fillRect(0, 0, W, CU_BACK);           // beyond the back line
+  // house
+  ctx.save(); ctx.translate(cx, CU_TEE);
+  for (const [r, col] of CU_RINGS){ ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI*2); ctx.fillStyle = col; ctx.fill(); ctx.strokeStyle = '#000'; ctx.lineWidth = 3; ctx.stroke(); }
+  ctx.beginPath(); ctx.arc(0, 0, CU_HOUSE, 0, Math.PI*2); ctx.arc(0, 0, 64, 0, Math.PI*2, true); ctx.fillStyle = halftone(ctx, .2); ctx.fill('evenodd');
+  ctx.restore();
+  // lines
+  ctx.strokeStyle = 'rgba(0,0,0,.35)'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(cx, CU_BACK); ctx.lineTo(cx, CU_HACK + 40); ctx.moveTo(0, CU_TEE); ctx.lineTo(W, CU_TEE); ctx.stroke();
+  ctx.strokeStyle = '#000'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(0, CU_BACK); ctx.lineTo(W, CU_BACK); ctx.stroke();
+  ctx.strokeStyle = '#000'; ctx.lineWidth = 9; ctx.beginPath(); ctx.moveTo(0, CU_HOG); ctx.lineTo(W, CU_HOG); ctx.stroke();
+  ctx.strokeStyle = '#E6262B'; ctx.lineWidth = 5; ctx.stroke();
+  ctx.font = '900 13px Nunito, sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'bottom'; ctx.fillStyle = 'rgba(0,0,0,.55)';
+  ctx.fillText('LIGNE DE JEU', 8, CU_HOG - 7); ctx.textBaseline = 'top'; ctx.fillText('FOND', 8, CU_BACK + 4);
+  ctx.fillStyle = '#000'; ctx.fillRect(cx - 22, CU_HACK + 26, 14, 8); ctx.fillRect(cx + 8, CU_HACK + 26, 14, 8);   // hack
+  // stones
+  const runId = CU && CU.ph === 'run' ? [...CU.stones.keys()].pop() : null;
+  if (CU){
+    for (const [id, s] of CU.stones){
+      const p = players[s.o], col = p ? p.color : '#888';
+      if (id === runId && CU.sw){                   // brooms in front of the running stone
+        const w = Math.sin(now/45) * 9;
+        ctx.strokeStyle = 'rgba(255,255,255,.9)'; ctx.lineWidth = 3;
+        for (const o of [-14, 0, 14]){ ctx.beginPath(); ctx.moveTo(s.x + o - 10, s.y - CU_R - 16); ctx.lineTo(s.x + o + 10, s.y - CU_R - 22); ctx.stroke(); }
+        for (const side of [-1, 1]){
+          const bx = s.x + side*10 + w*side, by = s.y - CU_R - 20;
+          ctx.strokeStyle = '#000'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(bx, by); ctx.lineTo(bx + side*26, by + 34); ctx.stroke();
+          ctx.fillStyle = '#FFD93B'; ctx.fillRect(bx - 11, by - 5, 22, 10); ctx.lineWidth = 2.5; ctx.strokeRect(bx - 11, by - 5, 22, 10);
+        }
+      } else if (id === runId){                     // speed lines
+        ctx.strokeStyle = 'rgba(0,0,0,.45)'; ctx.lineWidth = 2;
+        for (const o of [-8, 0, 8]){ ctx.beginPath(); ctx.moveTo(s.x + o, s.y + CU_R + 6); ctx.lineTo(s.x + o, s.y + CU_R + 22); ctx.stroke(); }
+      }
+      cuStone(ctx, s.x, s.y, col, CU.marks && CU.marks.has(id), now);
+    }
+    for (const f of CU.fx){                          // removed stone: a puff
+      ctx.globalAlpha = 1 - f.t/.8; ctx.fillStyle = '#fff'; ctx.strokeStyle = '#000'; ctx.lineWidth = 2;
+      star(ctx, f.x, f.y, CU_R*(1 + f.t*2)); ctx.fill(); ctx.stroke(); ctx.globalAlpha = 1;
+    }
+    // aiming: the next stone waits on the hack
+    if (CU.ph === 'aim' && CU.turnId){
+      const i = players.findIndex(p => p.id === CU.turnId), col = players[i] ? players[i].color : '#888';
+      const mine = CU.turnId === me.id, r = mine ? cuAimOf() : null;
+      if (r && r.p > 0){
+        const L = 120 + r.p * 260, ex = cx + Math.sin(r.a)*L, ey = CU_HACK - Math.cos(r.a)*L;
+        ctx.setLineDash([10, 8]); ctx.lineCap = 'round';
+        ctx.strokeStyle = '#000'; ctx.lineWidth = 7; ctx.beginPath(); ctx.moveTo(cx, CU_HACK); ctx.lineTo(ex, ey); ctx.stroke();
+        ctx.strokeStyle = col; ctx.lineWidth = 3.5; ctx.stroke(); ctx.setLineDash([]);
+        // curl hint: a small hooked arrow at the tip
+        const sd = CU.curl;
+        ctx.strokeStyle = '#000'; ctx.lineWidth = 3; ctx.beginPath();
+        ctx.moveTo(ex, ey); ctx.quadraticCurveTo(ex, ey - 30, ex + sd*22, ey - 40); ctx.stroke();
+        ctx.fillStyle = '#000'; ctx.beginPath(); ctx.moveTo(ex + sd*30, ey - 44); ctx.lineTo(ex + sd*16, ey - 50); ctx.lineTo(ex + sd*18, ey - 32); ctx.closePath(); ctx.fill();
+      }
+      cuStone(ctx, cx, CU_HACK, col, false, now);
+      if (mine) cuGauge(ctx, r ? r.p : 0);
+    }
+  }
+}
+function cuGauge(ctx, p){
+  const x = CU_W - 34, w = 20, top = 560, h = 300;
+  for (const [a, b, col, lab] of CU_ZONES){
+    const y1 = top + h*(1 - b), y2 = top + h*(1 - a);
+    ctx.fillStyle = col; ctx.fillRect(x, y1, w, y2 - y1);
+    ctx.save(); ctx.translate(x - 6, (y1 + y2)/2); ctx.rotate(-Math.PI/2);
+    ctx.font = '13px Bangers, Impact, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom'; ctx.fillStyle = '#000'; ctx.fillText(lab, 0, 0);
+    ctx.restore();
+  }
+  ctx.strokeStyle = '#000'; ctx.lineWidth = 3; ctx.strokeRect(x, top, w, h);
+  const y = top + h*(1 - p);
+  ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.moveTo(x - 4, y); ctx.lineTo(x + w + 10, y - 8); ctx.lineTo(x + w + 10, y + 8); ctx.closePath(); ctx.fill(); ctx.stroke();
+}
+
 // ================= ROBOT : a medium opponent when one person plays alone =================
 // It runs inside the creator's page and acts through the same host functions a real player triggers.
 function botLater(fn, ms){ setTimeout(() => { if (H && !H.over && BOT) fn(); }, ms); }
@@ -2855,7 +3380,7 @@ function botMoleSees(m){
 const BOOM_COLORS = [['#FFD93B','#E6262B'], ['#FFFFFF','#1E5BFF'], ['#E6262B','#FFFFFF'], ['#1E5BFF','#FFD93B']];
 function gameWrap(){
   return cur === 'tetris' ? document.querySelector('#play .well') : cur === 'pong' ? $('pwrap') : cur === 'derby' ? $('padwrap')
-    : cur === 'naval' ? document.querySelector('#scrNaval .nvwrap') : cur === 'mole' ? $('mlWrap') : null;
+    : cur === 'naval' ? document.querySelector('#scrNaval .nvwrap') : cur === 'mole' ? $('mlWrap') : cur === 'curl' ? $('cuWrap') : null;
 }
 // x, y: position in the wrap (0..1); size in px; pal: one of BOOM_COLORS
 function boom(text, o = {}){
@@ -2925,6 +3450,9 @@ const SFX = {
   escape: () => tone(600, .2, 'sine', .05, 250),
   place:  () => tone(330, .05, 'triangle', .08),
   sunk:   () => { noise(.9, .25, 800, 40); tone(160, .8, 'sawtooth', .07, 40, .1); },
+  slide:  () => { noise(1.6, .07, 500, 120, 0, .6); tone(70, 1.2, 'triangle', .05, 50); },
+  clack:  () => { tone(1500, .05, 'square', .09, 900); noise(.09, .22, 5000, 900); },
+  sweep:  () => noise(.12, .05, 3500, 1500, 0, .8),
   win:    () => [523, 659, 784, 1047, 784, 1047].forEach((f, i) => tone(f, .18, 'square', .08, null, i*.11)),
   lose:   () => [392, 330, 262, 196].forEach((f, i) => tone(f, .22, 'triangle', .1, null, i*.16))
 };
@@ -2995,7 +3523,7 @@ function saveGame(ranking, game){
   if (!Array.isArray(ranking) || !ranking.length || lastSaved === ranking) return;
   lastSaved = ranking;
   const h = loadHist();
-  h.unshift({ at:Date.now(), game:['pong','derby','naval','mole'].includes(game) ? game : 'tetris', n:ranking.length,
+  h.unshift({ at:Date.now(), game:['pong','derby','naval','mole','curling'].includes(game) ? game : 'tetris', n:ranking.length,
     p:ranking.map(r => ({ name:String(r.name).slice(0,14), color:r.color, place:r.place|0, sc:r.sc|0, ln:r.ln|0, sent:r.sent|0, lives:r.lives|0, hits:r.hits|0, pts:r.pts|0, whacks:r.whacks|0, shots:r.shots|0, afloat:r.afloat|0, shapes:r.shapes|0, d:Math.round(r.d||0), t:+r.t||0, me:r.id === me.id })) });
   store.set(HIST_KEY, JSON.stringify(h.slice(0, HIST_MAX)));
 }
@@ -3011,13 +3539,13 @@ function renderBoard(){
     a.games++; if (p.place === 1 && g.n > 1) a.wins++;
     a.pts += Math.max(0, g.n - p.place);                  // 1 point per player finished ahead of
     if (g.game === 'derby'){ if (p.t > 0 && (!a.bestT || p.t < a.bestT)) a.bestT = p.t; }
-    else a.best = Math.max(a.best, (g.game === 'pong' || g.game === 'naval') ? p.hits : g.game === 'mole' ? (p.whacks || 0) : p.sc);
+    else a.best = Math.max(a.best, (g.game === 'pong' || g.game === 'naval') ? p.hits : g.game === 'mole' ? (p.whacks || 0) : g.game === 'curling' ? (p.pts || 0) : p.sc);
     agg.set(k, a);
   }
   const rows = [...agg.values()].sort((x, y) => y.pts - x.pts || y.wins - x.wins || x.games - y.games);
   const showBest = lbFilter !== 'all';
   const hd = $('lbHead'); hd.textContent = '';
-  for (const t of ['#','Joueur','Parties','Victoires','Points', ...(showBest ? [lbFilter === 'pong' ? 'Renvois max' : lbFilter === 'derby' ? 'Meilleur temps' : lbFilter === 'naval' ? 'Touchés max' : lbFilter === 'mole' ? 'Taupes tapées max' : 'Meilleur score'] : [])]){
+  for (const t of ['#','Joueur','Parties','Victoires','Points', ...(showBest ? [lbFilter === 'pong' ? 'Renvois max' : lbFilter === 'derby' ? 'Meilleur temps' : lbFilter === 'naval' ? 'Touchés max' : lbFilter === 'mole' ? 'Taupes tapées max' : lbFilter === 'curling' ? 'Points max' : 'Meilleur score'] : [])]){
     const th = document.createElement('th'); th.textContent = t; hd.append(th);
   }
   const tb = $('lbBody'); tb.textContent = '';
@@ -3068,6 +3596,7 @@ function frame(now){
   if (cur === 'derby') derbyFrame(dt, now);
   if (cur === 'naval') navalFrame(dt, now);
   if (cur === 'mole') moleFrame(dt, now);
+  if (cur === 'curl') curlFrame(dt, now);
   if (cur === 'tetris' && G && phase === 'count'){
     G.count -= dt/1000;
     if (G.count <= 0){ phase = 'play'; setMsg('', ''); countBeep(0); }
@@ -3120,11 +3649,11 @@ $('btnQuit').onclick = () => toMenu('');
 function backToLobby(){
   if (me.host){
     if (H) H.over = true;
-    H = null;
+    H = null; if (HC) clearTimeout(HC.timer); HC = null;
     players = players.filter(p => p.id === 'h' || net.conns.has(p.id));
     sendLobby(true);                                       // everyone goes back
   } else {
-    phase = 'lobby'; $('scrEnd').hidden = true; G = null; PG = null; D = null; NV = null; ML = null; cur = null;
+    phase = 'lobby'; $('scrEnd').hidden = true; G = null; PG = null; D = null; NV = null; ML = null; CU = null; cur = null;
     if (HM) moleClearTimers();
     show('scrLobby'); renderLobby();                      // wait there for the creator
   }

@@ -7,5 +7,6 @@ Déposez ici une image par jeu, au format 16:9 (1280×720 conseillé), en JPEG :
 - `derby.jpg`
 - `naval.jpg` (Armada)
 - `mole.jpg` (Tape-taupe)
+- `curling.jpg`
 
 Le salon affiche automatiquement l'image du jeu choisi par le créateur. Sans image, rien ne s'affiche.
