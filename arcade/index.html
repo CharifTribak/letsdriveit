@@ -194,6 +194,13 @@ label{font-size:13px;font-weight:900;color:var(--fg)}
 #padwrap.ok #drawCv{border-color:#13A35B;box-shadow:6px 6px 0 #13A35B}
 #padwrap.ko #drawCv{border-color:var(--danger);box-shadow:6px 6px 0 var(--danger)}
 
+/* ---- lobby colours ---- */
+.colpick{display:flex;flex-wrap:wrap;gap:7px;align-items:center;margin-top:6px}
+.colpick::before{content:"Votre couleur";font-weight:900;font-size:13px;margin-right:4px}
+.colpick button{width:32px;height:32px;padding:0;border-radius:50%;border:3px solid #000;box-shadow:2px 2px 0 #000;font-family:var(--body);font-size:13px;font-weight:900;color:#fff;-webkit-text-stroke:.5px #000;letter-spacing:0}
+.colpick button[aria-pressed="true"]{outline:3px solid #000;outline-offset:3px}
+.colpick button:disabled{opacity:1;cursor:not-allowed;filter:saturate(.35) brightness(.8)}
+
 /* ---- curling ---- */
 .curl{display:flex;flex-direction:column;align-items:center;gap:10px;max-width:560px;margin:0 auto}
 .cuhead{width:min(100%,52vh,440px)}
@@ -240,6 +247,11 @@ label{font-size:13px;font-weight:900;color:var(--fg)}
 #mmOthers .fb{grid-template-columns:repeat(4,9px);gap:2px}
 #mmOthers .fb i{width:9px;height:9px}
 
+/* ---- virtual joystick ---- */
+.joy{position:fixed;width:104px;height:104px;margin:-52px 0 0 -52px;border-radius:50%;border:3px solid #000;background:rgba(255,255,255,.35);pointer-events:none;z-index:7;box-shadow:3px 3px 0 #000}
+.joy i{position:absolute;left:50%;top:50%;width:44px;height:44px;border-radius:50%;background:#FFD93B;border:3px solid #000;transform:translate(-50%,-50%)}
+#scrKabaddi,#scrDodge{touch-action:none;user-select:none;-webkit-user-select:none}
+
 /* ---- kabaddi ---- */
 #kbWrap{width:min(100%,50vh,440px)}
 .kbhead{width:min(100%,56vh,440px)}
@@ -248,7 +260,7 @@ label{font-size:13px;font-weight:900;color:var(--fg)}
 /* ---- balle au prisonnier ---- */
 #dbWrap{width:min(100%,64vh,600px)}
 #dbCv{display:block;width:100%;height:auto;aspect-ratio:1;touch-action:none;user-select:none;-webkit-user-select:none;border:3px solid #000;box-shadow:6px 6px 0 #000}
-#dbCatch{min-width:200px}
+#dbCatch{width:min(100%,640px);height:62px;font-size:26px;touch-action:manipulation}
 
 /* ---- armada & tape-taupe ---- */
 .naval,.mole{display:flex;flex-direction:column;align-items:center;gap:12px;max-width:760px;margin:0 auto}
@@ -367,6 +379,7 @@ label{font-size:13px;font-weight:900;color:var(--fg)}
     <div class="field">
       <label id="lobbyCount">Joueurs</label>
       <ul class="plist" id="lobbyList"></ul>
+      <div class="colpick" id="colPick" role="group" aria-label="Votre couleur"></div>
     </div>
     <div class="field">
       <label for="chatIn">Discussion</label>
@@ -558,7 +571,7 @@ label{font-size:13px;font-weight:900;color:var(--fg)}
       <div class="toast pm" id="kbToast" aria-live="polite"></div>
     </div>
     <ul class="nvplayers" id="kbPlayers"></ul>
-    <p class="hint" style="text-align:center">Attaquant : gardez le doigt appuyé (ou Espace) pour retenir votre souffle, touchez des défenseurs puis revenez dans votre camp avant la fin du souffle. Défenseurs : glissez pour bouger (la bande claire près de la ligne vous est interdite tant que l'attaquant n'est pas entré), accrochez-le à plusieurs pour le freiner. Clavier : flèches ou ZQSD.</p>
+    <p class="hint" style="text-align:center">Posez le doigt n'importe où et glissez : c'est un joystick. Attaquant : gardez le doigt appuyé (ou Espace) pour retenir votre souffle, touchez des défenseurs puis revenez dans votre camp avant la fin du souffle. Défenseurs : collez-vous à l'attaquant pour l'accrocher, à plusieurs il ne peut plus bouger ; seul, il s'échappe en repartant dans l'autre sens. La bande claire près de la ligne vous est interdite tant qu'il n'est pas entré. Clavier : flèches ou ZQSD.</p>
   </div>
 </section>
 
@@ -571,9 +584,9 @@ label{font-size:13px;font-weight:900;color:var(--fg)}
       <div class="msg pm" id="dbMsg"></div>
       <div class="toast pm" id="dbToast" aria-live="polite"></div>
     </div>
-    <div class="mmact"><button id="dbCatch">✋ Attraper</button></div>
+    <button id="dbCatch">✋ Attraper ✋</button>
     <ul class="nvplayers" id="dbPlayers"></ul>
-    <p class="hint" style="text-align:center">Glissez pour courir, passez sur une balle pour la ramasser, touchez brièvement le terrain pour la lancer à cet endroit. « Attraper » lève les mains un court instant : une balle attrapée fait perdre un cœur au lanceur. Clavier : flèches ou ZQSD, Espace lancer, E attraper.</p>
+    <p class="hint" style="text-align:center">Posez le doigt n'importe où et glissez pour courir (joystick). Passez sur une balle pour la ramasser, touchez brièvement le terrain pour la lancer à cet endroit. « Attraper » lève les mains un court instant : une balle attrapée fait perdre un cœur au lanceur. Clavier : flèches ou ZQSD, Espace lancer, E attraper.</p>
   </div>
 </section>
 
@@ -637,7 +650,8 @@ const $ = id => document.getElementById(id);
 // ================= constants =================
 const COLS = 10, VIS = 20, HID = 2, ROWS = VIS + HID, CELL = 30, MAXP = 5;
 const PREFIX = 'letsdriveit-arcade-';
-const PALETTE = ['#FF5D73','#3DDC97','#4EA8FF','#FFC93C','#B57BFF','#FF8A3D','#2ED3E6','#F25FD0'];
+const PALETTE = ['#E8202A','#FF8A1F','#FFD21F','#9BE22D','#12A150','#2ED3E6','#1E5BFF','#8E44FF','#FF5FC8','#8B5A2B'];
+const PALETTE_NAMES = ['rouge','orange','jaune','citron vert','vert','turquoise','bleu','violet','rose','marron'];
 const PCOL = { I:'#36C5D9', J:'#4C6EF5', L:'#F59F3A', O:'#F2CC3D', S:'#4CC77A', T:'#A665E8', Z:'#E8545E' };
 const SH = {
   I:{n:4,c:[[0,1],[1,1],[2,1],[3,1]]}, J:{n:3,c:[[0,0],[0,1],[1,1],[2,1]]}, L:{n:3,c:[[2,0],[0,1],[1,1],[2,1]]},
@@ -739,7 +753,7 @@ function guestJoin(code){
   peer.on('open', () => {
     const conn = peer.connect(PREFIX + code.toLowerCase(), { reliable:true });
     net.conn = conn;
-    conn.on('open', () => { opened = true; clearTimeout(timer); conn.send({ t:'hello', name:me.name }); });
+    conn.on('open', () => { opened = true; clearTimeout(timer); lastPing = performance.now(); conn.send({ t:'hello', name:me.name }); });
     conn.on('data', d => clientRecv(d));
     conn.on('close', () => { if (net && net.conn === conn) toMenu('Le créateur a quitté le salon.'); });
   });
@@ -771,9 +785,36 @@ function hostRecv(conn, d){
     return;
   }
   if (d.t === 'chat'){ if (conn._pid) hostChat(conn._pid, d.text); return; }
+  if (d.t === 'pong'){ conn._pong = performance.now(); return; }
+  if (d.t === 'color'){ if (conn._pid) hostSetColor(conn._pid, d.c); return; }
   if (conn._pid) hostHandle(conn._pid, d);
 }
 
+function hostSetColor(id, c){
+  if (phase !== 'lobby' || !PALETTE.includes(c)) return;
+  const p = players.find(x => x.id === id); if (!p) return;
+  if (players.some(x => x.id !== id && x.color === c)) return;        // already taken
+  p.color = c; sendLobby(false);
+}
+// presence: every 3 s the creator pings everyone, refreshes the lobby list and drops whoever is really gone
+setInterval(() => {
+  if (!net || !me.host || !net.conns) return;
+  const now = performance.now();
+  for (const [id, c] of [...net.conns]){
+    if (!c.open){ hostDrop(c); continue; }
+    if (c._pong === undefined) c._pong = now;
+    // in the lobby a silent phone (code being shared in another app) is kept; in a game 20 s of silence means gone
+    if (phase !== 'lobby' && now - c._pong > 20000){ try { c.close(); } catch(_){} hostDrop(c); continue; }
+    try { c.send({ t:'ping' }); } catch(_){}
+  }
+  if (phase === 'lobby'){ players = players.filter(p => p.id === 'h' || net.conns.has(p.id)); sendLobby(false); }
+}, 3000);
+let lastPing = 0;
+addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') lastPing = performance.now(); });
+setInterval(() => {
+  if (!net || me.host || !net.conn || phase === 'menu') return;
+  if (lastPing && document.visibilityState === 'visible' && performance.now() - lastPing > 25000) toMenu('Le créateur du salon ne répond plus.');
+}, 3000);
 function hostDrop(conn){
   const id = conn._pid;
   if (!id || !net || !net.conns.has(id)) return;
@@ -902,6 +943,7 @@ function clientRecv(m){
   if (!m || typeof m !== 'object') return;
   switch (m.t){
     case 'refused': toMenu(m.why); break;
+    case 'ping': lastPing = performance.now(); if (net && net.conn && net.conn.open) try { net.conn.send({ t:'pong' }); } catch(_){} break;
     case 'chat': addChat(m); break;
     case 'chatlog': if (Array.isArray(m.items)){ CHAT.length = 0; m.items.forEach(x => CHAT.push(x)); renderChat(); } break;
     case 'lobby':
@@ -921,7 +963,7 @@ function clientRecv(m){
     case 'tt_res': moleRes(m); break;
     case 'tt_pen': if (ML){ ML.scores = m.scores || ML.scores; renderMoleScores(); const u = ML.up.get(m.mid);
       if (u) ML.fx.push({ kind:'plus', x:ML_PAD + (u.x + .5)*mlCell, y:ML_PAD + (u.y + .2)*mlCell, t:0, col:'#FF5D73', txt:'−2' });
-      if (m.id === me.id){ sfx('fail'); moleToast('Votre propre taupe : −2 points'); if (u) boom('AÏE !', { size:24, x:(u.x + .5) / ML_N, y:Math.max(.1, (u.y + .2) / ML_N), pal:BOOM_COLORS[2], ms:650 }); } else { const p = molePlayer(m.id); if (p) moleToast(p.name + ' a tapé sa propre taupe : −2'); } } break;
+      if (m.id === me.id){ sfx('fail'); moleToast('Votre propre taupe : −2 points'); } else { const p = molePlayer(m.id); if (p) moleToast(p.name + ' a tapé sa propre taupe : −2'); } } break;
     case 'nv_turn': navalTurn(m); break;
     case 'nv_shot': navalShot(m); break;
     case 'nv_dist': if (NV){ const k = m.x + ',' + m.y, mk = NV.marks.get(k); if (mk && !mk.pending) NV.dist.set(k, m.d|0); else NV.pendingDist[k] = m.d|0; } break;
@@ -959,6 +1001,17 @@ function renderLobby(){
     const t = document.createElement('span'); t.className = 'tag';
     t.textContent = p.id === 'h' ? (p.id === me.id ? 'crée le salon, vous' : 'crée le salon') : (p.id === me.id ? 'vous' : '');
     li.append(d, n); if (t.textContent) li.append(t); ul.append(li);
+  });
+  const cp = $('colPick'); cp.textContent = '';
+  const mineP = players.find(p => p.id === me.id);
+  PALETTE.forEach((col, i) => {
+    const owner = players.find(p => p.color === col), b = document.createElement('button');
+    b.style.background = col; b.setAttribute('aria-pressed', String(!!(mineP && mineP.color === col)));
+    b.setAttribute('aria-label', PALETTE_NAMES[i] + (owner ? ', prise par ' + owner.name : ''));
+    b.title = owner ? owner.name : PALETTE_NAMES[i];
+    if (owner && owner.id !== me.id){ b.disabled = true; b.textContent = owner.name.slice(0, 1).toUpperCase(); }
+    b.onclick = () => { if (me.host) hostSetColor('h', col); else if (net && net.conn && net.conn.open) try { net.conn.send({ t:'color', c:col }); } catch(_){} };
+    cp.append(b);
   });
   for (const b of $('gamePick').querySelectorAll('button')){
     b.setAttribute('aria-pressed', String(b.dataset.g === gameKind));
@@ -2305,7 +2358,7 @@ function nvDrawShip(ctx, cells, color, sunk, now){
   const len = cells.length, L = len*c, W = c;
   const cx = M + (Math.min(...xs) + Math.max(...xs) + 1)/2*c, cy = M + (Math.min(...ys) + Math.max(...ys) + 1)/2*c;
   ctx.save(); ctx.translate(cx, cy); if (!hor) ctx.rotate(-Math.PI/2);
-  if (sunk){ ctx.globalAlpha = .75; ctx.filter = 'grayscale(.5) brightness(.75)'; }
+  if (sunk){ color = '#173A63'; ctx.globalAlpha = .9; }          // wreck: dark, colourless, on the sea bed
   const hl = L/2 - c*.08, hw = W*.36;                  // half length, half beam
   // wake
   if (!sunk){ ctx.strokeStyle = 'rgba(220,240,255,.18)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(-hl, -hw*.6); ctx.lineTo(-hl - c*.35, -hw*1.1); ctx.moveTo(-hl, hw*.6); ctx.lineTo(-hl - c*.35, hw*1.1); ctx.stroke(); }
@@ -2323,7 +2376,7 @@ function nvDrawShip(ctx, cells, color, sunk, now){
     ctx.fillStyle = 'rgba(30,26,52,.9)'; ctx.beginPath(); ctx.arc(x, 0, r, 0, Math.PI*2); ctx.fill();
     ctx.fillRect(x, -r*.18, r*1.9, r*.36);
   };
-  const block = (x, w, h, col) => { ctx.fillStyle = col || '#E9E4F7'; ctx.fillRect(x - w/2, -h/2, w, h); ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.fillRect(x - w/2, h/2 - h*.25, w, h*.25); };
+  const block = (x, w, h, col) => { ctx.fillStyle = sunk ? '#2C5280' : (col || '#E9E4F7'); ctx.fillRect(x - w/2, -h/2, w, h); ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.fillRect(x - w/2, h/2 - h*.25, w, h*.25); };
   if (len >= 4){            // cuirassé: two turrets, tall bridge, funnel
     turret(hl - c*1.0, c*.17); turret(-hl + c*.55, c*.17);
     block(-c*.15, c*.9, hw*1.1); block(c*.05, c*.32, hw*.7, '#B9B2D6');
@@ -2337,12 +2390,12 @@ function nvDrawShip(ctx, cells, color, sunk, now){
     block(-c*.15, c*.55, hw*.95);
     ctx.fillStyle = 'rgba(120,200,255,.8)'; ctx.fillRect(c*.12, -hw*.45, c*.07, hw*.9);
   }
-  ctx.restore(); ctx.filter = 'none'; ctx.globalAlpha = 1;
-  if (sunk){                // dashed outline so the wreck reads as sunk
-    ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.setLineDash([5, 4]);
-    ctx.strokeRect(M + Math.min(...xs)*c + 2, M + Math.min(...ys)*c + 2, (Math.max(...xs) - Math.min(...xs) + 1)*c - 4, (Math.max(...ys) - Math.min(...ys) + 1)*c - 4);
-    ctx.setLineDash([]);
+  if (sunk){                // a few bubbles and weed so it reads as lying on the bottom
+    ctx.fillStyle = 'rgba(10,25,50,.45)'; ctx.fillRect(-hl, -hw, hl*2, hw*2);
+    ctx.strokeStyle = 'rgba(255,255,255,.6)'; ctx.lineWidth = 1.5;
+    for (let i = 0; i < len; i++){ ctx.beginPath(); ctx.arc(-hl + c*(i + .5), -hw*.2 - (now/400 + i*.7) % 1 * c*.3, c*.05, 0, Math.PI*2); ctx.stroke(); }
   }
+  ctx.restore(); ctx.globalAlpha = 1;
 }
 function nvShape(ctx, kind, r){
   ctx.beginPath();
@@ -2370,13 +2423,15 @@ function drawNaval(now){
   ctx.strokeStyle = '#000'; ctx.lineWidth = 4; ctx.strokeRect(M - 2, M - 2, B + 4, B + 4);
   // my ships, then sunk ships revealed to everyone (darkened)
   const mine = players[NV.myIdx];
-  for (const cells of NV.ownShips) nvDrawShip(ctx, cells, mine ? mine.color : '#ccc', false, now);
+  const wreck = new Set(); for (const s of NV.sunk) for (const [x, y] of s.cells) wreck.add(x + ',' + y);
+  for (const cells of NV.ownShips) nvDrawShip(ctx, cells, mine ? mine.color : '#ccc', cells.every(([x, y]) => wreck.has(x + ',' + y)), now);
   for (const s of NV.sunk) if (s.owner !== NV.myIdx) nvDrawShip(ctx, s.cells, s.owner >= 0 ? players[s.owner].color : NV_GHOST, true, now);
   // marks
   for (const [k, mk] of NV.marks){
     if (mk.pending) continue;
     const [x, y] = k.split(',').map(Number), px = M + x*c, py = M + y*c;
     if (mk.hit){
+      if (wreck.has(k)) continue;                    // part of a wreck: no fire any more
       const col = mk.owner >= 0 ? players[mk.owner].color : NV_GHOST;
       if (!NV.shown.has(k)){                         // a ship cell nobody can see: coloured wreck tile
         ctx.fillStyle = col; ctx.fillRect(px + 2, py + 2, c - 4, c - 4);
@@ -2386,8 +2441,8 @@ function drawNaval(now){
         ctx.fillStyle = 'rgba(20,10,10,.55)'; ctx.beginPath(); ctx.arc(px + c/2, py + c/2, c*.32, 0, Math.PI*2); ctx.fill();
       }
       // flames
-      for (let f = 0; f < 3; f++){
-        const fx = px + c*(.3 + .2*f), fl = c*(.35 + .15*Math.sin(now/90 + f*2 + x*3 + y));
+      for (let f = 0; f < 2; f++){
+        const fx = px + c*(.38 + .24*f), fl = c*(.35 + .15*Math.sin(now/90 + f*2 + x*3 + y));
         ctx.fillStyle = f === 1 ? '#FFD93B' : '#FF6B3D'; ctx.strokeStyle = '#000'; ctx.lineWidth = 1.5;
         ctx.beginPath(); ctx.moveTo(fx - c*.11, py + c*.78); ctx.quadraticCurveTo(fx, py + c*.78 - fl*1.6, fx + c*.11, py + c*.78); ctx.closePath(); ctx.fill(); ctx.stroke();
       }
@@ -2672,8 +2727,7 @@ function moleRound(m){
   ML.placing = null; ML.sent = false; ML.deadline = 0; $('mlConfirm').hidden = true; $('mlTime').textContent = '';
   $('mlPhase').classList.remove('mine');
   setMolePhase('Manche ' + m.round + ' : tapez les taupes des autres !', null);
-  moleMsg('Taupes !', m.count + ' taupes vont sortir'); sfx('go');
-  setTimeout(() => { if (ML && !ML.over) moleMsg('', ''); }, 1300);
+  moleToast(m.count + ' taupes vont sortir !'); sfx('go');
 }
 function moleUp(m){
   if (!ML || ML.over) return;
@@ -2693,7 +2747,6 @@ function moleRes(m){
     ML.fx.push({ kind:'plus', x:px, y:py - mlCell*.3, t:0, col:moleColor(m.by), txt:'+1' });
     ML.fx.push({ kind:'stars', x:px, y:py - mlCell*.15, t:0 });
     sfx('bonk');
-    boom('TOC !', { size:22, x:px / ML_SIZE, y:Math.max(.1, py / ML_SIZE - .08), ms:600 });
     if (m.owner === me.id) moleToast((molePlayer(m.by) || {}).name + ' a tapé votre taupe');
   } else {
     if (m.owner) ML.fx.push({ kind:'plus', x:px, y:py - mlCell*.3, t:0, col:moleColor(m.owner), txt:'+1' });
@@ -2860,8 +2913,8 @@ function drawMole(now){
   // effects
   for (const f of ML.fx){
     if (f.kind === 'plus'){
-      ctx.globalAlpha = Math.max(0, 1 - f.t/.9); ctx.fillStyle = f.col; ctx.strokeStyle = INK; ctx.lineWidth = 5; ctx.lineJoin = 'round';
-      ctx.font = Math.round(c*.5) + 'px Bangers, Impact, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.globalAlpha = Math.max(0, 1 - f.t/.6); ctx.fillStyle = f.col; ctx.strokeStyle = INK; ctx.lineWidth = 3; ctx.lineJoin = 'round';
+      ctx.font = Math.round(c*.28) + 'px Bangers, Impact, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       ctx.strokeText(f.txt, f.x, f.y - f.t*40); ctx.fillText(f.txt, f.x, f.y - f.t*40); ctx.globalAlpha = 1;
     } else if (f.kind === 'stars'){
       ctx.globalAlpha = Math.max(0, 1 - f.t/.7);
@@ -2907,15 +2960,16 @@ function cuMove(s, h, sweep){
 function curlLater(fn, ms){ const hc = HC; setTimeout(() => { if (HC === hc && H && !H.over) fn(); }, ms); }
 function curlHostStart(){
   const n = players.length;
-  HC = { n, spp:n <= 2 ? 3 : 2, ends:n <= 3 ? 3 : 2, end:0, k:0, order:[], left:{}, stones:[], nid:0, ph:'wait',
+  const base = players.map(p => p.id); for (let i = base.length - 1; i > 0; i--){ const j = Math.floor(Math.random()*(i+1)); [base[i], base[j]] = [base[j], base[i]]; }
+  HC = { n, base, spp:n <= 2 ? 3 : n <= 4 ? 2 : 1, ends:Math.max(2, n), end:0, k:0, order:[], left:{}, stones:[], nid:0, ph:'wait',
     cur:null, thrower:null, sweep:false, clack:0, timer:null, lastSend:0, runT:0, hit:false };
   broadcast({ t:'start', players, game:'curling', spp:HC.spp, ends:HC.ends });
   curlLater(curlNewEnd, 3200);
 }
 function curlNewEnd(){
   HC.stones = []; HC.k = 0;
-  const ids = players.map(p => p.id), sh = HC.end % ids.length;
-  HC.order = ids.slice(sh).concat(ids.slice(0, sh));          // the last stone (hammer) rotates
+  const ids = HC.base, sh = HC.end % ids.length;
+  HC.order = ids.slice(sh).concat(ids.slice(0, sh));          // random start, rotated: over the game everyone throws at each position
   ids.forEach(id => HC.left[id] = HC.spp);
   curlNextTurn();
 }
@@ -3382,7 +3436,7 @@ function mcStop(){
   HMC.ph = 'stop'; HMC.t0 = performance.now();
   broadcast({ t:'mc_stop' });
   if (H.alive.has('ai')) botChairsStop();
-  mcLater(mcEndRound, 6000);
+  const r0 = HMC.round; mcLater(() => { if (HMC.round === r0) mcEndRound(); }, 6000);
 }
 function chairsClaim(id, c, rt){
   if (!HMC || HMC.ph !== 'stop' || !H.alive.has(id) || HMC.seats[id] != null) return;
@@ -3660,7 +3714,7 @@ function mmRound(){
   for (const p of players){ HMM.tries[p.id] = 0; if (H.stats[p.id].left) HMM.done.add(p.id); }
   HMM.deadline = performance.now() + MM_ROUND_MS;
   broadcast({ t:'mm_round', round:HMM.round, rounds:MM_ROUNDS, ms:MM_ROUND_MS });
-  mmLater(mmEndRound, MM_ROUND_MS);
+  const r0 = HMM.round; mmLater(() => { if (HMM.round === r0) mmEndRound(); }, MM_ROUND_MS);
   if (H.stats.ai && !H.stats.ai.left) botMasterStart();
 }
 function masterGuess(id, g){
@@ -3680,7 +3734,7 @@ function masterGuess(id, g){
     if (k === 0 && left > MM_AFTER_MS){                // the first find starts a short countdown for the others
       HMM.deadline = performance.now() + MM_AFTER_MS;
       broadcast({ t:'mm_dl', ms:MM_AFTER_MS });
-      mmLater(mmEndRound, MM_AFTER_MS);
+      const r1 = HMM.round; mmLater(() => { if (HMM.round === r1) mmEndRound(); }, MM_AFTER_MS);
     }
   } else if (n >= MM_TRIES){ HMM.done.add(id); broadcast({ t:'mm_out', id }); }
   if (players.every(p => HMM.done.has(p.id))) mmEndRound();
@@ -3872,6 +3926,37 @@ function masterFrame(dtMs, now){
   }
 }
 
+
+// ================= virtual joystick: press anywhere on the game screen, drag to steer, release to stop =================
+function makeJoy(screenId, o){
+  const scr = $(screenId), ring = document.createElement('div'); ring.className = 'joy'; ring.hidden = true;
+  const knob = document.createElement('i'); ring.append(knob); document.body.append(ring);
+  let st = null; const RJ = 48;
+  scr.addEventListener('pointerdown', e => {
+    if (st || e.target.closest('button, input, a') || !o.active()) return;
+    e.preventDefault(); try { scr.setPointerCapture(e.pointerId); } catch(_){}
+    st = { id:e.pointerId, x:e.clientX, y:e.clientY, t:performance.now(), moved:false };
+    ring.style.left = e.clientX + 'px'; ring.style.top = e.clientY + 'px'; knob.style.transform = 'translate(-50%,-50%)'; ring.hidden = false;
+    o.move(0, 0, true);
+  });
+  scr.addEventListener('pointermove', e => {
+    if (!st || e.pointerId !== st.id) return;
+    const dx = e.clientX - st.x, dy = e.clientY - st.y, L = Math.hypot(dx, dy);
+    if (L > 10) st.moved = true;
+    const k = Math.min(L, RJ), ux = L ? dx/L : 0, uy = L ? dy/L : 0;
+    knob.style.transform = 'translate(calc(-50% + ' + (ux*k) + 'px), calc(-50% + ' + (uy*k) + 'px))';
+    const m = L < 8 ? 0 : Math.min(1, L / RJ);
+    o.move(ux*m, uy*m, true);
+  });
+  const up = e => {
+    if (!st || (e && e.pointerId !== st.id)) return;
+    const s0 = st; st = null; ring.hidden = true; o.move(0, 0, false);
+    if (e && e.type === 'pointerup' && !s0.moved && performance.now() - s0.t < 260 && o.tap) o.tap(e);
+  };
+  scr.addEventListener('pointerup', up); scr.addEventListener('pointercancel', up);
+  return { reset(){ st = null; ring.hidden = true; } };
+}
+
 // ================= KABADDI : one raider holds their breath, touches defenders and runs home =================
 // Host simulates all pawns; each player sends a target point, plus "hold" (finger down or Space) for the breath.
 const KB_W = 420, KB_H = 620, KB_MID = 310, KB_GAP = 60, KB_R = 18, KB_BREATH = 6.5, KB_SP_RAID = 250, KB_SP_DEF = 225;
@@ -3908,16 +3993,25 @@ function kabaddiInput(id, m){
   const I = HKB.IN[id];
   I.tx = isFinite(+m.x) && m.x !== null ? Math.max(0, Math.min(KB_W, +m.x)) : null;
   I.ty = isFinite(+m.y) && m.y !== null ? Math.max(0, Math.min(KB_H, +m.y)) : null;
-  I.hold = !!m.h; I.kx = Math.sign(+m.kx || 0); I.ky = Math.sign(+m.ky || 0);
+  I.hold = !!m.h; I.kx = Math.max(-1, Math.min(1, +m.kx || 0)); I.ky = Math.max(-1, Math.min(1, +m.ky || 0));
 }
 function kbStep(h){
   const P = HKB.pos, rid = HKB.raider, ids = Object.keys(P);
-  const nContact = HKB.contact.size;
+  const nContact = HKB.contact.size;   // holds from the previous step
   for (const id of ids){
     const I = HKB.IN[id] || {}, p = P[id], raider = id === rid;
-    const sp = raider ? KB_SP_RAID / (1 + 0.85 * nContact) : KB_SP_DEF;
-    if (I.kx || I.ky){ const L = Math.hypot(I.kx, I.ky); p[0] += I.kx/L * sp * h; p[1] += I.ky/L * sp * h; }
-    else if (I.tx != null){ const dx = I.tx - p[0], dy = I.ty - p[1], d = Math.hypot(dx, dy); if (d > 1){ const s = Math.min(d, sp*h); p[0] += dx/d*s; p[1] += dy/d*s; } }
+    const sp = raider ? KB_SP_RAID : KB_SP_DEF;
+    let vx = 0, vy = 0;
+    if (I.kx || I.ky){ const L = Math.max(1, Math.hypot(I.kx, I.ky)); vx = I.kx/L*sp; vy = I.ky/L*sp; }
+    else if (I.tx != null){ const dx = I.tx - p[0], dy = I.ty - p[1], d = Math.hypot(dx, dy); if (d > 1){ const s = Math.min(sp, d/h); vx = dx/d*s; vy = dy/d*s; } }
+    if (raider && nContact){
+      // defenders holding on: pushing into them or sideways is hard, pulling away is free (they only stick a moment)
+      for (const did of HKB.contact){ const q = P[did]; if (!q) continue;
+        const nx = q[0] - p[0], ny = q[1] - p[1], nl = Math.hypot(nx, ny) || 1, vn = (vx*nx + vy*ny)/nl;
+        if (vn > 0){ vx -= nx/nl*vn*.85; vy -= ny/nl*vn*.85; } }
+      const f = 1 / (1 + .3*nContact); vx *= f; vy *= f;
+    }
+    p[0] += vx*h; p[1] += vy*h;
     p[0] = Math.max(KB_R, Math.min(KB_W - KB_R, p[0]));
     p[1] = Math.max(KB_R, Math.min((raider ? KB_H : HKB.crossed ? KB_MID : KB_MID - KB_GAP) - KB_R, p[1]));   // defenders stay in their half, and off the line until the raider is in
   }
@@ -3927,8 +4021,12 @@ function kbStep(h){
     const o = (2*KB_R - d)/2, nx = dx/d, ny = dy/d;
     a[0] -= nx*o; a[1] -= ny*o; b[0] += nx*o; b[1] += ny*o;
   }
-  const R = P[rid]; HKB.contact = new Set();
-  for (const id of HKB.defs){ const q = P[id]; if (q && Math.hypot(q[0] - R[0], q[1] - R[1]) < 2*KB_R + 6) HKB.contact.add(id); }
+  const R = P[rid];
+  for (const id of HKB.defs){                      // grabs at contact, lets go once the raider is a little away
+    const q = P[id]; if (!q){ HKB.contact.delete(id); continue; }
+    const d = Math.hypot(q[0] - R[0], q[1] - R[1]);
+    if (d < 2*KB_R + 4) HKB.contact.add(id); else if (d > 2*KB_R + 16) HKB.contact.delete(id);
+  }
   if (!HKB.crossed && R[1] < KB_MID){ HKB.crossed = true; broadcast({ t:'kb_in_raid' }); }
   if (!HKB.crossed){ if (HKB.t > 8) kbEnd(false, 'void'); return; }
   for (const id of HKB.contact) if (!HKB.touched.has(id)){ HKB.touched.add(id); broadcast({ t:'kb_touch', id }); }
@@ -4100,19 +4198,16 @@ function kabaddiRecv(m){
   }
 }
 
-// ---- input: finger / mouse = where to go (and breath while held), arrows + Space on a keyboard ----
-function kbPoint(e){ const r = kbcv.getBoundingClientRect(); return [(e.clientX - r.left) / r.width * KB_W, (e.clientY - r.top) / r.height * KB_H]; }
-kbcv.addEventListener('pointerdown', e => {
-  if (!KB) return; e.preventDefault(); kbcv.setPointerCapture(e.pointerId);
-  const [x, y] = kbPoint(e); KB.down = true; KB.in.x = x; KB.in.y = y; KB.in.h = true;
+// ---- input: joystick anywhere (held = breath for the raider), arrows + Space on a keyboard ----
+const kbJoy = makeJoy('scrKabaddi', {
+  active:() => !!KB && phase === 'play',
+  move:(vx, vy, on) => { if (!KB) return; KB.joyOn = on; KB.down = on; if (on || KB.joyKx || KB.joyKy){ KB.in.kx = Math.round(vx*100)/100; KB.in.ky = Math.round(vy*100)/100; KB.in.x = KB.in.y = null; } KB.joyKx = vx; KB.joyKy = vy; if (!on) kbKeys(); KB.in.h = on || !!KB.keys[' ']; }
 });
-kbcv.addEventListener('pointermove', e => { if (!KB || !KB.down) return; const [x, y] = kbPoint(e); KB.in.x = x; KB.in.y = y; });
-const kbUp = () => { if (!KB) return; KB.down = false; KB.in.h = !!KB.keys[' ']; };
-kbcv.addEventListener('pointerup', kbUp); kbcv.addEventListener('pointercancel', kbUp);
 const KB_KEYS = { arrowleft:[-1,0], q:[-1,0], a:[-1,0], arrowright:[1,0], d:[1,0], arrowup:[0,-1], z:[0,-1], w:[0,-1], arrowdown:[0,1], s:[0,1] };
 function kbKeys(){
   let kx = 0, ky = 0; for (const k in KB.keys) if (KB.keys[k] && KB_KEYS[k]){ kx += KB_KEYS[k][0]; ky += KB_KEYS[k][1]; }
-  KB.in.kx = kx; KB.in.ky = ky; KB.in.h = KB.down || !!KB.keys[' '];
+  if (KB.joyOn) return;
+  KB.in.kx = kx; KB.in.ky = ky; KB.in.h = !!KB.keys[' '];
   if (kx || ky){ KB.in.x = null; KB.in.y = null; }
 }
 addEventListener('keydown', e => {
@@ -4229,7 +4324,7 @@ function dodgeInput(id, m){
   const I = HDB && HDB.IN[id]; if (!I) return;
   I.tx = m.x == null || !isFinite(+m.x) ? null : Math.max(0, Math.min(DB_S, +m.x));
   I.ty = m.y == null || !isFinite(+m.y) ? null : Math.max(0, Math.min(DB_S, +m.y));
-  I.kx = Math.sign(+m.kx || 0); I.ky = Math.sign(+m.ky || 0);
+  I.kx = Math.max(-1, Math.min(1, +m.kx || 0)); I.ky = Math.max(-1, Math.min(1, +m.ky || 0));
 }
 function dodgeThrow(id, x, y){
   if (!HDB || HDB.ph !== 'play' || !H.alive.has(id)) return;
@@ -4254,7 +4349,7 @@ function dbStep(h){
     const p = HDB.P[id], I = HDB.IN[id];
     p.catchT = Math.max(0, p.catchT - h); p.cd = Math.max(0, p.cd - h); p.inv = Math.max(0, p.inv - h);
     const sp = DB_SP * (p.catchT > 0 ? .4 : 1);
-    if (I.kx || I.ky){ const L = Math.hypot(I.kx, I.ky); p.x += I.kx/L*sp*h; p.y += I.ky/L*sp*h; p.fx = I.kx/L; p.fy = I.ky/L; }
+    if (I.kx || I.ky){ const L = Math.hypot(I.kx, I.ky), m = Math.min(1, L); p.x += I.kx/L*m*sp*h; p.y += I.ky/L*m*sp*h; p.fx = I.kx/L; p.fy = I.ky/L; }
     else if (I.tx != null){ const dx = I.tx - p.x, dy = I.ty - p.y, d = Math.hypot(dx, dy); if (d > 2){ const s = Math.min(d, sp*h); p.x += dx/d*s; p.y += dy/d*s; p.fx = dx/d; p.fy = dy/d; } }
     p.x = Math.max(DB_R, Math.min(DB_S - DB_R, p.x)); p.y = Math.max(DB_R, Math.min(DB_S - DB_R, p.y));
     if (p.ball >= 0){ p.held += h; if (p.held > DB_HOLD){ const b = HDB.balls[p.ball]; b.st = 'free'; b.x = p.x + p.fx*30; b.y = p.y + p.fy*30; b.vx = b.vy = 0; p.ball = -1; broadcast({ t:'db_ev', k:'drop', id }); } }
@@ -4442,27 +4537,16 @@ function dodgeDeadFx(id, left){
   renderDbPlayers();
 }
 
-// ---- input ----
-function dbPoint(e){ const r = dbcv.getBoundingClientRect(); return [(e.clientX - r.left) / r.width * DB_S, (e.clientY - r.top) / r.height * DB_S]; }
-dbcv.addEventListener('pointerdown', e => {
-  if (!DB) return; e.preventDefault(); dbcv.setPointerCapture(e.pointerId);
-  const [x, y] = dbPoint(e); DB.down = { x, y, t:performance.now(), drag:false };
+// ---- input: joystick anywhere, a quick tap throws (at that spot on the court, else straight ahead) ----
+function dbPoint(e){ const r = dbcv.getBoundingClientRect(); return [(e.clientX - r.left) / r.width * DB_S, (e.clientY - r.top) / r.height * DB_S, e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom]; }
+const dbJoy = makeJoy('scrDodge', {
+  active:() => !!DB && phase === 'play',
+  move:(vx, vy, on) => { if (!DB) return; DB.joyOn = on; DB.in.kx = Math.round(vx*100)/100; DB.in.ky = Math.round(vy*100)/100; DB.in.x = DB.in.y = null; if (!on) dbKeys(); },
+  tap:e => { const [x, y, inside] = dbPoint(e); toHost(inside ? { t:'db_throw', x:Math.round(x), y:Math.round(y) } : { t:'db_throw' }); }
 });
-dbcv.addEventListener('pointermove', e => {
-  if (!DB || !DB.down) return;
-  const [x, y] = dbPoint(e), d = DB.down;
-  if (!d.drag && (Math.hypot(x - d.x, y - d.y) > 14 || performance.now() - d.t > 220)) d.drag = true;
-  if (d.drag){ DB.in.x = x; DB.in.y = y; DB.in.kx = DB.in.ky = 0; }
-});
-const dbUp = e => {
-  if (!DB || !DB.down) return;
-  const d = DB.down; DB.down = null;
-  if (!d.drag && performance.now() - d.t < 260 && phase === 'play'){ toHost({ t:'db_throw', x:Math.round(d.x), y:Math.round(d.y) }); }
-};
-dbcv.addEventListener('pointerup', dbUp); dbcv.addEventListener('pointercancel', () => { if (DB) DB.down = null; });
-setInterval(() => { if (DB && DB.down && !DB.down.drag && performance.now() - DB.down.t > 220){ DB.down.drag = true; DB.in.x = DB.down.x; DB.in.y = DB.down.y; } }, 60);
-$('dbCatch').addEventListener('pointerdown', e => { e.preventDefault(); if (DB && phase === 'play') toHost({ t:'db_catch' }); });
+$('dbCatch').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); if (DB && phase === 'play') toHost({ t:'db_catch' }); });
 function dbKeys(){
+  if (DB.joyOn) return;
   let kx = 0, ky = 0; for (const k in DB.keys) if (DB.keys[k] && KB_KEYS[k]){ kx += KB_KEYS[k][0]; ky += KB_KEYS[k][1]; }
   DB.in.kx = kx; DB.in.ky = ky; if (kx || ky){ DB.in.x = null; DB.in.y = null; }
 }
