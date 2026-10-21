@@ -56,6 +56,8 @@ label{font-size:13px;font-weight:900;color:var(--fg)}
 .logo{font-size:clamp(56px,17vw,76px);line-height:.9;color:#fff;-webkit-text-stroke:3px var(--line);text-shadow:5px 5px 0 var(--line);transform:rotate(-4deg);align-self:flex-start;padding:4px 6px 0 0}
 .logosvg{margin:-8px 0 -4px -10px;width:min(300px,82%);line-height:0}
 .logosvg svg{width:100%;height:auto;display:block;overflow:visible}
+#scrMenu .logosvg{margin:-8px auto -4px;align-self:center}
+#scrMenu .tagline{align-self:center;text-align:center}
 .logosvg.small{width:min(210px,56%);margin:0 0 0 -8px}
 .tagline{margin:-4px 0 0;font-weight:800;font-size:14px;background:var(--blue);color:#fff;border:3px solid var(--line);padding:5px 10px;align-self:flex-start;transform:rotate(1deg)}
 .field{display:flex;flex-direction:column;gap:6px}
@@ -2153,19 +2155,12 @@ function drawNaval(now){
   const ctx = nvctx, S = NV_SIZE, M = NV_M, c = NV.cell, N = NV.N, B = c*N;
   ctx.fillStyle = '#FFD93B'; ctx.fillRect(0, 0, S, S);
   ctx.fillStyle = halftone(ctx, .12); ctx.fillRect(0, 0, S, S);
-  // sea: flat comic blue, halftone, white wave strokes
+  // sea: flat comic blue with halftone
   ctx.fillStyle = '#3D8BFF'; ctx.fillRect(M, M, B, B);
   ctx.save(); ctx.beginPath(); ctx.rect(M, M, B, B); ctx.clip();
   ctx.fillStyle = halftone(ctx, .14); ctx.fillRect(M, M, B, B);
-  ctx.strokeStyle = 'rgba(255,255,255,.45)'; ctx.lineWidth = 2.5;
-  for (let w = 0; w < 9; w++){                      // drifting wave lines
-    const y0 = M + (w + .5) * B/9;
-    ctx.beginPath();
-    for (let x = M; x <= M + B; x += 8){ const y = y0 + Math.sin((x + now*.03 + w*40) / 26) * 3; x === M ? ctx.moveTo(x, y) : ctx.lineTo(x, y); }
-    ctx.stroke();
-  }
   ctx.restore();
-  ctx.strokeStyle = 'rgba(0,0,0,.28)'; ctx.lineWidth = 1;
+  ctx.strokeStyle = 'rgba(255,255,255,.75)'; ctx.lineWidth = 1.5;     // white grid
   ctx.beginPath();
   for (let k = 0; k <= N; k++){ ctx.moveTo(M + k*c + .5, M); ctx.lineTo(M + k*c + .5, M + B); ctx.moveTo(M, M + k*c + .5); ctx.lineTo(M + B, M + k*c + .5); }
   ctx.stroke();
