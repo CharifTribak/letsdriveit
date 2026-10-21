@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Baston !</title>
-<meta name="description" content="Huit jeux multijoueurs dans le navigateur : Tetris, Pong, Derby, Armada, Tape-taupe, Curling, Chaises musicales et Code secret. Un salon, un code, de 1 à 5 joueurs.">
+<meta name="description" content="Neuf jeux multijoueurs dans le navigateur : Tetris, Pong, Derby, Armada, Tape-taupe, Curling, Chaises musicales, Code secret et Kabaddi. Un salon, un code, de 1 à 5 joueurs.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Baston !">
-<meta property="og:description" content="Huit jeux multijoueurs dans le navigateur. Créez un salon, partagez le code, et que le meilleur gagne.">
+<meta property="og:description" content="Neuf jeux multijoueurs dans le navigateur. Créez un salon, partagez le code, et que le meilleur gagne.">
 <meta property="og:image" content="https://chariftribak.github.io/letsdriveit/arcade/img/share.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -80,7 +80,7 @@ label{font-size:13px;font-weight:900;color:var(--fg)}
 .tiles{display:flex;flex-wrap:wrap;justify-content:center;gap:12px 10px}
 .tiles button{flex:0 0 calc((100% - 20px)/3)}
 .tiles button{padding:0;background:var(--panel);color:var(--fg);box-shadow:3px 3px 0 var(--line);display:flex;flex-direction:column;font-size:15px;min-width:0}
-.tiles button:nth-child(1){transform:rotate(-3deg)}.tiles button:nth-child(2){transform:rotate(2deg)}.tiles button:nth-child(3){transform:rotate(-1deg)}.tiles button:nth-child(4){transform:rotate(3deg)}.tiles button:nth-child(5){transform:rotate(-2deg)}.tiles button:nth-child(6){transform:rotate(2deg)}.tiles button:nth-child(7){transform:rotate(-2deg)}.tiles button:nth-child(8){transform:rotate(3deg)}
+.tiles button:nth-child(1){transform:rotate(-3deg)}.tiles button:nth-child(2){transform:rotate(2deg)}.tiles button:nth-child(3){transform:rotate(-1deg)}.tiles button:nth-child(4){transform:rotate(3deg)}.tiles button:nth-child(5){transform:rotate(-2deg)}.tiles button:nth-child(6){transform:rotate(2deg)}.tiles button:nth-child(7){transform:rotate(-2deg)}.tiles button:nth-child(8){transform:rotate(3deg)}.tiles button:nth-child(9){transform:rotate(-1deg)}
 .tiles img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;border-bottom:3px solid var(--line)}
 .tiles span{padding:3px 0;width:100%;text-align:center;overflow:hidden;white-space:nowrap}
 .tiles button[aria-pressed="true"]{background:var(--accent);color:#fff}
@@ -240,6 +240,11 @@ label{font-size:13px;font-weight:900;color:var(--fg)}
 #mmOthers .fb{grid-template-columns:repeat(4,9px);gap:2px}
 #mmOthers .fb i{width:9px;height:9px}
 
+/* ---- kabaddi ---- */
+#kbWrap{width:min(100%,50vh,440px)}
+.kbhead{width:min(100%,56vh,440px)}
+#kbCv{display:block;width:100%;height:auto;aspect-ratio:420/620;touch-action:none;user-select:none;-webkit-user-select:none;border:3px solid #000;box-shadow:6px 6px 0 #000}
+
 /* ---- armada & tape-taupe ---- */
 .naval,.mole{display:flex;flex-direction:column;align-items:center;gap:12px;max-width:760px;margin:0 auto}
 .nvhead{width:min(100%,72vh,700px);display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:40px}
@@ -309,7 +314,7 @@ label{font-size:13px;font-weight:900;color:var(--fg)}
 <section id="scrMenu" class="center">
   <div class="card">
     <h1 class="logosvg" data-appname><svg viewBox="0 0 520 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Baston !"><polygon points="260,8 292,62 352,22 356,86 428,58 404,118 494,120 438,166 508,214 428,226 456,292 384,270 372,322 318,276 262,318 222,270 156,306 152,248 76,262 104,206 18,184 92,148 36,92 116,94 102,30 172,62 204,8 228,58" fill="#000" transform="translate(7,7)"/><polygon points="260,8 292,62 352,22 356,86 428,58 404,118 494,120 438,166 508,214 428,226 456,292 384,270 372,322 318,276 262,318 222,270 156,306 152,248 76,262 104,206 18,184 92,148 36,92 116,94 102,30 172,62 204,8 228,58" fill="#E6262B" stroke="#000" stroke-width="5" stroke-linejoin="round"/><g transform="rotate(-6 260 168)"><text x="264" y="196" text-anchor="middle" font-family="Bangers, Impact, sans-serif" font-size="112" letter-spacing="3" fill="#000">BASTON !</text><text x="258" y="190" text-anchor="middle" font-family="Bangers, Impact, sans-serif" font-size="112" letter-spacing="3" fill="#fff" stroke="#000" stroke-width="6" paint-order="stroke" stroke-linejoin="round">BASTON !</text></g><path d="M60 46 l26 14 M44 76 l30 6 M462 260 l-26 -12 M476 232 l-30 -4" stroke="#000" stroke-width="5" stroke-linecap="round"/></svg></h1>
-    <p class="tagline">Huit jeux, de 1 à 5 joueurs</p>
+    <p class="tagline">Neuf jeux, de 1 à 5 joueurs</p>
     <div class="field">
       <label for="nameIn">Votre nom</label>
       <input id="nameIn" maxlength="14" autocomplete="nickname" placeholder="Votre nom">
@@ -322,7 +327,7 @@ label{font-size:13px;font-weight:900;color:var(--fg)}
     </div>
     <button id="btnBoard" class="ghost">Classement général</button>
     <button id="btnSound" class="ghost">Son : activé</button>
-    <p class="hint" id="menuHint">Créez un salon, partagez le code, puis choisissez le jeu : Tetris, Pong, Derby, Armada, Tape-taupe, Curling, Chaises musicales ou Code secret. De 1 à 5 joueurs.</p>
+    <p class="hint" id="menuHint">Créez un salon, partagez le code, puis choisissez le jeu : Tetris, Pong, Derby, Armada, Tape-taupe, Curling, Chaises musicales, Code secret ou Kabaddi. De 1 à 5 joueurs.</p>
   </div>
 </section>
 
@@ -351,6 +356,7 @@ label{font-size:13px;font-weight:900;color:var(--fg)}
       <button data-g="curling" aria-pressed="false"><img src="img/curling.jpg" alt=""><span>Curling</span></button>
       <button data-g="chairs" aria-pressed="false"><img src="img/chairs.jpg" alt=""><span>Chaises</span></button>
       <button data-g="master" aria-pressed="false"><img src="img/master.jpg" alt=""><span>Code secret</span></button>
+      <button data-g="kabaddi" aria-pressed="false"><img src="img/kabaddi.jpg" alt=""><span>Kabaddi</span></button>
     </div>
     <div class="field">
       <label id="lobbyCount">Joueurs</label>
@@ -536,6 +542,20 @@ label{font-size:13px;font-weight:900;color:var(--fg)}
   </div>
 </section>
 
+<!-- KABADDI -->
+<section id="scrKabaddi" hidden>
+  <div class="naval">
+    <div class="nvhead kbhead"><div class="nvturn" id="kbHead">Préparation…</div><div class="cuend" id="kbRaid">Raid 1</div></div>
+    <div class="nvwrap" id="kbWrap">
+      <canvas id="kbCv" width="420" height="620" aria-label="Terrain de kabaddi"></canvas>
+      <div class="msg pm" id="kbMsg"></div>
+      <div class="toast pm" id="kbToast" aria-live="polite"></div>
+    </div>
+    <ul class="nvplayers" id="kbPlayers"></ul>
+    <p class="hint" style="text-align:center">Attaquant : gardez le doigt appuyé (ou Espace) pour retenir votre souffle, touchez des défenseurs puis revenez dans votre camp avant la fin du souffle. Défenseurs : glissez pour bouger (la bande claire près de la ligne vous est interdite tant que l'attaquant n'est pas entré), accrochez-le à plusieurs pour le freiner. Clavier : flèches ou ZQSD.</p>
+  </div>
+</section>
+
 <!-- RANKING -->
 <div class="overlay" id="scrEnd" hidden>
   <div class="card" style="max-width:480px">
@@ -570,6 +590,7 @@ label{font-size:13px;font-weight:900;color:var(--fg)}
       <button data-f="curling" aria-pressed="false">Curling</button>
       <button data-f="chairs" aria-pressed="false">Chaises</button>
       <button data-f="master" aria-pressed="false">Code</button>
+      <button data-f="kabaddi" aria-pressed="false">Kabaddi</button>
     </div>
     <div class="rank"><table>
       <thead><tr id="lbHead"></tr></thead>
@@ -624,7 +645,7 @@ let D = null;                   // derby state
 let NV = null, HN = null;       // armada: my view / host's full map
 let BOT = null;                  // host-side robot when someone plays alone
 let ML = null, HM = null;       // tape-taupe: my view / host referee
-const GAME_NAMES = { tetris:'Tetris', pong:'Pong', derby:'Derby', naval:'Armada', mole:'Tape-taupe', curling:'Curling', chairs:'Chaises musicales', master:'Code secret' };
+const GAME_NAMES = { tetris:'Tetris', pong:'Pong', derby:'Derby', naval:'Armada', mole:'Tape-taupe', curling:'Curling', chairs:'Chaises musicales', master:'Code secret', kabaddi:'Kabaddi' };
 const GAME_DESC = {
   tetris:'Chaque ligne effacée envoie des briques gênantes à tous les adversaires : 1 ligne = 1 brique, 2 = 2, 3 = 4, 4 = 6.',
   pong:'Chaque joueur défend un côté avec 5 vies. Le terrain suit le nombre de joueurs : carré à 2, hexagone à 3, octogone à 4, décagone à 5. Le côté d\'un joueur éliminé devient un mur.',
@@ -633,12 +654,13 @@ const GAME_DESC = {
   curling:'Curling à plusieurs : chacun lance ses pierres à tour de rôle vers la maison, la cible au bout de la piste. Tirez vers l\'arrière pour viser et doser, choisissez l\'effet, puis frottez la glace pour balayer : la pierre glisse plus loin et tourne moins. À chaque mène, le joueur le plus proche du centre marque 1 point par pierre mieux placée que toutes les autres.',
   chairs:'Chaises musicales : la musique joue, le disque tourne, tout le monde fait le tour. Quand le disque s\'arrête, touchez vite une chaise libre : il y en a une de moins que de joueurs. Qui reste debout perd un cœur. Gare aux faux arrêts : tant que le disque tourne, toucher une chaise coûte une pénalité. Le dernier en jeu gagne.',
   master:'Code secret à plusieurs : tout le monde cherche le même code de 4 couleurs. À chaque essai, vous seul voyez vos indices (noir : bien placé, blanc : bonne couleur mal placée) ; les autres voient seulement combien d\'essais vous avez faits. Le premier qui trouve marque le plus, et les autres n\'ont plus que 40 s. Trois manches.',
+  kabaddi:'Kabaddi, le sport indien : à tour de rôle, un attaquant entre chez les autres en retenant son souffle (gardez le doigt appuyé). Il touche des défenseurs puis doit rentrer dans son camp avant d\'être à bout de souffle : 1 point par défenseur touché. Les défenseurs l\'accrochent à plusieurs pour le freiner : s\'il échoue, chaque défenseur marque 1 point, 2 s\'il le tenait.',
   derby:'Course de chevaux : tout le monde reçoit la même série de figures à tracer. Chaque figure réussie fait avancer votre cheval, plus loin si elle est complexe et bien tracée. Le premier à la ligne gagne.'
 };
 
 const cleanName = s => String(s || '').replace(/[\u0000-\u001f<>]/g,'').trim().slice(0,14) || 'Joueur';
 const genCode = () => { const a='ABCDEFGHJKMNPQRSTUVWXYZ23456789'; let s=''; for(let i=0;i<4;i++) s+=a[Math.floor(Math.random()*a.length)]; return s; };
-const show = id => { for (const s of ['scrMenu','scrLobby','scrGame','scrPong','scrDerby','scrNaval','scrMole','scrCurl','scrChairs','scrMaster']) $(s).hidden = s !== id; };
+const show = id => { for (const s of ['scrMenu','scrLobby','scrGame','scrPong','scrDerby','scrNaval','scrMole','scrCurl','scrChairs','scrMaster','scrKabaddi']) $(s).hidden = s !== id; };
 const store = { get(k){ try { return localStorage.getItem(k); } catch(_) { return null; } }, set(k,v){ try { localStorage.setItem(k,v); } catch(_){} } };
 
 $('nameIn').value = store.get('tm-name') || ('Joueur' + Math.floor(Math.random()*90+10));
@@ -650,7 +672,7 @@ function teardown(){
   if (HN && HN.timer) clearTimeout(HN.timer);
   if (HM) moleClearTimers();
   if (HC) clearTimeout(HC.timer);
-  HC = null; CU = null; mcClear(); HMC = null; MC = null; mmClear(); HMM = null; MM = null;
+  HC = null; CU = null; mcClear(); HMC = null; MC = null; mmClear(); HMM = null; MM = null; kbClear(); HKB = null; KB = null;
   CHAT.length = 0; renderChat();
   net = null; H = null; G = null; PG = null; D = null; NV = null; HN = null; cur = null; me.host = false; me.id = null; players = []; opps.clear();
 }
@@ -735,7 +757,7 @@ function hostDrop(conn){
   net.conns.delete(id);
   if (phase === 'lobby'){ const p = players.find(x => x.id === id); players = players.filter(p => p.id !== id); sendLobby(false); if (p) chatSys(p.name + ' a quitté le salon'); return; }
   if (H && H.alive.has(id)){
-    if (H.game === 'pong') pongDrop(id); else if (H.game === 'curling') curlDrop(id); else if (H.game === 'chairs') chairsDrop(id); else if (H.game === 'master') masterDrop(id); else if (H.game === 'derby') derbyDrop(id); else if (H.game === 'naval') navalDrop(id); else if (H.game === 'mole') moleDrop(id); else hostHandle(id, { t:'dead', left:true });
+    if (H.game === 'pong') pongDrop(id); else if (H.game === 'curling') curlDrop(id); else if (H.game === 'chairs') chairsDrop(id); else if (H.game === 'master') masterDrop(id); else if (H.game === 'kabaddi') kabaddiDrop(id); else if (H.game === 'derby') derbyDrop(id); else if (H.game === 'naval') navalDrop(id); else if (H.game === 'mole') moleDrop(id); else hostHandle(id, { t:'dead', left:true });
   }
 }
 
@@ -767,7 +789,8 @@ function hostStart(){
     : gameKind === 'mole' ? { pts:0, whacks:0, escaped:0, left:false }
     : gameKind === 'curling' ? { pts:0, house:0, best:null, left:false }
     : gameKind === 'chairs' ? { lives:0, seats:0, best:0, early:0, left:false }
-    : gameKind === 'master' ? { pts:0, solved:0, tries:0, left:false } : { sc:0, ln:0, sent:0, left:false };
+    : gameKind === 'master' ? { pts:0, solved:0, tries:0, left:false }
+    : gameKind === 'kabaddi' ? { pts:0, raids:0, touches:0, tackles:0, left:false } : { sc:0, ln:0, sent:0, left:false };
   H.t0 = performance.now();
   if (H.alive.has('ai')) botInit(gameKind);
   if (gameKind === 'naval') return navalHostStart();
@@ -775,6 +798,7 @@ function hostStart(){
   if (gameKind === 'curling') return curlHostStart();
   if (gameKind === 'chairs') return chairsHostStart();
   if (gameKind === 'master') return masterHostStart();
+  if (gameKind === 'kabaddi') return kabaddiHostStart();
   broadcast({ t:'start', players, game:gameKind, seed:Math.floor(Math.random() * 2**31) });
 }
 
@@ -810,6 +834,8 @@ function hostHandle(id, m){
     navalFire(id, m.x|0, m.y|0);
   } else if (m.t === 'dp'){
     derbyProgress(id, m);
+  } else if (m.t === 'kb_in'){
+    kabaddiInput(id, m);
   } else if (m.t === 'mm_guess'){
     masterGuess(id, m.g);
   } else if (m.t === 'mc_claim'){
@@ -850,9 +876,9 @@ function clientRecv(m){
     case 'lobby':
       players = Array.isArray(m.players) ? m.players : [];
       if (m.you) me.id = m.you;
-      if (['tetris','pong','derby','naval','mole','curling','chairs','master'].includes(m.game)) gameKind = m.game;
+      if (['tetris','pong','derby','naval','mole','curling','chairs','master','kabaddi'].includes(m.game)) gameKind = m.game;
       if (phase === 'menu' || phase === 'lobby' || m.back){
-        phase = 'lobby'; $('scrEnd').hidden = true; G = null; PG = null; D = null; NV = null; ML = null; CU = null; MC = null; MM = null; cur = null; show('scrLobby'); renderLobby();
+        phase = 'lobby'; $('scrEnd').hidden = true; G = null; PG = null; D = null; NV = null; ML = null; CU = null; MC = null; MM = null; KB = null; cur = null; show('scrLobby'); renderLobby();
       }
       break;
     case 'nv_start': startNaval(m); break;
@@ -872,7 +898,8 @@ function clientRecv(m){
     case 'cu_turn': case 'cu_go': case 'cu_s': case 'cu_out': case 'cu_skip': case 'cu_score': curlRecv(m); break;
     case 'mc_round': case 'mc_fake': case 'mc_stop': case 'mc_seat': case 'mc_taken': case 'mc_res': chairsRecv(m); break;
     case 'mm_round': case 'mm_fb': case 'mm_prog': case 'mm_solved': case 'mm_out': case 'mm_left': case 'mm_dl': case 'mm_end': masterRecv(m); break;
-    case 'start': if (m.game === 'master') startMaster(m); else if (m.game === 'chairs') startChairs(m); else if (m.game === 'curling') startCurling(m); else if (m.game === 'pong') startPong(m.players); else if (m.game === 'derby') startDerby(m.players, m.seed|0); else startGame(m.players); break;
+    case 'kb_raid': case 'kb_go': case 'kb_in_raid': case 'kb_s': case 'kb_touch': case 'kb_res': case 'kb_left': kabaddiRecv(m); break;
+    case 'start': if (m.game === 'kabaddi') startKabaddi(m); else if (m.game === 'master') startMaster(m); else if (m.game === 'chairs') startChairs(m); else if (m.game === 'curling') startCurling(m); else if (m.game === 'pong') startPong(m.players); else if (m.game === 'derby') startDerby(m.players, m.seed|0); else startGame(m.players); break;
     case 'dr': derbyRemote(m); break;
     case 'ps': pongState(m); break;
     case 'pg': pongGoalFx(m.side|0); break;
@@ -1116,18 +1143,19 @@ function showEnd(ranking, game){
   phase = 'end';
   if (G) G.p = null;
   if (PG) PG.ph = 'over';
-  const pong = game === 'pong', derby = game === 'derby', naval = game === 'naval', mole = game === 'mole', curl = game === 'curling', chairs = game === 'chairs', master = game === 'master';
+  const pong = game === 'pong', derby = game === 'derby', naval = game === 'naval', mole = game === 'mole', curl = game === 'curling', chairs = game === 'chairs', master = game === 'master', kab = game === 'kabaddi';
   if (ML) ML.over = true;
   if (NV) NV.over = true;
   if (D) D.over = true;
   if (CU){ CU.over = true; CU.turnId = null; }
   if (MC){ MC.over = true; MC.ph = 'res'; }
   if (MM){ MM.over = true; MM.ph = 'end'; MM.deadline = 0; }
+  if (KB){ KB.over = true; KB.ph = 'res'; }
   const hd = $('rankHead'); hd.textContent = '';
-  for (const h of ['#','Joueur', ...(master ? ['Points','Trouvés','Essais'] : chairs ? ['Vies','Chaises','Réflexe'] : curl ? ['Points','Maison','Meilleure'] : pong ? ['Vies','Renvois'] : derby ? ['Figures','Distance','Temps'] : naval ? ['Tirs','Touchés','À flot'] : mole ? ['Points','Tapées','Échappées'] : ['Lignes','Briques','Score'])]){
+  for (const h of ['#','Joueur', ...(kab ? ['Points','Raids réussis','Plaquages'] : master ? ['Points','Trouvés','Essais'] : chairs ? ['Vies','Chaises','Réflexe'] : curl ? ['Points','Maison','Meilleure'] : pong ? ['Vies','Renvois'] : derby ? ['Figures','Distance','Temps'] : naval ? ['Tirs','Touchés','À flot'] : mole ? ['Points','Tapées','Échappées'] : ['Lignes','Briques','Score'])]){
     const th = document.createElement('th'); th.textContent = h; hd.append(th);
   }
-  $('rankNote').textContent = master ? '« Trouvés » : codes trouvés. « Essais » : total des essais sur la partie.' : chairs ? '« Chaises » : chaises gagnées. « Réflexe » : votre plus rapide, de l\'arrêt du disque à la chaise.' : curl ? '« Maison » : pierres dans la maison en fin de mène. « Meilleure » : pierre la plus proche du centre.' : mole ? '« Tapées » : taupes adverses tapées. « Échappées » : vos taupes que personne n\'a eues.' : naval ? '« À flot » : cases de bateau encore intactes à la fin.' : pong ? '« Renvois » : balles renvoyées avec la raquette.' : derby ? '« Temps » : durée pour franchir la ligne, pour ceux qui l\'ont franchie.' : '« Briques » : nombre de briques envoyées aux adversaires.';
+  $('rankNote').textContent = kab ? '« Raids réussis » : raids rentrés avec au moins un défenseur touché. « Plaquages » : attaquants retenus jusqu\'au bout du souffle.' : master ? '« Trouvés » : codes trouvés. « Essais » : total des essais sur la partie.' : chairs ? '« Chaises » : chaises gagnées. « Réflexe » : votre plus rapide, de l\'arrêt du disque à la chaise.' : curl ? '« Maison » : pierres dans la maison en fin de mène. « Meilleure » : pierre la plus proche du centre.' : mole ? '« Tapées » : taupes adverses tapées. « Échappées » : vos taupes que personne n\'a eues.' : naval ? '« À flot » : cases de bateau encore intactes à la fin.' : pong ? '« Renvois » : balles renvoyées avec la raquette.' : derby ? '« Temps » : durée pour franchir la ligne, pour ceux qui l\'ont franchie.' : '« Briques » : nombre de briques envoyées aux adversaires.';
   const tb = $('rankBody'); tb.textContent = '';
   (ranking || []).forEach(r => {
     const tr = document.createElement('tr'); if (r.place === 1) tr.className = 'win';
@@ -1136,7 +1164,8 @@ function showEnd(ranking, game){
     const d = document.createElement('span'); d.className = 'dot'; d.style.background = r.color;
     const s = document.createElement('span'); s.textContent = r.name + (r.id === me.id ? ' (vous)' : '') + (r.left ? ' · parti' : '');
     w.append(d, s); nm.append(w);
-    if (master) tr.append(td(r.place), nm, td(r.pts|0), td(r.solved|0), td(r.tries|0));
+    if (kab) tr.append(td(r.place), nm, td(r.pts|0), td(r.raids|0), td(r.tackles|0));
+    else if (master) tr.append(td(r.place), nm, td(r.pts|0), td(r.solved|0), td(r.tries|0));
     else if (chairs) tr.append(td(r.place), nm, td(r.lives|0), td(r.seats|0), td(r.best ? fmtSec(r.best) : '–'));
     else if (curl) tr.append(td(r.place), nm, td(r.pts|0), td(r.house|0), td(r.best != null ? r.best + ' cm' : '–'));
     else if (pong) tr.append(td(r.place), nm, td(r.lives|0), td(r.hits|0));
@@ -1155,7 +1184,7 @@ function showEnd(ranking, game){
   $('winPanel').style.background = win ? win.color : '#FFD93B';
   $('winName').textContent = win ? (iWon ? 'Vous gagnez !' : win.name + ' gagne !') : '';
   $('myPlace').textContent = (GAME_NAMES[game] || 'Tetris') + (mine ? ' · vous finissez ' + (mine.place === 1 ? '1er' : mine.place + 'e') + ' sur ' + ranking.length : '');
-  (master ? masterMsg : chairs ? chairsMsg : curl ? curlMsg : pong ? pongMsg : derby ? derbyMsg : naval ? navalMsg : mole ? moleMsg : setMsg)('', '');
+  (kab ? kabaddiMsg : master ? masterMsg : chairs ? chairsMsg : curl ? curlMsg : pong ? pongMsg : derby ? derbyMsg : naval ? navalMsg : mole ? moleMsg : setMsg)('', '');
   $('btnAgain').hidden = false;
   $('endHint').textContent = me.host ? 'Tout le monde revient au salon : relancez le même jeu ou choisissez-en un autre.' : 'Vous attendrez au salon que le créateur relance.';
   saveGame(ranking, game);
@@ -1319,7 +1348,7 @@ function release(a){
 const KEYMAP = { arrowleft:'left', arrowright:'right', arrowdown:'down', arrowup:'rotr', x:'rotr', z:'rotl', w:'rotl', control:'rotl', ' ':'drop', c:'hold', shift:'hold' };
 addEventListener('keydown', e => {
   if (e.target.tagName === 'INPUT') return;
-  if (cur === 'curl' || cur === 'chairs' || cur === 'master') return;
+  if (cur === 'curl' || cur === 'chairs' || cur === 'master' || cur === 'kabaddi') return;
   if (cur === 'pong'){ const k = PKEYS[e.key.toLowerCase()]; if (k){ e.preventDefault(); pin[k] = true; } return; }
   const a = KEYMAP[e.key.toLowerCase()]; if (!a) return;
   e.preventDefault();
@@ -3808,6 +3837,337 @@ function masterFrame(dtMs, now){
   }
 }
 
+// ================= KABADDI : one raider holds their breath, touches defenders and runs home =================
+// Host simulates all pawns; each player sends a target point, plus "hold" (finger down or Space) for the breath.
+const KB_W = 420, KB_H = 620, KB_MID = 310, KB_GAP = 60, KB_R = 18, KB_BREATH = 6.5, KB_SP_RAID = 250, KB_SP_DEF = 225;
+let HKB = null, KB = null;
+
+// ---- host side ----
+function kbLater(fn, ms){ const g = HKB; const t = setTimeout(() => { if (HKB === g && H && !H.over) fn(); }, ms); HKB.timers.push(t); }
+function kbClear(){ if (HKB) HKB.timers.forEach(t => clearTimeout(t)); }
+function kabaddiHostStart(){
+  const n = players.length, per = n <= 2 ? 4 : n === 3 ? 3 : 2;
+  const order = []; for (let r = 0; r < per; r++) players.forEach(p => order.push(p.id));
+  HKB = { order, k:-1, timers:[], ph:'wait', pos:{}, IN:{}, raider:null, lastSend:0 };
+  broadcast({ t:'start', players, game:'kabaddi', raids:order.length });
+  kbLater(kbNextRaid, 3200);
+}
+const kbActive = id => H.stats[id] && !H.stats[id].left;
+function kbNextRaid(){
+  HKB.k++;
+  while (HKB.k < HKB.order.length && !kbActive(HKB.order[HKB.k])) HKB.k++;
+  if (HKB.k >= HKB.order.length) return kabaddiFinish();
+  const raider = HKB.order[HKB.k], defs = players.filter(p => p.id !== raider && kbActive(p.id)).map(p => p.id);
+  if (!defs.length) return kabaddiFinish();
+  HKB.raider = raider; HKB.defs = defs; HKB.ph = 'ready'; HKB.t = 0; HKB.crossed = false; HKB.breath = KB_BREATH; HKB.grace = 0;
+  HKB.touched = new Set(); HKB.contact = new Set(); HKB.pos = {}; HKB.IN = {};
+  HKB.pos[raider] = [KB_W/2, KB_H - 100];
+  defs.forEach((id, i) => { HKB.pos[id] = [KB_W*(i + 1)/(defs.length + 1), 150]; });
+  players.forEach(p => HKB.IN[p.id] = { tx:null, ty:null, hold:false, kx:0, ky:0 });
+  broadcast({ t:'kb_raid', raider, k:HKB.k, total:HKB.order.length, scores:players.map(p => H.stats[p.id].pts), p:kbSnap() });
+  kbLater(() => { if (HKB.ph !== 'ready') return; HKB.ph = 'raid'; HKB.t = 0; broadcast({ t:'kb_go' }); }, 1600);
+}
+const kbSnap = () => Object.entries(HKB.pos).map(([id, [x, y]]) => [id, Math.round(x*10)/10, Math.round(y*10)/10]);
+function kabaddiInput(id, m){
+  if (!HKB || !HKB.IN[id]) return;
+  const I = HKB.IN[id];
+  I.tx = isFinite(+m.x) && m.x !== null ? Math.max(0, Math.min(KB_W, +m.x)) : null;
+  I.ty = isFinite(+m.y) && m.y !== null ? Math.max(0, Math.min(KB_H, +m.y)) : null;
+  I.hold = !!m.h; I.kx = Math.sign(+m.kx || 0); I.ky = Math.sign(+m.ky || 0);
+}
+function kbStep(h){
+  const P = HKB.pos, rid = HKB.raider, ids = Object.keys(P);
+  const nContact = HKB.contact.size;
+  for (const id of ids){
+    const I = HKB.IN[id] || {}, p = P[id], raider = id === rid;
+    const sp = raider ? KB_SP_RAID / (1 + 0.85 * nContact) : KB_SP_DEF;
+    if (I.kx || I.ky){ const L = Math.hypot(I.kx, I.ky); p[0] += I.kx/L * sp * h; p[1] += I.ky/L * sp * h; }
+    else if (I.tx != null){ const dx = I.tx - p[0], dy = I.ty - p[1], d = Math.hypot(dx, dy); if (d > 1){ const s = Math.min(d, sp*h); p[0] += dx/d*s; p[1] += dy/d*s; } }
+    p[0] = Math.max(KB_R, Math.min(KB_W - KB_R, p[0]));
+    p[1] = Math.max(KB_R, Math.min((raider ? KB_H : HKB.crossed ? KB_MID : KB_MID - KB_GAP) - KB_R, p[1]));   // defenders stay in their half, and off the line until the raider is in
+  }
+  for (let i = 0; i < ids.length; i++) for (let j = i + 1; j < ids.length; j++){
+    const a = P[ids[i]], b = P[ids[j]], dx = b[0] - a[0], dy = b[1] - a[1], d = Math.hypot(dx, dy);
+    if (d >= 2*KB_R || d === 0) continue;
+    const o = (2*KB_R - d)/2, nx = dx/d, ny = dy/d;
+    a[0] -= nx*o; a[1] -= ny*o; b[0] += nx*o; b[1] += ny*o;
+  }
+  const R = P[rid]; HKB.contact = new Set();
+  for (const id of HKB.defs){ const q = P[id]; if (q && Math.hypot(q[0] - R[0], q[1] - R[1]) < 2*KB_R + 6) HKB.contact.add(id); }
+  if (!HKB.crossed && R[1] < KB_MID){ HKB.crossed = true; broadcast({ t:'kb_in_raid' }); }
+  if (!HKB.crossed){ if (HKB.t > 8) kbEnd(false, 'void'); return; }
+  for (const id of HKB.contact) if (!HKB.touched.has(id)){ HKB.touched.add(id); broadcast({ t:'kb_touch', id }); }
+  if (R[1] < KB_MID){
+    HKB.breath -= h;
+    if (!HKB.IN[rid].hold){ HKB.grace += h; if (HKB.grace > .3) return kbEnd(false, 'release'); } else HKB.grace = 0;
+    if (HKB.breath <= 0) return kbEnd(false, 'breath');
+  } else if (R[1] > KB_MID + KB_R) return kbEnd(true, 'home');
+}
+function kbEnd(ok, why){
+  if (HKB.ph !== 'raid') return;
+  HKB.ph = 'res';
+  const rid = HKB.raider, gains = {};
+  if (why === 'void'){}
+  else if (ok){ gains[rid] = HKB.touched.size; H.stats[rid].touches += HKB.touched.size; if (HKB.touched.size) H.stats[rid].raids++; }
+  else for (const id of HKB.defs){ gains[id] = 1 + (HKB.contact.has(id) ? 1 : 0); if (HKB.contact.has(id)) H.stats[id].tackles++; }
+  for (const id in gains) if (H.stats[id]) H.stats[id].pts += gains[id];
+  broadcast({ t:'kb_res', raider:rid, ok, why, gains, touched:[...HKB.touched], contact:[...HKB.contact], scores:players.map(p => H.stats[p.id].pts), p:kbSnap() });
+  kbLater(kbNextRaid, 2600);
+}
+function kabaddiHostFrame(dt, now){
+  if (!HKB || !H || H.over || HKB.ph !== 'raid') return;
+  HKB.t += dt;
+  botKabaddi(dt);
+  const n = Math.ceil(dt / (1/120));
+  for (let i = 0; i < n && HKB.ph === 'raid'; i++) kbStep(dt/n);
+  if (now - HKB.lastSend > 33 && HKB.ph === 'raid'){
+    HKB.lastSend = now;
+    broadcast({ t:'kb_s', p:kbSnap(), br:Math.round(HKB.breath*100)/100, cr:HKB.crossed ? 1 : 0, c:[...HKB.contact], hd:HKB.IN[HKB.raider] && HKB.IN[HKB.raider].hold ? 1 : 0 });
+  }
+}
+function kabaddiFinish(){
+  if (!H || H.over) return;
+  H.over = true; kbClear();
+  const ids = Object.keys(H.stats).sort((a, b) => {
+    const A = H.stats[a], B = H.stats[b];
+    if (A.left !== B.left) return A.left ? 1 : -1;
+    return B.pts - A.pts || B.raids - A.raids || B.tackles - A.tackles;
+  });
+  const ranking = ids.map((pid, i) => { const p = players.find(x => x.id === pid) || { name:'?', color:'#888' }; return { id:pid, name:p.name, color:p.color, place:i+1, ...H.stats[pid] }; });
+  setTimeout(() => broadcast({ t:'end', ranking, game:'kabaddi' }), 600);
+}
+function kabaddiDrop(id){
+  if (!H || H.over || !H.stats[id]) return;
+  H.stats[id].left = true;
+  broadcast({ t:'kb_left', id });
+  if (!HKB) return;
+  if (Object.keys(H.stats).filter(kbActive).length <= 1) return kabaddiFinish();
+  if (HKB.ph === 'raid' || HKB.ph === 'ready'){
+    if (HKB.raider === id){ HKB.ph = 'raid'; kbEnd(false, 'left'); }
+    else { delete HKB.pos[id]; HKB.defs = HKB.defs.filter(x => x !== id); HKB.contact.delete(id); }
+  }
+}
+
+// ---- robot ----
+function botKabaddi(dt){
+  if (!BOT || !HKB.IN.ai || !HKB.pos.ai) return;
+  BOT.kbT = (BOT.kbT || 0) - dt;
+  if (BOT.kbT > 0) return;
+  BOT.kbT = .22 + Math.random()*.12;                 // reacts a few times per second, not every frame
+  const I = HKB.IN.ai, me2 = HKB.pos.ai, R = HKB.pos[HKB.raider];
+  I.kx = I.ky = 0;
+  if (HKB.raider === 'ai'){
+    I.hold = true;
+    const free = HKB.defs.filter(id => !HKB.touched.has(id) && HKB.pos[id]);
+    const near = HKB.defs.filter(id => HKB.pos[id] && Math.hypot(HKB.pos[id][0] - me2[0], HKB.pos[id][1] - me2[1]) < 70).length;
+    const goHome = HKB.crossed && (HKB.breath < 2.8 || (HKB.touched.size >= 1 && (near >= 2 || HKB.breath < 4 || Math.random() < .15)) || !free.length);
+    if (goHome || BOT.kbHome){ BOT.kbHome = HKB.crossed; I.tx = me2[0] + (Math.random() - .5)*40; I.ty = KB_H - 80; }
+    else if (!HKB.crossed){                              // enter where the defence is thinnest
+      let bx = KB_W/2, bs = -1;
+      for (let x = 50; x <= KB_W - 50; x += 20){ const d = Math.min(...HKB.defs.map(id => HKB.pos[id] ? Math.abs(HKB.pos[id][0] - x) : 999)); if (d > bs){ bs = d; bx = x; } }
+      I.tx = bx; I.ty = KB_MID - 50;
+    } else {
+      let best = null, bd = 1e9;
+      for (const id of free){ const q = HKB.pos[id], d = Math.hypot(q[0] - me2[0], q[1] - me2[1]); if (d < bd){ bd = d; best = q; } }
+      if (best){ I.tx = best[0] + (Math.random() - .5)*20; I.ty = best[1] + 10; }
+    }
+  } else {
+    BOT.kbHome = false;
+    const i = HKB.defs.indexOf('ai');
+    if (HKB.crossed || R[1] < KB_MID + 60){ I.tx = R[0] + (Math.random() - .5)*30; I.ty = Math.min(KB_MID - KB_R, R[1] - 6); }
+    else { I.tx = KB_W*(i + 1)/(HKB.defs.length + 1); I.ty = KB_MID - 70; }
+  }
+}
+
+// ---- my view ----
+const kbcv = $('kbCv'), kbctx = kbcv.getContext('2d');
+function startKabaddi(m){
+  lastCountShown = null;
+  players = m.players; cur = 'kabaddi'; G = null; PG = null; D = null; phase = 'count';
+  $('scrEnd').hidden = true; show('scrKabaddi');
+  KB = { pos:new Map(), raider:null, k:0, total:m.raids|0, ph:'wait', breath:KB_BREATH, crossed:false, contact:new Set(), touched:new Set(), hold:false,
+    scores:players.map(() => 0), count:3, in:{ x:null, y:null, h:false, kx:0, ky:0 }, sent:'', lastSend:0, down:false, keys:{}, chantT:0, res:null, face:{}, over:false };
+  kabaddiMsg(''); renderKbPlayers(); kbHead('Préparation…');
+}
+const kabaddiMsg = big => { const m = $('kbMsg'); m.textContent = ''; if (big){ const s = document.createElement('strong'); s.textContent = big; m.append(s); } };
+let kbToastT = null;
+function kbToast(t){ const el = $('kbToast'); el.textContent = t; el.classList.add('on'); clearTimeout(kbToastT); kbToastT = setTimeout(() => el.classList.remove('on'), 2000); }
+function kbHead(t, mine){ const el = $('kbHead'); el.textContent = t; el.classList.toggle('mine', !!mine); }
+const kbName = id => (players.find(p => p.id === id) || {}).name || '?';
+function renderKbPlayers(){
+  const ul = $('kbPlayers'); ul.textContent = '';
+  players.forEach((p, i) => {
+    const li = document.createElement('li'); if (KB.raider === p.id) li.classList.add('turn'); if (p.left) li.classList.add('dead');
+    const d = document.createElement('span'); d.className = 'dot'; d.style.background = p.color;
+    const t = document.createElement('span'); t.textContent = p.name + (p.id === me.id ? ' (vous)' : '') + ' · ' + KB.scores[i] + ' pt' + (KB.scores[i] > 1 ? 's' : '');
+    li.append(d, t); ul.append(li);
+  });
+  $('kbRaid').textContent = 'Raid ' + Math.min(KB.k + 1, Math.max(1, KB.total)) + '/' + KB.total;
+}
+function kbSetPos(arr, snap){
+  if (!Array.isArray(arr)) return;
+  const seen = new Set();
+  for (const [id, x, y] of arr){
+    seen.add(id);
+    const o = KB.pos.get(id);
+    if (o && !snap){ if (Math.hypot(+x - o.tx, +y - o.ty) > .5) KB.face[id] = Math.atan2(+y - o.ty, +x - o.tx); o.tx = +x; o.ty = +y; }
+    else KB.pos.set(id, { x:+x, y:+y, tx:+x, ty:+y });
+  }
+  for (const id of [...KB.pos.keys()]) if (!seen.has(id)) KB.pos.delete(id);
+}
+function kabaddiRecv(m){
+  if (!KB) return;
+  switch (m.t){
+    case 'kb_raid': {
+      if (phase === 'count'){ phase = 'play'; kabaddiMsg(''); }
+      KB.raider = m.raider; KB.k = m.k|0; KB.total = m.total|0; KB.ph = 'ready'; KB.breath = KB_BREATH; KB.crossed = false;
+      KB.contact = new Set(); KB.touched = new Set(); KB.res = null; KB.face = {};
+      if (Array.isArray(m.scores)) KB.scores = m.scores;
+      kbSetPos(m.p, true);
+      for (const id of KB.pos.keys()) KB.face[id] = id === KB.raider ? -Math.PI/2 : Math.PI/2;
+      KB.in = { x:null, y:null, h:false, kx:0, ky:0 }; KB.sent = '';
+      const mine = m.raider === me.id;
+      kbHead(mine ? 'À vous d\'attaquer !' : 'Raid de ' + kbName(m.raider), mine);
+      if (mine){ sfx('myturn'); kbToast('Gardez le doigt appuyé pour retenir votre souffle'); }
+      else if (KB.pos.has(me.id)) kbToast('Défendez : entourez l\'attaquant pour le freiner');
+      renderKbPlayers();
+      break;
+    }
+    case 'kb_go': KB.ph = 'raid'; sfx('go'); break;
+    case 'kb_in_raid': KB.crossed = true; break;
+    case 'kb_s':
+      kbSetPos(m.p, false); KB.breath = +m.br; KB.crossed = !!m.cr; KB.contact = new Set(m.c || []); KB.hold = !!m.hd;
+      break;
+    case 'kb_touch': {
+      KB.touched.add(m.id); sfx('bonk');
+      const q = KB.pos.get(m.id); if (q) boom('TOUCHÉ !', { size:22, x:q.tx/KB_W, y:Math.max(.05, q.ty/KB_H - .06), pal:BOOM_COLORS[0], ms:600 });
+      break;
+    }
+    case 'kb_res': {
+      KB.ph = 'res'; KB.res = m; if (Array.isArray(m.scores)) KB.scores = m.scores;
+      kbSetPos(m.p, false);
+      const rn = m.raider === me.id ? 'Vous' : kbName(m.raider), n = (m.touched || []).length;
+      if (m.why === 'void') kbToast(rn + (m.raider === me.id ? ' n\'avez' : ' n\'a') + ' pas franchi la ligne : raid nul');
+      else if (m.ok){
+        kbToast(n ? rn + ' rentre : +' + n + ' point' + (n > 1 ? 's' : '') : 'Raid vide : aucun défenseur touché');
+        if (n){ sfx('finish'); boom(n > 1 ? 'SUPER RAID !' : 'RAID !', { size:36, x:.5, y:.88, pal:BOOM_COLORS[m.raider === me.id ? 0 : 3], ms:1100 }); }
+      } else {
+        const why = m.why === 'breath' ? 'souffle épuisé' : m.why === 'release' ? 'souffle relâché' : 'parti';
+        kbToast('Raid raté (' + why + ') : chaque défenseur +1' + ((m.contact || []).length ? ', +1 pour le plaquage' : ''));
+        sfx(m.raider === me.id ? 'fail' : 'hit');
+        boom((m.contact || []).length ? 'PLAQUÉ !' : 'À BOUT DE SOUFFLE !', { size:32, x:.5, y:.2, pal:BOOM_COLORS[2], ms:1100 });
+      }
+      kbHead('Fin du raid ' + (KB.k + 1));
+      renderKbPlayers();
+      break;
+    }
+    case 'kb_left': kbToast(kbName(m.id) + ' a quitté la partie'); { const p = players.find(x => x.id === m.id); if (p) p.left = true; } renderKbPlayers(); break;
+  }
+}
+
+// ---- input: finger / mouse = where to go (and breath while held), arrows + Space on a keyboard ----
+function kbPoint(e){ const r = kbcv.getBoundingClientRect(); return [(e.clientX - r.left) / r.width * KB_W, (e.clientY - r.top) / r.height * KB_H]; }
+kbcv.addEventListener('pointerdown', e => {
+  if (!KB) return; e.preventDefault(); kbcv.setPointerCapture(e.pointerId);
+  const [x, y] = kbPoint(e); KB.down = true; KB.in.x = x; KB.in.y = y; KB.in.h = true;
+});
+kbcv.addEventListener('pointermove', e => { if (!KB || !KB.down) return; const [x, y] = kbPoint(e); KB.in.x = x; KB.in.y = y; });
+const kbUp = () => { if (!KB) return; KB.down = false; KB.in.h = !!KB.keys[' ']; };
+kbcv.addEventListener('pointerup', kbUp); kbcv.addEventListener('pointercancel', kbUp);
+const KB_KEYS = { arrowleft:[-1,0], q:[-1,0], a:[-1,0], arrowright:[1,0], d:[1,0], arrowup:[0,-1], z:[0,-1], w:[0,-1], arrowdown:[0,1], s:[0,1] };
+function kbKeys(){
+  let kx = 0, ky = 0; for (const k in KB.keys) if (KB.keys[k] && KB_KEYS[k]){ kx += KB_KEYS[k][0]; ky += KB_KEYS[k][1]; }
+  KB.in.kx = kx; KB.in.ky = ky; KB.in.h = KB.down || !!KB.keys[' '];
+  if (kx || ky){ KB.in.x = null; KB.in.y = null; }
+}
+addEventListener('keydown', e => {
+  if (cur !== 'kabaddi' || !KB || e.target.tagName === 'INPUT') return;
+  const k = e.key.toLowerCase(); if (k !== ' ' && !KB_KEYS[k]) return;
+  e.preventDefault(); KB.keys[k] = true; kbKeys();
+});
+addEventListener('keyup', e => { if (cur !== 'kabaddi' || !KB) return; const k = e.key.toLowerCase(); if (KB.keys[k]){ KB.keys[k] = false; kbKeys(); } });
+
+// ---- loop & drawing ----
+function kabaddiFrame(dtMs, now){
+  if (!KB) return;
+  const dt = dtMs / 1000;
+  if (phase === 'count'){ KB.count -= dt; if (KB.count > 0) countBeep(Math.ceil(KB.count)); else countBeep(0); }
+  if (KB.ph === 'raid' && KB.pos.has(me.id)){
+    const r = v => v == null ? null : Math.round(v);
+    const msg = { t:'kb_in', x:r(KB.in.x), y:r(KB.in.y), h:KB.in.h ? 1 : 0, kx:KB.in.kx, ky:KB.in.ky }, key = JSON.stringify(msg);
+    if (key !== KB.sent && now - KB.lastSend > 33){ KB.sent = key; KB.lastSend = now; toHost(msg); }
+  }
+  if (me.host) kabaddiHostFrame(dt, now);
+  const k = Math.min(1, dt * 16);
+  for (const o of KB.pos.values()){ o.x += (o.tx - o.x) * k; o.y += (o.ty - o.y) * k; }
+  // the chant: "ka-bad-di" while the raider is across and holding
+  const R = KB.pos.get(KB.raider);
+  if (KB.ph === 'raid' && KB.crossed && KB.hold && R && R.ty < KB_MID){
+    KB.chantT -= dt;
+    if (KB.chantT <= 0){ KB.chantT = .3; KB.ci = ((KB.ci || 0) + 1) % 3; sfx('chant', KB.ci); }
+  }
+  drawKabaddi(now);
+}
+function kbPawn(ctx, x, y, col, face, o){
+  const R = KB_R;
+  if (o.touched){ ctx.save(); ctx.translate(x, y); star(ctx, 0, 0, R*1.9); ctx.fillStyle = '#FFD93B'; ctx.fill(); ctx.strokeStyle = '#000'; ctx.lineWidth = 2.5; ctx.stroke(); ctx.restore(); }
+  ctx.fillStyle = 'rgba(0,0,0,.22)'; ctx.beginPath(); ctx.ellipse(x + 3, y + 5, R, R*.8, 0, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(x, y, R, 0, Math.PI*2); ctx.fillStyle = col; ctx.fill();
+  ctx.save(); ctx.clip(); ctx.fillStyle = halftone(ctx, .3); ctx.fillRect(x - R, y + 4, R*2, R); ctx.restore();
+  ctx.strokeStyle = '#000'; ctx.lineWidth = 3.5; ctx.stroke();
+  if (o.raider){                                   // headband
+    ctx.strokeStyle = '#000'; ctx.lineWidth = 7; ctx.beginPath(); ctx.arc(x, y, R - 4, face + 2.2, face + 4.1); ctx.stroke();
+    ctx.strokeStyle = '#FFD93B'; ctx.lineWidth = 4; ctx.stroke();
+  }
+  const ex = Math.cos(face)*7, ey = Math.sin(face)*7, px = -Math.sin(face)*6, py = Math.cos(face)*6;
+  for (const s of [-1, 1]){
+    const cx = x + ex + px*s, cy = y + ey + py*s;
+    ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(cx, cy, 4.5, 0, Math.PI*2); ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = '#000'; ctx.stroke();
+    ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(cx + Math.cos(face)*1.5, cy + Math.sin(face)*1.5, 2, 0, Math.PI*2); ctx.fill();
+  }
+  if (o.me){ ctx.font = '900 12px Nunito, sans-serif'; ctx.textAlign = 'center'; ctx.lineJoin = 'round'; ctx.strokeStyle = '#000'; ctx.lineWidth = 4; ctx.strokeText('VOUS', x, y + R + 14); ctx.fillStyle = '#fff'; ctx.fillText('VOUS', x, y + R + 14); }
+}
+function drawKabaddi(now){
+  const ctx = kbctx, W = KB_W, Hh = KB_H, M = KB_MID;
+  ctx.fillStyle = '#FF8A3D'; ctx.fillRect(0, 0, W, M);
+  ctx.fillStyle = '#4EA8FF'; ctx.fillRect(0, M, W, Hh - M);
+  ctx.fillStyle = halftone(ctx, .14); ctx.fillRect(0, 0, W, Hh);
+  ctx.strokeStyle = 'rgba(255,255,255,.85)'; ctx.lineWidth = 3; ctx.setLineDash([12, 10]);
+  ctx.beginPath(); ctx.moveTo(14, M - KB_GAP); ctx.lineTo(W - 14, M - KB_GAP); ctx.stroke(); ctx.setLineDash([]);
+  if (KB && !KB.crossed){ ctx.fillStyle = 'rgba(255,255,255,.22)'; ctx.fillRect(0, M - KB_GAP, W, KB_GAP); }
+  ctx.strokeStyle = '#000'; ctx.lineWidth = 11; ctx.beginPath(); ctx.moveTo(0, M); ctx.lineTo(W, M); ctx.stroke();
+  ctx.strokeStyle = '#fff'; ctx.lineWidth = 6; ctx.stroke();
+  ctx.font = '22px Bangers, Impact, sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = 'rgba(0,0,0,.35)';
+  ctx.fillText('DÉFENSE', W/2, 40); ctx.fillText('CAMP DE L\'ATTAQUANT', W/2, Hh - 24);
+  if (!KB) return;
+  const rid = KB.raider, R = KB.pos.get(rid);
+  // contact: grab lines between the raider and the defenders holding on
+  if (R) for (const id of KB.contact){ const q = KB.pos.get(id); if (!q) continue; ctx.strokeStyle = '#000'; ctx.lineWidth = 4; ctx.setLineDash([4, 4]); ctx.beginPath(); ctx.moveTo(R.x, R.y); ctx.lineTo(q.x, q.y); ctx.stroke(); ctx.setLineDash([]); }
+  for (const [id, o] of KB.pos){
+    if (id === rid) continue;
+    const p = players.find(x => x.id === id); if (!p) continue;
+    kbPawn(ctx, o.x, o.y, p.color, KB.face[id] ?? Math.PI/2, { touched:KB.touched.has(id), me:id === me.id });
+  }
+  if (R){
+    const p = players.find(x => x.id === rid);
+    kbPawn(ctx, R.x, R.y, p ? p.color : '#888', KB.face[rid] ?? -Math.PI/2, { raider:true, me:rid === me.id });
+    // breath gauge above the raider
+    const f = Math.max(0, Math.min(1, KB.breath / KB_BREATH)), bw = 56, bx = R.x - bw/2, by = R.y - KB_R - 18;
+    ctx.fillStyle = '#fff'; ctx.fillRect(bx, by, bw, 9);
+    ctx.fillStyle = f < .3 ? '#E6262B' : '#3DDC97'; ctx.fillRect(bx, by, bw*f, 9);
+    ctx.strokeStyle = '#000'; ctx.lineWidth = 2.5; ctx.strokeRect(bx, by, bw, 9);
+    if (KB.ph === 'raid' && KB.crossed && R.ty < KB_MID){        // the chant bubble
+      ctx.font = '15px Bangers, Impact, sans-serif'; const txt = KB.hold ? 'KABADDI KABADDI…' : 'HAA… !', tw = ctx.measureText(txt).width + 14;
+      const sx = Math.max(tw/2 + 4, Math.min(W - tw/2 - 4, R.x)), sy = by - 18 + Math.sin(now/90);
+      ctx.fillStyle = '#fff'; ctx.strokeStyle = '#000'; ctx.lineWidth = 2.5;
+      ctx.beginPath(); ctx.roundRect ? ctx.roundRect(sx - tw/2, sy - 12, tw, 22, 10) : ctx.rect(sx - tw/2, sy - 12, tw, 22); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = KB.hold ? '#000' : '#E6262B'; ctx.textBaseline = 'middle'; ctx.fillText(txt, sx, sy + 1); ctx.textBaseline = 'alphabetic';
+    }
+  }
+  // my target marker
+  if (KB.down && KB.in.x != null && KB.pos.has(me.id)){ ctx.strokeStyle = '#000'; ctx.lineWidth = 2.5; ctx.setLineDash([4, 4]); ctx.beginPath(); ctx.arc(KB.in.x, KB.in.y, 12, 0, Math.PI*2); ctx.stroke(); ctx.setLineDash([]); }
+}
+
 // ================= ROBOT : a medium opponent when one person plays alone =================
 // It runs inside the creator's page and acts through the same host functions a real player triggers.
 function botLater(fn, ms){ setTimeout(() => { if (H && !H.over && BOT) fn(); }, ms); }
@@ -3987,7 +4347,7 @@ function botMoleSees(m){
 const BOOM_COLORS = [['#FFD93B','#E6262B'], ['#FFFFFF','#1E5BFF'], ['#E6262B','#FFFFFF'], ['#1E5BFF','#FFD93B']];
 function gameWrap(){
   return cur === 'tetris' ? document.querySelector('#play .well') : cur === 'pong' ? $('pwrap') : cur === 'derby' ? $('padwrap')
-    : cur === 'naval' ? document.querySelector('#scrNaval .nvwrap') : cur === 'mole' ? $('mlWrap') : cur === 'curl' ? $('cuWrap') : cur === 'chairs' ? $('mcWrap') : cur === 'master' ? $('mmWrap') : null;
+    : cur === 'naval' ? document.querySelector('#scrNaval .nvwrap') : cur === 'mole' ? $('mlWrap') : cur === 'curl' ? $('cuWrap') : cur === 'chairs' ? $('mcWrap') : cur === 'master' ? $('mmWrap') : cur === 'kabaddi' ? $('kbWrap') : null;
 }
 // x, y: position in the wrap (0..1); size in px; pal: one of BOOM_COLORS
 function boom(text, o = {}){
@@ -4063,6 +4423,7 @@ const SFX = {
   sweep:  () => noise(.12, .05, 3500, 1500, 0, .8),
   scratch:() => { noise(.4, .25, 5000, 300, 0, 3); tone(900, .25, 'sawtooth', .05, 150); },
   needle: () => { tone(330, .3, 'sine', .08, 80); noise(.12, .1, 2000, 300); },
+  chant:  i => tone([392, 330, 294][i || 0], .14, 'square', .035),
   win:    () => [523, 659, 784, 1047, 784, 1047].forEach((f, i) => tone(f, .18, 'square', .08, null, i*.11)),
   lose:   () => [392, 330, 262, 196].forEach((f, i) => tone(f, .22, 'triangle', .1, null, i*.16))
 };
@@ -4133,7 +4494,7 @@ function saveGame(ranking, game){
   if (!Array.isArray(ranking) || !ranking.length || lastSaved === ranking) return;
   lastSaved = ranking;
   const h = loadHist();
-  h.unshift({ at:Date.now(), game:['pong','derby','naval','mole','curling','chairs','master'].includes(game) ? game : 'tetris', n:ranking.length,
+  h.unshift({ at:Date.now(), game:['pong','derby','naval','mole','curling','chairs','master','kabaddi'].includes(game) ? game : 'tetris', n:ranking.length,
     p:ranking.map(r => ({ name:String(r.name).slice(0,14), color:r.color, place:r.place|0, sc:r.sc|0, ln:r.ln|0, sent:r.sent|0, lives:r.lives|0, seats:r.seats|0, hits:r.hits|0, pts:r.pts|0, whacks:r.whacks|0, shots:r.shots|0, afloat:r.afloat|0, shapes:r.shapes|0, d:Math.round(r.d||0), t:+r.t||0, me:r.id === me.id })) });
   store.set(HIST_KEY, JSON.stringify(h.slice(0, HIST_MAX)));
 }
@@ -4149,13 +4510,13 @@ function renderBoard(){
     a.games++; if (p.place === 1 && g.n > 1) a.wins++;
     a.pts += Math.max(0, g.n - p.place);                  // 1 point per player finished ahead of
     if (g.game === 'derby'){ if (p.t > 0 && (!a.bestT || p.t < a.bestT)) a.bestT = p.t; }
-    else a.best = Math.max(a.best, (g.game === 'pong' || g.game === 'naval') ? p.hits : g.game === 'mole' ? (p.whacks || 0) : g.game === 'curling' ? (p.pts || 0) : g.game === 'chairs' ? (p.seats || 0) : g.game === 'master' ? (p.pts || 0) : p.sc);
+    else a.best = Math.max(a.best, (g.game === 'pong' || g.game === 'naval') ? p.hits : g.game === 'mole' ? (p.whacks || 0) : g.game === 'curling' ? (p.pts || 0) : g.game === 'chairs' ? (p.seats || 0) : (g.game === 'master' || g.game === 'kabaddi') ? (p.pts || 0) : p.sc);
     agg.set(k, a);
   }
   const rows = [...agg.values()].sort((x, y) => y.pts - x.pts || y.wins - x.wins || x.games - y.games);
   const showBest = lbFilter !== 'all';
   const hd = $('lbHead'); hd.textContent = '';
-  for (const t of ['#','Joueur','Parties','Victoires','Points', ...(showBest ? [lbFilter === 'pong' ? 'Renvois max' : lbFilter === 'derby' ? 'Meilleur temps' : lbFilter === 'naval' ? 'Touchés max' : lbFilter === 'mole' ? 'Taupes tapées max' : lbFilter === 'curling' ? 'Points max' : lbFilter === 'chairs' ? 'Chaises max' : lbFilter === 'master' ? 'Points max' : 'Meilleur score'] : [])]){
+  for (const t of ['#','Joueur','Parties','Victoires','Points', ...(showBest ? [lbFilter === 'pong' ? 'Renvois max' : lbFilter === 'derby' ? 'Meilleur temps' : lbFilter === 'naval' ? 'Touchés max' : lbFilter === 'mole' ? 'Taupes tapées max' : lbFilter === 'curling' ? 'Points max' : lbFilter === 'chairs' ? 'Chaises max' : (lbFilter === 'master' || lbFilter === 'kabaddi') ? 'Points max' : 'Meilleur score'] : [])]){
     const th = document.createElement('th'); th.textContent = t; hd.append(th);
   }
   const tb = $('lbBody'); tb.textContent = '';
@@ -4209,6 +4570,7 @@ function frame(now){
   if (cur === 'curl') curlFrame(dt, now);
   if (cur === 'chairs') chairsFrame(dt, now);
   if (cur === 'master') masterFrame(dt, now);
+  if (cur === 'kabaddi') kabaddiFrame(dt, now);
   if (cur === 'tetris' && G && phase === 'count'){
     G.count -= dt/1000;
     if (G.count <= 0){ phase = 'play'; setMsg('', ''); countBeep(0); }
@@ -4261,11 +4623,11 @@ $('btnQuit').onclick = () => toMenu('');
 function backToLobby(){
   if (me.host){
     if (H) H.over = true;
-    H = null; if (HC) clearTimeout(HC.timer); HC = null; mcClear(); HMC = null; mmClear(); HMM = null;
+    H = null; if (HC) clearTimeout(HC.timer); HC = null; mcClear(); HMC = null; mmClear(); HMM = null; kbClear(); HKB = null;
     players = players.filter(p => p.id === 'h' || net.conns.has(p.id));
     sendLobby(true);                                       // everyone goes back
   } else {
-    phase = 'lobby'; $('scrEnd').hidden = true; G = null; PG = null; D = null; NV = null; ML = null; CU = null; MC = null; MM = null; cur = null;
+    phase = 'lobby'; $('scrEnd').hidden = true; G = null; PG = null; D = null; NV = null; ML = null; CU = null; MC = null; MM = null; KB = null; cur = null;
     if (HM) moleClearTimers();
     show('scrLobby'); renderLobby();                      // wait there for the creator
   }
