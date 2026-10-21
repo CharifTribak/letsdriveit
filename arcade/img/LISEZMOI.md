@@ -8,5 +8,6 @@ Déposez ici une image par jeu, au format 16:9 (1280×720 conseillé), en JPEG :
 - `naval.jpg` (Armada)
 - `mole.jpg` (Tape-taupe)
 - `curling.jpg`
+- `chairs.jpg` (Chaises musicales)
 
 Le salon affiche automatiquement l'image du jeu choisi par le créateur. Sans image, rien ne s'affiche.

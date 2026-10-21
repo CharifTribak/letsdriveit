@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Baston !</title>
-<meta name="description" content="Six jeux multijoueurs dans le navigateur : Tetris, Pong, Derby, Armada, Tape-taupe et Curling. Un salon, un code, de 1 à 5 joueurs.">
+<meta name="description" content="Sept jeux multijoueurs dans le navigateur : Tetris, Pong, Derby, Armada, Tape-taupe, Curling et Chaises musicales. Un salon, un code, de 1 à 5 joueurs.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Baston !">
-<meta property="og:description" content="Six jeux multijoueurs dans le navigateur. Créez un salon, partagez le code, et que le meilleur gagne.">
+<meta property="og:description" content="Sept jeux multijoueurs dans le navigateur. Créez un salon, partagez le code, et que le meilleur gagne.">
 <meta property="og:image" content="https://chariftribak.github.io/letsdriveit/arcade/img/share.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -77,9 +77,10 @@ label{font-size:13px;font-weight:900;color:var(--fg)}
 .featbody{padding:10px 12px 12px;display:flex;flex-direction:column;gap:4px}
 .featbody h2{font-size:32px;color:var(--accent)}
 .featbody p{margin:0;font-size:14px;line-height:1.45}
-.tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px 10px}
+.tiles{display:flex;flex-wrap:wrap;justify-content:center;gap:12px 10px}
+.tiles button{flex:0 0 calc((100% - 20px)/3)}
 .tiles button{padding:0;background:var(--panel);color:var(--fg);box-shadow:3px 3px 0 var(--line);display:flex;flex-direction:column;font-size:15px;min-width:0}
-.tiles button:nth-child(1){transform:rotate(-3deg)}.tiles button:nth-child(2){transform:rotate(2deg)}.tiles button:nth-child(3){transform:rotate(-1deg)}.tiles button:nth-child(4){transform:rotate(3deg)}.tiles button:nth-child(5){transform:rotate(-2deg)}.tiles button:nth-child(6){transform:rotate(2deg)}
+.tiles button:nth-child(1){transform:rotate(-3deg)}.tiles button:nth-child(2){transform:rotate(2deg)}.tiles button:nth-child(3){transform:rotate(-1deg)}.tiles button:nth-child(4){transform:rotate(3deg)}.tiles button:nth-child(5){transform:rotate(-2deg)}.tiles button:nth-child(6){transform:rotate(2deg)}.tiles button:nth-child(7){transform:rotate(-2deg)}
 .tiles img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;border-bottom:3px solid var(--line)}
 .tiles span{padding:3px 0;width:100%;text-align:center;overflow:hidden;white-space:nowrap}
 .tiles button[aria-pressed="true"]{background:var(--accent);color:#fff}
@@ -205,6 +206,12 @@ label{font-size:13px;font-weight:900;color:var(--fg)}
 .cust{letter-spacing:1px;font-size:11px}
 @media (pointer:coarse){ .curl .keys{display:none} }
 
+/* ---- chaises musicales ---- */
+#mcCv{display:block;width:100%;height:auto;aspect-ratio:1;touch-action:manipulation;cursor:pointer;border:3px solid #000;box-shadow:6px 6px 0 #000}
+#mcWrap{width:min(100%,64vh,600px)}
+#mcToast{top:auto;bottom:10px}
+.mclife{color:#E6262B;letter-spacing:1px;-webkit-text-stroke:.5px #000}
+
 /* ---- armada & tape-taupe ---- */
 .naval,.mole{display:flex;flex-direction:column;align-items:center;gap:12px;max-width:760px;margin:0 auto}
 .nvhead{width:min(100%,72vh,700px);display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:40px}
@@ -275,7 +282,7 @@ label{font-size:13px;font-weight:900;color:var(--fg)}
 <section id="scrMenu" class="center">
   <div class="card">
     <h1 class="logosvg" data-appname><svg viewBox="0 0 520 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Baston !"><polygon points="260,8 292,62 352,22 356,86 428,58 404,118 494,120 438,166 508,214 428,226 456,292 384,270 372,322 318,276 262,318 222,270 156,306 152,248 76,262 104,206 18,184 92,148 36,92 116,94 102,30 172,62 204,8 228,58" fill="#000" transform="translate(7,7)"/><polygon points="260,8 292,62 352,22 356,86 428,58 404,118 494,120 438,166 508,214 428,226 456,292 384,270 372,322 318,276 262,318 222,270 156,306 152,248 76,262 104,206 18,184 92,148 36,92 116,94 102,30 172,62 204,8 228,58" fill="#E6262B" stroke="#000" stroke-width="5" stroke-linejoin="round"/><g transform="rotate(-6 260 168)"><text x="264" y="196" text-anchor="middle" font-family="Bangers, Impact, sans-serif" font-size="112" letter-spacing="3" fill="#000">BASTON !</text><text x="258" y="190" text-anchor="middle" font-family="Bangers, Impact, sans-serif" font-size="112" letter-spacing="3" fill="#fff" stroke="#000" stroke-width="6" paint-order="stroke" stroke-linejoin="round">BASTON !</text></g><path d="M60 46 l26 14 M44 76 l30 6 M462 260 l-26 -12 M476 232 l-30 -4" stroke="#000" stroke-width="5" stroke-linecap="round"/></svg></h1>
-    <p class="tagline">Six jeux, de 1 à 5 joueurs</p>
+    <p class="tagline">Sept jeux, de 1 à 5 joueurs</p>
     <div class="field">
       <label for="nameIn">Votre nom</label>
       <input id="nameIn" maxlength="14" autocomplete="nickname" placeholder="Votre nom">
@@ -288,7 +295,7 @@ label{font-size:13px;font-weight:900;color:var(--fg)}
     </div>
     <button id="btnBoard" class="ghost">Classement général</button>
     <button id="btnSound" class="ghost">Son : activé</button>
-    <p class="hint" id="menuHint">Créez un salon, partagez le code, puis choisissez le jeu : Tetris, Pong, Derby, Armada, Tape-taupe ou Curling. De 1 à 5 joueurs.</p>
+    <p class="hint" id="menuHint">Créez un salon, partagez le code, puis choisissez le jeu : Tetris, Pong, Derby, Armada, Tape-taupe, Curling ou Chaises musicales. De 1 à 5 joueurs.</p>
   </div>
 </section>
 
@@ -315,6 +322,7 @@ label{font-size:13px;font-weight:900;color:var(--fg)}
       <button data-g="naval" aria-pressed="false"><img src="img/naval.jpg" alt=""><span>Armada</span></button>
       <button data-g="mole" aria-pressed="false"><img src="img/mole.jpg" alt=""><span>Taupes</span></button>
       <button data-g="curling" aria-pressed="false"><img src="img/curling.jpg" alt=""><span>Curling</span></button>
+      <button data-g="chairs" aria-pressed="false"><img src="img/chairs.jpg" alt=""><span>Chaises</span></button>
     </div>
     <div class="field">
       <label id="lobbyCount">Joueurs</label>
@@ -470,6 +478,20 @@ label{font-size:13px;font-weight:900;color:var(--fg)}
   </div>
 </section>
 
+<!-- CHAISES MUSICALES -->
+<section id="scrChairs" hidden>
+  <div class="naval">
+    <div class="nvhead"><div class="nvturn" id="mcTurn">Préparation…</div></div>
+    <div class="nvwrap" id="mcWrap">
+      <canvas id="mcCv" width="600" height="600" aria-label="Salle des chaises musicales"></canvas>
+      <div class="msg pm" id="mcMsg"></div>
+      <div class="toast pm" id="mcToast" aria-live="polite"></div>
+    </div>
+    <ul class="nvplayers" id="mcPlayers"></ul>
+    <p class="hint" style="text-align:center">Quand le disque s'arrête, touchez vite une chaise libre. Toucher une chaise pendant la musique coûte 1 s de pénalité. Attention aux faux arrêts : si le disque tourne encore, ce n'est pas fini !</p>
+  </div>
+</section>
+
 <!-- RANKING -->
 <div class="overlay" id="scrEnd" hidden>
   <div class="card" style="max-width:480px">
@@ -502,6 +524,7 @@ label{font-size:13px;font-weight:900;color:var(--fg)}
       <button data-f="naval" aria-pressed="false">Armada</button>
       <button data-f="mole" aria-pressed="false">Taupes</button>
       <button data-f="curling" aria-pressed="false">Curling</button>
+      <button data-f="chairs" aria-pressed="false">Chaises</button>
     </div>
     <div class="rank"><table>
       <thead><tr id="lbHead"></tr></thead>
@@ -556,19 +579,20 @@ let D = null;                   // derby state
 let NV = null, HN = null;       // armada: my view / host's full map
 let BOT = null;                  // host-side robot when someone plays alone
 let ML = null, HM = null;       // tape-taupe: my view / host referee
-const GAME_NAMES = { tetris:'Tetris', pong:'Pong', derby:'Derby', naval:'Armada', mole:'Tape-taupe', curling:'Curling' };
+const GAME_NAMES = { tetris:'Tetris', pong:'Pong', derby:'Derby', naval:'Armada', mole:'Tape-taupe', curling:'Curling', chairs:'Chaises musicales' };
 const GAME_DESC = {
   tetris:'Chaque ligne effacée envoie des briques gênantes à tous les adversaires : 1 ligne = 1 brique, 2 = 2, 3 = 4, 4 = 6.',
   pong:'Chaque joueur défend un côté avec 5 vies. Le terrain suit le nombre de joueurs : carré à 2, hexagone à 3, octogone à 4, décagone à 5. Le côté d\'un joueur éliminé devient un mur.',
   mole:'En même temps, chacun cache 8 taupes à sa couleur dans le pré (8×8). Puis elles sortent une à une, vite : la première personne à taper une taupe d\'un autre gagne 1 point (taper la sienne coûte 2 points), une taupe que personne ne tape rapporte 1 point à son propriétaire. Premier à 20 points.',
   naval:'Bataille navale à plusieurs sur une seule mer. Chacun voit ses bateaux, rien d\'autre. À tour de rôle, tirez au canon sur une case : touché, tout le monde voit la flamme ; dans l\'eau, vous seul voyez combien de cases de bateau l\'entourent, comme au démineur. Le dernier à flot gagne.',
   curling:'Curling à plusieurs : chacun lance ses pierres à tour de rôle vers la maison, la cible au bout de la piste. Tirez vers l\'arrière pour viser et doser, choisissez l\'effet, puis frottez la glace pour balayer : la pierre glisse plus loin et tourne moins. À chaque mène, le joueur le plus proche du centre marque 1 point par pierre mieux placée que toutes les autres.',
+  chairs:'Chaises musicales : la musique joue, le disque tourne, tout le monde fait le tour. Quand le disque s\'arrête, touchez vite une chaise libre : il y en a une de moins que de joueurs. Qui reste debout perd un cœur. Gare aux faux arrêts : tant que le disque tourne, toucher une chaise coûte une pénalité. Le dernier en jeu gagne.',
   derby:'Course de chevaux : tout le monde reçoit la même série de figures à tracer. Chaque figure réussie fait avancer votre cheval, plus loin si elle est complexe et bien tracée. Le premier à la ligne gagne.'
 };
 
 const cleanName = s => String(s || '').replace(/[\u0000-\u001f<>]/g,'').trim().slice(0,14) || 'Joueur';
 const genCode = () => { const a='ABCDEFGHJKMNPQRSTUVWXYZ23456789'; let s=''; for(let i=0;i<4;i++) s+=a[Math.floor(Math.random()*a.length)]; return s; };
-const show = id => { for (const s of ['scrMenu','scrLobby','scrGame','scrPong','scrDerby','scrNaval','scrMole','scrCurl']) $(s).hidden = s !== id; };
+const show = id => { for (const s of ['scrMenu','scrLobby','scrGame','scrPong','scrDerby','scrNaval','scrMole','scrCurl','scrChairs']) $(s).hidden = s !== id; };
 const store = { get(k){ try { return localStorage.getItem(k); } catch(_) { return null; } }, set(k,v){ try { localStorage.setItem(k,v); } catch(_){} } };
 
 $('nameIn').value = store.get('tm-name') || ('Joueur' + Math.floor(Math.random()*90+10));
@@ -580,7 +604,7 @@ function teardown(){
   if (HN && HN.timer) clearTimeout(HN.timer);
   if (HM) moleClearTimers();
   if (HC) clearTimeout(HC.timer);
-  HC = null; CU = null;
+  HC = null; CU = null; mcClear(); HMC = null; MC = null;
   CHAT.length = 0; renderChat();
   net = null; H = null; G = null; PG = null; D = null; NV = null; HN = null; cur = null; me.host = false; me.id = null; players = []; opps.clear();
 }
@@ -665,7 +689,7 @@ function hostDrop(conn){
   net.conns.delete(id);
   if (phase === 'lobby'){ const p = players.find(x => x.id === id); players = players.filter(p => p.id !== id); sendLobby(false); if (p) chatSys(p.name + ' a quitté le salon'); return; }
   if (H && H.alive.has(id)){
-    if (H.game === 'pong') pongDrop(id); else if (H.game === 'curling') curlDrop(id); else if (H.game === 'derby') derbyDrop(id); else if (H.game === 'naval') navalDrop(id); else if (H.game === 'mole') moleDrop(id); else hostHandle(id, { t:'dead', left:true });
+    if (H.game === 'pong') pongDrop(id); else if (H.game === 'curling') curlDrop(id); else if (H.game === 'chairs') chairsDrop(id); else if (H.game === 'derby') derbyDrop(id); else if (H.game === 'naval') navalDrop(id); else if (H.game === 'mole') moleDrop(id); else hostHandle(id, { t:'dead', left:true });
   }
 }
 
@@ -695,12 +719,14 @@ function hostStart(){
     : gameKind === 'derby' ? { d:0, shapes:0, t:0, left:false }
     : gameKind === 'naval' ? { shots:0, hits:0, afloat:0, left:false }
     : gameKind === 'mole' ? { pts:0, whacks:0, escaped:0, left:false }
-    : gameKind === 'curling' ? { pts:0, house:0, best:null, left:false } : { sc:0, ln:0, sent:0, left:false };
+    : gameKind === 'curling' ? { pts:0, house:0, best:null, left:false }
+    : gameKind === 'chairs' ? { lives:0, seats:0, best:0, early:0, left:false } : { sc:0, ln:0, sent:0, left:false };
   H.t0 = performance.now();
   if (H.alive.has('ai')) botInit(gameKind);
   if (gameKind === 'naval') return navalHostStart();
   if (gameKind === 'mole') return moleHostStart();
   if (gameKind === 'curling') return curlHostStart();
+  if (gameKind === 'chairs') return chairsHostStart();
   broadcast({ t:'start', players, game:gameKind, seed:Math.floor(Math.random() * 2**31) });
 }
 
@@ -736,6 +762,10 @@ function hostHandle(id, m){
     navalFire(id, m.x|0, m.y|0);
   } else if (m.t === 'dp'){
     derbyProgress(id, m);
+  } else if (m.t === 'mc_claim'){
+    chairsClaim(id, m.c, m.rt);
+  } else if (m.t === 'mc_early'){
+    chairsEarly(id);
   } else if (m.t === 'cu_throw'){
     curlThrow(id, m.a, m.p, m.c);
   } else if (m.t === 'cu_sw'){
@@ -770,9 +800,9 @@ function clientRecv(m){
     case 'lobby':
       players = Array.isArray(m.players) ? m.players : [];
       if (m.you) me.id = m.you;
-      if (['tetris','pong','derby','naval','mole','curling'].includes(m.game)) gameKind = m.game;
+      if (['tetris','pong','derby','naval','mole','curling','chairs'].includes(m.game)) gameKind = m.game;
       if (phase === 'menu' || phase === 'lobby' || m.back){
-        phase = 'lobby'; $('scrEnd').hidden = true; G = null; PG = null; D = null; NV = null; ML = null; CU = null; cur = null; show('scrLobby'); renderLobby();
+        phase = 'lobby'; $('scrEnd').hidden = true; G = null; PG = null; D = null; NV = null; ML = null; CU = null; MC = null; cur = null; show('scrLobby'); renderLobby();
       }
       break;
     case 'nv_start': startNaval(m); break;
@@ -790,13 +820,15 @@ function clientRecv(m){
     case 'nv_dist': if (NV){ const k = m.x + ',' + m.y, mk = NV.marks.get(k); if (mk && !mk.pending) NV.dist.set(k, m.d|0); else NV.pendingDist[k] = m.d|0; } break;
     case 'nv_reveal': if (NV && Array.isArray(m.nums)){ for (const [x, y, d] of m.nums){ NV.dist.set(x + ',' + y, d|0); if (!NV.marks.has(x + ',' + y)) NV.marks.set(x + ',' + y, { hit:false }); } nvToast('Vous voyez maintenant les chiffres de tout le monde'); } break;
     case 'cu_turn': case 'cu_go': case 'cu_s': case 'cu_out': case 'cu_skip': case 'cu_score': curlRecv(m); break;
-    case 'start': if (m.game === 'curling') startCurling(m); else if (m.game === 'pong') startPong(m.players); else if (m.game === 'derby') startDerby(m.players, m.seed|0); else startGame(m.players); break;
+    case 'mc_round': case 'mc_fake': case 'mc_stop': case 'mc_seat': case 'mc_taken': case 'mc_res': chairsRecv(m); break;
+    case 'start': if (m.game === 'chairs') startChairs(m); else if (m.game === 'curling') startCurling(m); else if (m.game === 'pong') startPong(m.players); else if (m.game === 'derby') startDerby(m.players, m.seed|0); else startGame(m.players); break;
     case 'dr': derbyRemote(m); break;
     case 'ps': pongState(m); break;
     case 'pg': pongGoalFx(m.side|0); break;
     case 'bd': { const o = opps.get(m.id); if (o){ o.data = m.s; o.sc = m.sc; o.ln = m.ln; drawOpp(o); } break; }
     case 'gb': if (m.from !== me.id) receiveGarbage(m.from, m.cols, m.black); break;
     case 'pdead': if (cur === 'pong'){ pongDeadFx(m.id); break; }
+    if (cur === 'chairs'){ chairsDeadFx(m.id, m.left); break; }
     if (cur === 'naval'){ navalDeadFx(m.id, m.left); break; }
     if (cur === 'mole'){ const p = players.find(x => x.id === m.id); if (m.id === me.id && ML) ML.out = true; if (p && m.left) moleToast(p.name + ' a quitté la partie'); break; }
     { const o = opps.get(m.id); if (o){ o.dead = true; o.left = m.left; o.el.classList.add('dead'); drawOpp(o); } updateAliveHint(); break; }
@@ -1033,16 +1065,17 @@ function showEnd(ranking, game){
   phase = 'end';
   if (G) G.p = null;
   if (PG) PG.ph = 'over';
-  const pong = game === 'pong', derby = game === 'derby', naval = game === 'naval', mole = game === 'mole', curl = game === 'curling';
+  const pong = game === 'pong', derby = game === 'derby', naval = game === 'naval', mole = game === 'mole', curl = game === 'curling', chairs = game === 'chairs';
   if (ML) ML.over = true;
   if (NV) NV.over = true;
   if (D) D.over = true;
   if (CU){ CU.over = true; CU.turnId = null; }
+  if (MC){ MC.over = true; MC.ph = 'res'; }
   const hd = $('rankHead'); hd.textContent = '';
-  for (const h of ['#','Joueur', ...(curl ? ['Points','Maison','Meilleure'] : pong ? ['Vies','Renvois'] : derby ? ['Figures','Distance','Temps'] : naval ? ['Tirs','Touchés','À flot'] : mole ? ['Points','Tapées','Échappées'] : ['Lignes','Briques','Score'])]){
+  for (const h of ['#','Joueur', ...(chairs ? ['Vies','Chaises','Réflexe'] : curl ? ['Points','Maison','Meilleure'] : pong ? ['Vies','Renvois'] : derby ? ['Figures','Distance','Temps'] : naval ? ['Tirs','Touchés','À flot'] : mole ? ['Points','Tapées','Échappées'] : ['Lignes','Briques','Score'])]){
     const th = document.createElement('th'); th.textContent = h; hd.append(th);
   }
-  $('rankNote').textContent = curl ? '« Maison » : pierres dans la maison en fin de mène. « Meilleure » : pierre la plus proche du centre.' : mole ? '« Tapées » : taupes adverses tapées. « Échappées » : vos taupes que personne n\'a eues.' : naval ? '« À flot » : cases de bateau encore intactes à la fin.' : pong ? '« Renvois » : balles renvoyées avec la raquette.' : derby ? '« Temps » : durée pour franchir la ligne, pour ceux qui l\'ont franchie.' : '« Briques » : nombre de briques envoyées aux adversaires.';
+  $('rankNote').textContent = chairs ? '« Chaises » : chaises gagnées. « Réflexe » : votre plus rapide, de l\'arrêt du disque à la chaise.' : curl ? '« Maison » : pierres dans la maison en fin de mène. « Meilleure » : pierre la plus proche du centre.' : mole ? '« Tapées » : taupes adverses tapées. « Échappées » : vos taupes que personne n\'a eues.' : naval ? '« À flot » : cases de bateau encore intactes à la fin.' : pong ? '« Renvois » : balles renvoyées avec la raquette.' : derby ? '« Temps » : durée pour franchir la ligne, pour ceux qui l\'ont franchie.' : '« Briques » : nombre de briques envoyées aux adversaires.';
   const tb = $('rankBody'); tb.textContent = '';
   (ranking || []).forEach(r => {
     const tr = document.createElement('tr'); if (r.place === 1) tr.className = 'win';
@@ -1051,7 +1084,8 @@ function showEnd(ranking, game){
     const d = document.createElement('span'); d.className = 'dot'; d.style.background = r.color;
     const s = document.createElement('span'); s.textContent = r.name + (r.id === me.id ? ' (vous)' : '') + (r.left ? ' · parti' : '');
     w.append(d, s); nm.append(w);
-    if (curl) tr.append(td(r.place), nm, td(r.pts|0), td(r.house|0), td(r.best != null ? r.best + ' cm' : '–'));
+    if (chairs) tr.append(td(r.place), nm, td(r.lives|0), td(r.seats|0), td(r.best ? fmtSec(r.best) : '–'));
+    else if (curl) tr.append(td(r.place), nm, td(r.pts|0), td(r.house|0), td(r.best != null ? r.best + ' cm' : '–'));
     else if (pong) tr.append(td(r.place), nm, td(r.lives|0), td(r.hits|0));
     else if (mole) tr.append(td(r.place), nm, td(r.pts|0), td(r.whacks|0), td(r.escaped|0));
     else if (naval) tr.append(td(r.place), nm, td(r.shots|0), td(r.hits|0), td(r.afloat|0));
@@ -1068,7 +1102,7 @@ function showEnd(ranking, game){
   $('winPanel').style.background = win ? win.color : '#FFD93B';
   $('winName').textContent = win ? (iWon ? 'Vous gagnez !' : win.name + ' gagne !') : '';
   $('myPlace').textContent = (GAME_NAMES[game] || 'Tetris') + (mine ? ' · vous finissez ' + (mine.place === 1 ? '1er' : mine.place + 'e') + ' sur ' + ranking.length : '');
-  (curl ? curlMsg : pong ? pongMsg : derby ? derbyMsg : naval ? navalMsg : mole ? moleMsg : setMsg)('', '');
+  (chairs ? chairsMsg : curl ? curlMsg : pong ? pongMsg : derby ? derbyMsg : naval ? navalMsg : mole ? moleMsg : setMsg)('', '');
   $('btnAgain').hidden = false;
   $('endHint').textContent = me.host ? 'Tout le monde revient au salon : relancez le même jeu ou choisissez-en un autre.' : 'Vous attendrez au salon que le créateur relance.';
   saveGame(ranking, game);
@@ -1232,7 +1266,7 @@ function release(a){
 const KEYMAP = { arrowleft:'left', arrowright:'right', arrowdown:'down', arrowup:'rotr', x:'rotr', z:'rotl', w:'rotl', control:'rotl', ' ':'drop', c:'hold', shift:'hold' };
 addEventListener('keydown', e => {
   if (e.target.tagName === 'INPUT') return;
-  if (cur === 'curl') return;
+  if (cur === 'curl' || cur === 'chairs') return;
   if (cur === 'pong'){ const k = PKEYS[e.key.toLowerCase()]; if (k){ e.preventDefault(); pin[k] = true; } return; }
   const a = KEYMAP[e.key.toLowerCase()]; if (!a) return;
   e.preventDefault();
@@ -3201,6 +3235,282 @@ function cuGauge(ctx, p){
   ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.moveTo(x - 4, y); ctx.lineTo(x + w + 10, y - 8); ctx.lineTo(x + w + 10, y + 8); ctx.closePath(); ctx.fill(); ctx.stroke();
 }
 
+// ================= CHAISES MUSICALES : when the record stops, grab a free chair =================
+// The host runs the rounds; claims carry the player's own reaction time so latency does not decide.
+const MC_SIZE = 600, MC_C = 300, MC_RCH = 186, MC_RW = 268, MC_PEN = 1000, MC_PR = 24;
+const MC_TUNE = [[523,1],[659,1],[784,1],[659,1],[698,1],[880,1],[784,2],[659,1],[784,1],[1047,1],[784,1],[698,1],[587,1],[523,2],
+  [587,1],[698,1],[880,1],[698,1],[659,1],[784,1],[1047,2],[988,1],[880,1],[784,1],[698,1],[659,1],[587,1],[523,2]];
+let HMC = null, MC = null;
+
+// ---- host side ----
+function mcLater(fn, ms){ const g = HMC; const t = setTimeout(() => { if (HMC === g && H && !H.over) fn(); }, ms); HMC.timers.push(t); }
+function mcClear(){ if (HMC) HMC.timers.forEach(t => clearTimeout(t)); }
+function chairsHostStart(){
+  const lives = players.length <= 2 ? 3 : 2;
+  HMC = { round:0, lives:{}, timers:[], ph:'wait', seats:{}, taken:new Map(), pend:[], chairs:0, t0:0 };
+  players.forEach(p => { HMC.lives[p.id] = lives; H.stats[p.id].lives = lives; });
+  broadcast({ t:'start', players, game:'chairs', lives });
+  mcLater(mcRound, 3200);
+}
+const mcAlive = () => players.filter(p => H.alive.has(p.id)).map(p => p.id);
+function mcRound(){
+  const alive = mcAlive(); if (alive.length < 2) return;
+  HMC.round++; HMC.chairs = alive.length - 1; HMC.seats = {}; HMC.taken = new Map(); HMC.pend = []; HMC.ph = 'music';
+  const dur = 5000 + Math.random() * 7000, nf = Math.random() < .3 ? 0 : Math.random() < .6 ? 1 : 2;
+  broadcast({ t:'mc_round', round:HMC.round, alive, chairs:HMC.chairs, lives:HMC.lives, beat:.2 + Math.random()*.06 });
+  for (let i = 0; i < nf; i++) mcLater(() => { if (HMC.ph === 'music'){ broadcast({ t:'mc_fake' }); botChairsFake(); } }, 1500 + Math.random() * (dur - 3300));
+  mcLater(mcStop, dur);
+}
+function mcStop(){
+  HMC.ph = 'stop'; HMC.t0 = performance.now();
+  broadcast({ t:'mc_stop' });
+  if (H.alive.has('ai')) botChairsStop();
+  mcLater(mcEndRound, 6000);
+}
+function chairsClaim(id, c, rt){
+  if (!HMC || HMC.ph !== 'stop' || !H.alive.has(id) || HMC.seats[id] != null) return;
+  c = c|0; if (c < 0 || c >= HMC.chairs || HMC.pend.some(p => p.id === id)) return;
+  HMC.pend.push({ id, c, rt:Math.max(0, +rt || 0) });
+  mcLater(mcResolve, 350);                         // wait a little for slower connections, then fastest wins
+}
+function mcResolve(){
+  if (HMC.ph !== 'stop' || !HMC.pend.length) return;
+  const list = HMC.pend.sort((a, b) => a.rt - b.rt); HMC.pend = [];
+  for (const p of list){
+    if (HMC.taken.has(p.c)){ broadcast({ t:'mc_taken', id:p.id, c:p.c }); if (p.id === 'ai') botLater(botChairsGrab, 220); continue; }
+    HMC.taken.set(p.c, p.id); HMC.seats[p.id] = p.c;
+    const st = H.stats[p.id]; st.seats++; if (!st.best || p.rt < st.best) st.best = Math.round(p.rt);
+    broadcast({ t:'mc_seat', id:p.id, c:p.c, rt:Math.round(p.rt) });
+  }
+  if (HMC.taken.size >= HMC.chairs) mcEndRound();
+}
+function mcEndRound(){
+  if (!HMC || HMC.ph !== 'stop') return;
+  HMC.ph = 'res';
+  const lost = mcAlive().filter(id => HMC.seats[id] == null);
+  for (const id of lost){ HMC.lives[id] = Math.max(0, HMC.lives[id] - 1); H.stats[id].lives = HMC.lives[id]; }
+  broadcast({ t:'mc_res', lost, lives:HMC.lives });
+  for (const id of lost) if (HMC.lives[id] <= 0) hostEliminate(id, false);
+  if (!H.over) mcLater(mcRound, 3000);
+}
+function chairsEarly(id){ if (HMC && HMC.ph === 'music' && H.stats[id]) H.stats[id].early++; }
+function chairsDrop(id){
+  if (!H || !H.stats[id]) return;
+  if (HMC) HMC.lives[id] = 0;
+  hostEliminate(id, true);
+  if (H.over || !HMC) return;
+  if (HMC.ph === 'stop' && mcAlive().every(i => HMC.seats[i] != null)){ HMC.ph = 'res'; broadcast({ t:'mc_res', lost:[], lives:HMC.lives }); mcLater(mcRound, 3000); }
+}
+
+// ---- robot ----
+function botChairsFake(){ if (BOT && H.alive.has('ai') && Math.random() < .1) BOT.early = true; }
+function botChairsStop(){ const rt = 360 + Math.random()*460 + (BOT.early ? MC_PEN : 0); BOT.early = false; botLater(botChairsGrab, rt); }
+function botChairsGrab(){
+  if (!HMC || HMC.ph !== 'stop' || HMC.seats.ai != null || !H.alive.has('ai')) return;
+  const free = []; for (let c = 0; c < HMC.chairs; c++) if (!HMC.taken.has(c) && !HMC.pend.some(p => p.c === c)) free.push(c);
+  if (!free.length) return;
+  chairsClaim('ai', free[Math.floor(Math.random() * free.length)], performance.now() - HMC.t0);
+}
+
+// ---- my view ----
+const mccv = $('mcCv'), mcctx = mccv.getContext('2d');
+function startChairs(m){
+  lastCountShown = null;
+  players = m.players; cur = 'chairs'; G = null; PG = null; D = null; phase = 'count';
+  $('scrEnd').hidden = true; show('scrChairs');
+  const lv = m.lives|0 || 2, lives = {}; players.forEach(p => lives[p.id] = lv);
+  MC = { lives, max:lv, alive:new Set(players.map(p => p.id)), round:0, chairs:0, ph:'wait', seats:new Map(), mySeat:null, pending:null,
+    stopAt:0, early:false, rot:0, spin:0, ang:0, beat:.22, nextT:0, ni:0, muteUntil:0, count:3, hover:-1, lost:new Set(), over:false };
+  chairsMsg(''); renderMcPlayers(); mcHeader('Préparation…');
+}
+const chairsMsg = big => { const m = $('mcMsg'); m.textContent = ''; if (big){ const s = document.createElement('strong'); s.textContent = big; m.append(s); } };
+let mcToastT = null;
+function mcToast(t){ const el = $('mcToast'); el.textContent = t; el.classList.add('on'); clearTimeout(mcToastT); mcToastT = setTimeout(() => el.classList.remove('on'), 1700); }
+function mcHeader(t, mine){ const el = $('mcTurn'); el.textContent = t; el.classList.toggle('mine', !!mine); }
+function renderMcPlayers(){
+  const ul = $('mcPlayers'); ul.textContent = '';
+  for (const p of players){
+    const li = document.createElement('li');
+    if (!MC.alive.has(p.id)) li.classList.add('dead');
+    const d = document.createElement('span'); d.className = 'dot'; d.style.background = p.color;
+    const t = document.createElement('span'); t.textContent = p.name + (p.id === me.id ? ' (vous)' : '');
+    const h = document.createElement('span'); h.className = 'mclife'; const n = Math.max(0, MC.lives[p.id] | 0);
+    h.textContent = '♥'.repeat(n) + '♡'.repeat(Math.max(0, MC.max - n));
+    li.append(d, t, h); ul.append(li);
+  }
+}
+const mcChairPos = c => { const a = -Math.PI/2 + 2*Math.PI*c/Math.max(1, MC.chairs); return [MC_C + Math.cos(a)*MC_RCH, MC_C + Math.sin(a)*MC_RCH, a]; };
+function chairsRecv(m){
+  if (!MC) return;
+  switch (m.t){
+    case 'mc_round':
+      if (phase === 'count'){ phase = 'play'; chairsMsg(''); }
+      MC.round = m.round|0; MC.chairs = m.chairs|0; MC.ph = 'music'; MC.seats = new Map(); MC.mySeat = null; MC.pending = null; MC.early = false; MC.lost = new Set();
+      MC.beat = +m.beat || .22; MC.nextT = 0; MC.spin = 3.6;
+      if (m.lives) MC.lives = m.lives;
+      if (Array.isArray(m.alive)) MC.alive = new Set(m.alive);
+      mcHeader('Manche ' + MC.round + ' · ' + MC.chairs + ' chaise' + (MC.chairs > 1 ? 's' : ''));
+      mcToast('La musique joue… guettez le disque !');
+      renderMcPlayers();
+      break;
+    case 'mc_fake':
+      MC.muteUntil = performance.now() + 700; sfx('scratch');
+      boom('SKRITCH !', { size:30, x:.5, y:.36, pal:BOOM_COLORS[1], ms:700 });
+      break;
+    case 'mc_stop':
+      MC.ph = 'stop'; MC.stopAt = performance.now(); sfx('needle');
+      mcHeader(MC.alive.has(me.id) ? 'Asseyez-vous !' : 'Arrêt !', MC.alive.has(me.id));
+      break;
+    case 'mc_seat':
+      MC.seats.set(m.c|0, m.id);
+      if (m.id === me.id){ MC.mySeat = m.c|0; MC.pending = null; sfx('ok'); const [x, y] = mcChairPos(m.c|0); boom('ASSIS !', { size:28, x:x/MC_SIZE, y:Math.max(.08, y/MC_SIZE - .1), pal:BOOM_COLORS[0], ms:700 }); mcToast('Réflexe : ' + fmtSec(m.rt|0).replace(' s', '') + ' s'); }
+      else sfx('place');
+      break;
+    case 'mc_taken':
+      if (m.id === me.id){ MC.pending = null; sfx('fail'); mcToast('Chaise déjà prise, vite une autre !'); }
+      break;
+    case 'mc_res': {
+      MC.ph = 'res'; if (m.lives) MC.lives = m.lives;
+      MC.lost = new Set(m.lost || []);
+      const names = (m.lost || []).map(id => (players.find(p => p.id === id) || {}).name || '?');
+      if ((m.lost || []).includes(me.id)){ sfx('fail'); boom('DEBOUT !', { size:40, x:.5, y:.5, pal:BOOM_COLORS[2], ms:1100 }); mcToast('Pas de chaise : vous perdez un cœur'); }
+      else if (names.length) mcToast(names.join(', ') + ' reste' + (names.length > 1 ? 'nt' : '') + ' debout');
+      mcHeader('Fin de la manche ' + MC.round);
+      renderMcPlayers();
+      break;
+    }
+  }
+}
+function chairsDeadFx(id, left){
+  if (!MC) return;
+  MC.alive.delete(id); MC.lives[id] = 0;
+  const p = players.find(x => x.id === id);
+  if (id === me.id) chairsMsg('Éliminé'); else if (p) mcToast(p.name + (left ? ' a quitté la partie' : ' est éliminé'));
+  renderMcPlayers();
+}
+
+// ---- input ----
+function mcChairAt(e){
+  const r = mccv.getBoundingClientRect(), x = (e.clientX - r.left) / r.width * MC_SIZE, y = (e.clientY - r.top) / r.height * MC_SIZE;
+  let best = -1, bd = 60;
+  for (let c = 0; c < MC.chairs; c++){ const [cx, cy] = mcChairPos(c), d = Math.hypot(x - cx, y - cy); if (d < bd){ bd = d; best = c; } }
+  return best;
+}
+mccv.addEventListener('pointerdown', e => {
+  if (!MC || MC.over || phase !== 'play' || !MC.alive.has(me.id)) return;
+  e.preventDefault();
+  const c = mcChairAt(e); if (c < 0) return;
+  if (MC.ph === 'music'){
+    if (MC.early) return;
+    MC.early = true; sfx('fail'); toHost({ t:'mc_early' });
+    boom('TROP TÔT !', { size:30, x:.5, y:.62, pal:BOOM_COLORS[2], ms:800 });
+    mcToast('Le disque tourne encore : 1 s de pénalité à l\'arrêt');
+    return;
+  }
+  if (MC.ph !== 'stop' || MC.mySeat != null || MC.pending != null || MC.seats.has(c)) return;
+  MC.pending = c; sfx('rotate');
+  toHost({ t:'mc_claim', c, rt:Math.round(performance.now() - MC.stopAt + (MC.early ? MC_PEN : 0)) });
+});
+mccv.addEventListener('pointermove', e => { if (MC) MC.hover = mcChairAt(e); });
+mccv.addEventListener('pointerleave', () => { if (MC) MC.hover = -1; });
+
+// ---- loop: music, record, pawns ----
+function chairsFrame(dtMs, now){
+  if (!MC) return;
+  const dt = dtMs / 1000;
+  if (phase === 'count'){ MC.count -= dt; if (MC.count > 0) countBeep(Math.ceil(MC.count)); else countBeep(0); }
+  if (MC.ph === 'music'){
+    MC.spin = 3.6; MC.ang += dt * .85;
+    const c = sndCtx();
+    if (c){
+      if (!MC.nextT || MC.nextT < c.currentTime) MC.nextT = c.currentTime + .05;
+      while (MC.nextT < c.currentTime + .15){
+        const [f, b] = MC_TUNE[MC.ni % MC_TUNE.length], d = MC.nextT - c.currentTime;
+        if (now + d*1000 > MC.muteUntil){
+          tone(f, b*MC.beat*.8, 'square', .045, null, d);
+          if (MC.ni % 2 === 0) tone(MC.ni % 4 ? 196 : 131, MC.beat*.9, 'triangle', .08, null, d);
+        }
+        MC.nextT += b * MC.beat; MC.ni++;
+      }
+    }
+  } else MC.spin *= Math.pow(.02, dt);              // the record winds down in a fraction of a second
+  MC.rot += MC.spin * dt * (now < MC.muteUntil ? .4 : 1);
+  drawChairs(now);
+}
+function mcPawn(ctx, x, y, col, faceA, sad){
+  ctx.fillStyle = 'rgba(0,0,0,.2)'; ctx.beginPath(); ctx.ellipse(x + 3, y + 5, MC_PR, MC_PR*.8, 0, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(x, y, MC_PR, 0, Math.PI*2); ctx.fillStyle = col; ctx.fill();
+  ctx.save(); ctx.clip(); ctx.fillStyle = halftone(ctx, .3); ctx.fillRect(x - MC_PR, y + 5, MC_PR*2, MC_PR); ctx.restore();
+  ctx.strokeStyle = '#000'; ctx.lineWidth = 3.5; ctx.stroke();
+  const ex = Math.cos(faceA) * 9, ey = Math.sin(faceA) * 9, px = -Math.sin(faceA) * 7.5, py = Math.cos(faceA) * 7.5;
+  for (const s of [-1, 1]){
+    const cx = x + ex + px*s, cy = y + ey + py*s;
+    if (sad){ ctx.strokeStyle = '#000'; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.moveTo(cx - 3, cy - 3); ctx.lineTo(cx + 3, cy + 3); ctx.moveTo(cx + 3, cy - 3); ctx.lineTo(cx - 3, cy + 3); ctx.stroke(); }
+    else { ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(cx, cy, 5.5, 0, Math.PI*2); ctx.fill(); ctx.lineWidth = 2; ctx.stroke(); ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(cx + Math.cos(faceA)*1.5, cy + Math.sin(faceA)*1.5, 2, 0, Math.PI*2); ctx.fill(); }
+  }
+}
+function drawChairs(now){
+  const ctx = mcctx, S = MC_SIZE, C = MC_C;
+  ctx.fillStyle = '#FFF7D6'; ctx.fillRect(0, 0, S, S);
+  ctx.fillStyle = halftone(ctx, .05); ctx.fillRect(0, 0, S, S);
+  // rug
+  ctx.beginPath(); ctx.arc(C, C, 232, 0, Math.PI*2); ctx.fillStyle = '#FF8A3D'; ctx.fill();
+  ctx.save(); ctx.clip(); ctx.fillStyle = halftone(ctx, .18); ctx.fillRect(0, 0, S, S); ctx.restore();
+  ctx.strokeStyle = '#000'; ctx.lineWidth = 4; ctx.stroke();
+  ctx.beginPath(); ctx.arc(C, C, 214, 0, Math.PI*2); ctx.setLineDash([12, 10]); ctx.lineWidth = 2.5; ctx.stroke(); ctx.setLineDash([]);
+  if (!MC) return;
+  // turntable
+  ctx.save(); ctx.translate(C, C); ctx.rotate(-.08); ctx.scale(1.3, 1.3);
+  ctx.fillStyle = '#000'; ctx.fillRect(-66, -62, 140, 132);
+  ctx.fillStyle = '#4EA8FF'; ctx.fillRect(-72, -68, 140, 132); ctx.strokeStyle = '#000'; ctx.lineWidth = 4; ctx.strokeRect(-72, -68, 140, 132);
+  ctx.save(); ctx.translate(-8, -2); ctx.rotate(MC.rot);
+  ctx.beginPath(); ctx.arc(0, 0, 54, 0, Math.PI*2); ctx.fillStyle = '#16123A'; ctx.fill(); ctx.stroke();
+  ctx.strokeStyle = 'rgba(255,255,255,.25)'; ctx.lineWidth = 1.5;
+  for (const r of [44, 36, 28]){ ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI*2); ctx.stroke(); }
+  ctx.strokeStyle = 'rgba(255,255,255,.7)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(0, 0, 47, -.5, .3); ctx.stroke();
+  ctx.beginPath(); ctx.arc(0, 0, 18, 0, Math.PI*2); ctx.fillStyle = '#E6262B'; ctx.fill(); ctx.strokeStyle = '#000'; ctx.lineWidth = 2.5; ctx.stroke();
+  ctx.fillStyle = '#FFD93B'; ctx.fillRect(-11, -3, 22, 6);
+  ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(0, 0, 3, 0, Math.PI*2); ctx.fill();
+  ctx.restore();
+  const playing = MC.ph === 'music';              // tonearm on the record while the music plays
+  ctx.save(); ctx.translate(52, -50); ctx.rotate(playing ? .62 : -.05);
+  ctx.strokeStyle = '#000'; ctx.lineWidth = 8; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(0, 70); ctx.stroke();
+  ctx.strokeStyle = '#EEE'; ctx.lineWidth = 4; ctx.stroke();
+  ctx.fillStyle = '#FFD93B'; ctx.strokeStyle = '#000'; ctx.lineWidth = 3; ctx.fillRect(-7, 64, 14, 16); ctx.strokeRect(-7, 64, 14, 16);
+  ctx.beginPath(); ctx.arc(0, 0, 9, 0, Math.PI*2); ctx.fillStyle = '#fff'; ctx.fill(); ctx.stroke();
+  ctx.restore();
+  if (playing){                                    // notes rising from the record
+    ctx.fillStyle = '#000'; ctx.font = '22px Bangers, Impact, sans-serif'; ctx.textAlign = 'center';
+    for (let i = 0; i < 3; i++){ const t = ((now/1000 + i*.6) % 1.8) / 1.8; ctx.globalAlpha = 1 - t; ctx.fillText(i % 2 ? '♫' : '♪', -40 + i*36 + Math.sin(t*6 + i)*6, -76 - t*40); }
+    ctx.globalAlpha = 1;
+  }
+  ctx.restore();
+  // chairs
+  for (let c = 0; c < MC.chairs; c++){
+    const [x, y, a] = mcChairPos(c), who = MC.seats.get(c), p = who ? players.find(q => q.id === who) : null;
+    ctx.save(); ctx.translate(x, y); ctx.rotate(a + Math.PI/2);
+    ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.fillRect(-28, -24, 64, 66);
+    ctx.fillStyle = MC.ph === 'stop' && !p && c === MC.hover && MC.mySeat == null ? '#FFF3B0' : '#fff'; ctx.fillRect(-32, -28, 64, 60);
+    ctx.fillStyle = halftone(ctx, .08); ctx.fillRect(-32, -28, 64, 60);
+    ctx.strokeStyle = '#000'; ctx.lineWidth = 4; ctx.strokeRect(-32, -28, 64, 60);
+    ctx.fillStyle = '#B5651D'; ctx.fillRect(-32, 32, 64, 14); ctx.strokeRect(-32, 32, 64, 14);      // backrest, outer side
+    if (MC.pending === c){ ctx.setLineDash([7, 6]); ctx.lineWidth = 3.5; ctx.strokeRect(-39, -35, 78, 88); ctx.setLineDash([]); }
+    ctx.restore();
+    if (p) mcPawn(ctx, x, y, p.color, a + Math.PI, false);
+  }
+  // standing players walk around the chairs
+  const walkers = players.filter(p => MC.alive.has(p.id) && ![...MC.seats.values()].includes(p.id));
+  const all = players.filter(p => MC.alive.has(p.id));
+  for (const p of walkers){
+    const i = all.indexOf(p), a = MC.ang + 2*Math.PI*i/Math.max(1, all.length);
+    const bob = MC.ph === 'music' ? Math.abs(Math.sin(now/120 + i)) * 4 : 0;
+    const x = MC_C + Math.cos(a)*MC_RW, y = MC_C + Math.sin(a)*MC_RW - bob;
+    mcPawn(ctx, x, y, p.color, a + Math.PI/2, MC.ph === 'res' && MC.lost.has(p.id));
+    if (p.id === me.id){ ctx.font = '900 13px Nunito, sans-serif'; ctx.textAlign = 'center'; ctx.lineJoin = 'round'; ctx.strokeStyle = '#000'; ctx.lineWidth = 4; ctx.strokeText('VOUS', x, y - 32); ctx.fillStyle = '#fff'; ctx.fillText('VOUS', x, y - 32); }
+  }
+  if (MC.mySeat != null){ const [x, y] = mcChairPos(MC.mySeat); ctx.font = '900 13px Nunito, sans-serif'; ctx.textAlign = 'center'; ctx.lineJoin = 'round'; ctx.strokeStyle = '#000'; ctx.lineWidth = 4; ctx.strokeText('VOUS', x, y - 36); ctx.fillStyle = '#fff'; ctx.fillText('VOUS', x, y - 36); }
+}
+
 // ================= ROBOT : a medium opponent when one person plays alone =================
 // It runs inside the creator's page and acts through the same host functions a real player triggers.
 function botLater(fn, ms){ setTimeout(() => { if (H && !H.over && BOT) fn(); }, ms); }
@@ -3380,7 +3690,7 @@ function botMoleSees(m){
 const BOOM_COLORS = [['#FFD93B','#E6262B'], ['#FFFFFF','#1E5BFF'], ['#E6262B','#FFFFFF'], ['#1E5BFF','#FFD93B']];
 function gameWrap(){
   return cur === 'tetris' ? document.querySelector('#play .well') : cur === 'pong' ? $('pwrap') : cur === 'derby' ? $('padwrap')
-    : cur === 'naval' ? document.querySelector('#scrNaval .nvwrap') : cur === 'mole' ? $('mlWrap') : cur === 'curl' ? $('cuWrap') : null;
+    : cur === 'naval' ? document.querySelector('#scrNaval .nvwrap') : cur === 'mole' ? $('mlWrap') : cur === 'curl' ? $('cuWrap') : cur === 'chairs' ? $('mcWrap') : null;
 }
 // x, y: position in the wrap (0..1); size in px; pal: one of BOOM_COLORS
 function boom(text, o = {}){
@@ -3453,6 +3763,8 @@ const SFX = {
   slide:  () => { noise(1.6, .07, 500, 120, 0, .6); tone(70, 1.2, 'triangle', .05, 50); },
   clack:  () => { tone(1500, .05, 'square', .09, 900); noise(.09, .22, 5000, 900); },
   sweep:  () => noise(.12, .05, 3500, 1500, 0, .8),
+  scratch:() => { noise(.4, .25, 5000, 300, 0, 3); tone(900, .25, 'sawtooth', .05, 150); },
+  needle: () => { tone(330, .3, 'sine', .08, 80); noise(.12, .1, 2000, 300); },
   win:    () => [523, 659, 784, 1047, 784, 1047].forEach((f, i) => tone(f, .18, 'square', .08, null, i*.11)),
   lose:   () => [392, 330, 262, 196].forEach((f, i) => tone(f, .22, 'triangle', .1, null, i*.16))
 };
@@ -3523,8 +3835,8 @@ function saveGame(ranking, game){
   if (!Array.isArray(ranking) || !ranking.length || lastSaved === ranking) return;
   lastSaved = ranking;
   const h = loadHist();
-  h.unshift({ at:Date.now(), game:['pong','derby','naval','mole','curling'].includes(game) ? game : 'tetris', n:ranking.length,
-    p:ranking.map(r => ({ name:String(r.name).slice(0,14), color:r.color, place:r.place|0, sc:r.sc|0, ln:r.ln|0, sent:r.sent|0, lives:r.lives|0, hits:r.hits|0, pts:r.pts|0, whacks:r.whacks|0, shots:r.shots|0, afloat:r.afloat|0, shapes:r.shapes|0, d:Math.round(r.d||0), t:+r.t||0, me:r.id === me.id })) });
+  h.unshift({ at:Date.now(), game:['pong','derby','naval','mole','curling','chairs'].includes(game) ? game : 'tetris', n:ranking.length,
+    p:ranking.map(r => ({ name:String(r.name).slice(0,14), color:r.color, place:r.place|0, sc:r.sc|0, ln:r.ln|0, sent:r.sent|0, lives:r.lives|0, seats:r.seats|0, hits:r.hits|0, pts:r.pts|0, whacks:r.whacks|0, shots:r.shots|0, afloat:r.afloat|0, shapes:r.shapes|0, d:Math.round(r.d||0), t:+r.t||0, me:r.id === me.id })) });
   store.set(HIST_KEY, JSON.stringify(h.slice(0, HIST_MAX)));
 }
 let lbFilter = 'all', clearArmed = false;
@@ -3539,13 +3851,13 @@ function renderBoard(){
     a.games++; if (p.place === 1 && g.n > 1) a.wins++;
     a.pts += Math.max(0, g.n - p.place);                  // 1 point per player finished ahead of
     if (g.game === 'derby'){ if (p.t > 0 && (!a.bestT || p.t < a.bestT)) a.bestT = p.t; }
-    else a.best = Math.max(a.best, (g.game === 'pong' || g.game === 'naval') ? p.hits : g.game === 'mole' ? (p.whacks || 0) : g.game === 'curling' ? (p.pts || 0) : p.sc);
+    else a.best = Math.max(a.best, (g.game === 'pong' || g.game === 'naval') ? p.hits : g.game === 'mole' ? (p.whacks || 0) : g.game === 'curling' ? (p.pts || 0) : g.game === 'chairs' ? (p.seats || 0) : p.sc);
     agg.set(k, a);
   }
   const rows = [...agg.values()].sort((x, y) => y.pts - x.pts || y.wins - x.wins || x.games - y.games);
   const showBest = lbFilter !== 'all';
   const hd = $('lbHead'); hd.textContent = '';
-  for (const t of ['#','Joueur','Parties','Victoires','Points', ...(showBest ? [lbFilter === 'pong' ? 'Renvois max' : lbFilter === 'derby' ? 'Meilleur temps' : lbFilter === 'naval' ? 'Touchés max' : lbFilter === 'mole' ? 'Taupes tapées max' : lbFilter === 'curling' ? 'Points max' : 'Meilleur score'] : [])]){
+  for (const t of ['#','Joueur','Parties','Victoires','Points', ...(showBest ? [lbFilter === 'pong' ? 'Renvois max' : lbFilter === 'derby' ? 'Meilleur temps' : lbFilter === 'naval' ? 'Touchés max' : lbFilter === 'mole' ? 'Taupes tapées max' : lbFilter === 'curling' ? 'Points max' : lbFilter === 'chairs' ? 'Chaises max' : 'Meilleur score'] : [])]){
     const th = document.createElement('th'); th.textContent = t; hd.append(th);
   }
   const tb = $('lbBody'); tb.textContent = '';
@@ -3597,6 +3909,7 @@ function frame(now){
   if (cur === 'naval') navalFrame(dt, now);
   if (cur === 'mole') moleFrame(dt, now);
   if (cur === 'curl') curlFrame(dt, now);
+  if (cur === 'chairs') chairsFrame(dt, now);
   if (cur === 'tetris' && G && phase === 'count'){
     G.count -= dt/1000;
     if (G.count <= 0){ phase = 'play'; setMsg('', ''); countBeep(0); }
@@ -3649,11 +3962,11 @@ $('btnQuit').onclick = () => toMenu('');
 function backToLobby(){
   if (me.host){
     if (H) H.over = true;
-    H = null; if (HC) clearTimeout(HC.timer); HC = null;
+    H = null; if (HC) clearTimeout(HC.timer); HC = null; mcClear(); HMC = null;
     players = players.filter(p => p.id === 'h' || net.conns.has(p.id));
     sendLobby(true);                                       // everyone goes back
   } else {
-    phase = 'lobby'; $('scrEnd').hidden = true; G = null; PG = null; D = null; NV = null; ML = null; CU = null; cur = null;
+    phase = 'lobby'; $('scrEnd').hidden = true; G = null; PG = null; D = null; NV = null; ML = null; CU = null; MC = null; cur = null;
     if (HM) moleClearTimers();
     show('scrLobby'); renderLobby();                      // wait there for the creator
   }
