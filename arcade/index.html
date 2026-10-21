@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Baston !</title>
-<meta name="description" content="Neuf jeux multijoueurs dans le navigateur : Tetris, Pong, Derby, Armada, Tape-taupe, Curling, Chaises musicales, Code secret et Kabaddi. Un salon, un code, de 1 à 5 joueurs.">
+<meta name="description" content="Dix jeux multijoueurs dans le navigateur : Tetris, Pong, Derby, Armada, Tape-taupe, Curling, Chaises musicales, Code secret, Kabaddi et Balle au prisonnier. Un salon, un code, de 1 à 5 joueurs.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Baston !">
-<meta property="og:description" content="Neuf jeux multijoueurs dans le navigateur. Créez un salon, partagez le code, et que le meilleur gagne.">
+<meta property="og:description" content="Dix jeux multijoueurs dans le navigateur. Créez un salon, partagez le code, et que le meilleur gagne.">
 <meta property="og:image" content="https://chariftribak.github.io/letsdriveit/arcade/img/share.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -80,7 +80,7 @@ label{font-size:13px;font-weight:900;color:var(--fg)}
 .tiles{display:flex;flex-wrap:wrap;justify-content:center;gap:12px 10px}
 .tiles button{flex:0 0 calc((100% - 20px)/3)}
 .tiles button{padding:0;background:var(--panel);color:var(--fg);box-shadow:3px 3px 0 var(--line);display:flex;flex-direction:column;font-size:15px;min-width:0}
-.tiles button:nth-child(1){transform:rotate(-3deg)}.tiles button:nth-child(2){transform:rotate(2deg)}.tiles button:nth-child(3){transform:rotate(-1deg)}.tiles button:nth-child(4){transform:rotate(3deg)}.tiles button:nth-child(5){transform:rotate(-2deg)}.tiles button:nth-child(6){transform:rotate(2deg)}.tiles button:nth-child(7){transform:rotate(-2deg)}.tiles button:nth-child(8){transform:rotate(3deg)}.tiles button:nth-child(9){transform:rotate(-1deg)}
+.tiles button:nth-child(1){transform:rotate(-3deg)}.tiles button:nth-child(2){transform:rotate(2deg)}.tiles button:nth-child(3){transform:rotate(-1deg)}.tiles button:nth-child(4){transform:rotate(3deg)}.tiles button:nth-child(5){transform:rotate(-2deg)}.tiles button:nth-child(6){transform:rotate(2deg)}.tiles button:nth-child(7){transform:rotate(-2deg)}.tiles button:nth-child(8){transform:rotate(3deg)}.tiles button:nth-child(9){transform:rotate(-1deg)}.tiles button:nth-child(10){transform:rotate(2deg)}
 .tiles img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;border-bottom:3px solid var(--line)}
 .tiles span{padding:3px 0;width:100%;text-align:center;overflow:hidden;white-space:nowrap}
 .tiles button[aria-pressed="true"]{background:var(--accent);color:#fff}
@@ -245,6 +245,11 @@ label{font-size:13px;font-weight:900;color:var(--fg)}
 .kbhead{width:min(100%,56vh,440px)}
 #kbCv{display:block;width:100%;height:auto;aspect-ratio:420/620;touch-action:none;user-select:none;-webkit-user-select:none;border:3px solid #000;box-shadow:6px 6px 0 #000}
 
+/* ---- balle au prisonnier ---- */
+#dbWrap{width:min(100%,64vh,600px)}
+#dbCv{display:block;width:100%;height:auto;aspect-ratio:1;touch-action:none;user-select:none;-webkit-user-select:none;border:3px solid #000;box-shadow:6px 6px 0 #000}
+#dbCatch{min-width:200px}
+
 /* ---- armada & tape-taupe ---- */
 .naval,.mole{display:flex;flex-direction:column;align-items:center;gap:12px;max-width:760px;margin:0 auto}
 .nvhead{width:min(100%,72vh,700px);display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:40px}
@@ -314,7 +319,7 @@ label{font-size:13px;font-weight:900;color:var(--fg)}
 <section id="scrMenu" class="center">
   <div class="card">
     <h1 class="logosvg" data-appname><svg viewBox="0 0 520 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Baston !"><polygon points="260,8 292,62 352,22 356,86 428,58 404,118 494,120 438,166 508,214 428,226 456,292 384,270 372,322 318,276 262,318 222,270 156,306 152,248 76,262 104,206 18,184 92,148 36,92 116,94 102,30 172,62 204,8 228,58" fill="#000" transform="translate(7,7)"/><polygon points="260,8 292,62 352,22 356,86 428,58 404,118 494,120 438,166 508,214 428,226 456,292 384,270 372,322 318,276 262,318 222,270 156,306 152,248 76,262 104,206 18,184 92,148 36,92 116,94 102,30 172,62 204,8 228,58" fill="#E6262B" stroke="#000" stroke-width="5" stroke-linejoin="round"/><g transform="rotate(-6 260 168)"><text x="264" y="196" text-anchor="middle" font-family="Bangers, Impact, sans-serif" font-size="112" letter-spacing="3" fill="#000">BASTON !</text><text x="258" y="190" text-anchor="middle" font-family="Bangers, Impact, sans-serif" font-size="112" letter-spacing="3" fill="#fff" stroke="#000" stroke-width="6" paint-order="stroke" stroke-linejoin="round">BASTON !</text></g><path d="M60 46 l26 14 M44 76 l30 6 M462 260 l-26 -12 M476 232 l-30 -4" stroke="#000" stroke-width="5" stroke-linecap="round"/></svg></h1>
-    <p class="tagline">Neuf jeux, de 1 à 5 joueurs</p>
+    <p class="tagline">Dix jeux, de 1 à 5 joueurs</p>
     <div class="field">
       <label for="nameIn">Votre nom</label>
       <input id="nameIn" maxlength="14" autocomplete="nickname" placeholder="Votre nom">
@@ -327,7 +332,7 @@ label{font-size:13px;font-weight:900;color:var(--fg)}
     </div>
     <button id="btnBoard" class="ghost">Classement général</button>
     <button id="btnSound" class="ghost">Son : activé</button>
-    <p class="hint" id="menuHint">Créez un salon, partagez le code, puis choisissez le jeu : Tetris, Pong, Derby, Armada, Tape-taupe, Curling, Chaises musicales, Code secret ou Kabaddi. De 1 à 5 joueurs.</p>
+    <p class="hint" id="menuHint">Créez un salon, partagez le code, puis choisissez le jeu : Tetris, Pong, Derby, Armada, Tape-taupe, Curling, Chaises musicales, Code secret, Kabaddi ou Balle au prisonnier. De 1 à 5 joueurs.</p>
   </div>
 </section>
 
@@ -357,6 +362,7 @@ label{font-size:13px;font-weight:900;color:var(--fg)}
       <button data-g="chairs" aria-pressed="false"><img src="img/chairs.jpg" alt=""><span>Chaises</span></button>
       <button data-g="master" aria-pressed="false"><img src="img/master.jpg" alt=""><span>Code secret</span></button>
       <button data-g="kabaddi" aria-pressed="false"><img src="img/kabaddi.jpg" alt=""><span>Kabaddi</span></button>
+      <button data-g="dodge" aria-pressed="false"><img src="img/dodge.jpg" alt=""><span>Prisonnier</span></button>
     </div>
     <div class="field">
       <label id="lobbyCount">Joueurs</label>
@@ -556,6 +562,21 @@ label{font-size:13px;font-weight:900;color:var(--fg)}
   </div>
 </section>
 
+<!-- BALLE AU PRISONNIER -->
+<section id="scrDodge" hidden>
+  <div class="naval">
+    <div class="nvhead"><div class="nvturn">Balle au prisonnier</div><div class="nvtime" id="dbTime"></div></div>
+    <div class="nvwrap" id="dbWrap">
+      <canvas id="dbCv" width="560" height="560" aria-label="Gymnase"></canvas>
+      <div class="msg pm" id="dbMsg"></div>
+      <div class="toast pm" id="dbToast" aria-live="polite"></div>
+    </div>
+    <div class="mmact"><button id="dbCatch">✋ Attraper</button></div>
+    <ul class="nvplayers" id="dbPlayers"></ul>
+    <p class="hint" style="text-align:center">Glissez pour courir, passez sur une balle pour la ramasser, touchez brièvement le terrain pour la lancer à cet endroit. « Attraper » lève les mains un court instant : une balle attrapée fait perdre un cœur au lanceur. Clavier : flèches ou ZQSD, Espace lancer, E attraper.</p>
+  </div>
+</section>
+
 <!-- RANKING -->
 <div class="overlay" id="scrEnd" hidden>
   <div class="card" style="max-width:480px">
@@ -591,6 +612,7 @@ label{font-size:13px;font-weight:900;color:var(--fg)}
       <button data-f="chairs" aria-pressed="false">Chaises</button>
       <button data-f="master" aria-pressed="false">Code</button>
       <button data-f="kabaddi" aria-pressed="false">Kabaddi</button>
+      <button data-f="dodge" aria-pressed="false">Prisonnier</button>
     </div>
     <div class="rank"><table>
       <thead><tr id="lbHead"></tr></thead>
@@ -645,7 +667,7 @@ let D = null;                   // derby state
 let NV = null, HN = null;       // armada: my view / host's full map
 let BOT = null;                  // host-side robot when someone plays alone
 let ML = null, HM = null;       // tape-taupe: my view / host referee
-const GAME_NAMES = { tetris:'Tetris', pong:'Pong', derby:'Derby', naval:'Armada', mole:'Tape-taupe', curling:'Curling', chairs:'Chaises musicales', master:'Code secret', kabaddi:'Kabaddi' };
+const GAME_NAMES = { tetris:'Tetris', pong:'Pong', derby:'Derby', naval:'Armada', mole:'Tape-taupe', curling:'Curling', chairs:'Chaises musicales', master:'Code secret', kabaddi:'Kabaddi', dodge:'Balle au prisonnier' };
 const GAME_DESC = {
   tetris:'Chaque ligne effacée envoie des briques gênantes à tous les adversaires : 1 ligne = 1 brique, 2 = 2, 3 = 4, 4 = 6.',
   pong:'Chaque joueur défend un côté avec 5 vies. Le terrain suit le nombre de joueurs : carré à 2, hexagone à 3, octogone à 4, décagone à 5. Le côté d\'un joueur éliminé devient un mur.',
@@ -655,12 +677,13 @@ const GAME_DESC = {
   chairs:'Chaises musicales : la musique joue, le disque tourne, tout le monde fait le tour. Quand le disque s\'arrête, touchez vite une chaise libre : il y en a une de moins que de joueurs. Qui reste debout perd un cœur. Gare aux faux arrêts : tant que le disque tourne, toucher une chaise coûte une pénalité. Le dernier en jeu gagne.',
   master:'Code secret à plusieurs : tout le monde cherche le même code de 4 couleurs. À chaque essai, vous seul voyez vos indices (noir : bien placé, blanc : bonne couleur mal placée) ; les autres voient seulement combien d\'essais vous avez faits. Le premier qui trouve marque le plus, et les autres n\'ont plus que 40 s. Trois manches.',
   kabaddi:'Kabaddi, le sport indien : à tour de rôle, un attaquant entre chez les autres en retenant son souffle (gardez le doigt appuyé). Il touche des défenseurs puis doit rentrer dans son camp avant d\'être à bout de souffle : 1 point par défenseur touché. Les défenseurs l\'accrochent à plusieurs pour le freiner : s\'il échoue, chaque défenseur marque 1 point, 2 s\'il le tenait.',
+  dodge:'Balle au prisonnier, chacun pour soi dans le gymnase : ramassez une balle, lancez-la sur les autres, esquivez les leurs. Chaque balle reçue coûte un cœur ; levez les mains au bon moment pour l\'attraper et c\'est le lanceur qui perd un cœur. Le dernier debout gagne (2 minutes au plus).',
   derby:'Course de chevaux : tout le monde reçoit la même série de figures à tracer. Chaque figure réussie fait avancer votre cheval, plus loin si elle est complexe et bien tracée. Le premier à la ligne gagne.'
 };
 
 const cleanName = s => String(s || '').replace(/[\u0000-\u001f<>]/g,'').trim().slice(0,14) || 'Joueur';
 const genCode = () => { const a='ABCDEFGHJKMNPQRSTUVWXYZ23456789'; let s=''; for(let i=0;i<4;i++) s+=a[Math.floor(Math.random()*a.length)]; return s; };
-const show = id => { for (const s of ['scrMenu','scrLobby','scrGame','scrPong','scrDerby','scrNaval','scrMole','scrCurl','scrChairs','scrMaster','scrKabaddi']) $(s).hidden = s !== id; };
+const show = id => { for (const s of ['scrMenu','scrLobby','scrGame','scrPong','scrDerby','scrNaval','scrMole','scrCurl','scrChairs','scrMaster','scrKabaddi','scrDodge']) $(s).hidden = s !== id; };
 const store = { get(k){ try { return localStorage.getItem(k); } catch(_) { return null; } }, set(k,v){ try { localStorage.setItem(k,v); } catch(_){} } };
 
 $('nameIn').value = store.get('tm-name') || ('Joueur' + Math.floor(Math.random()*90+10));
@@ -672,7 +695,7 @@ function teardown(){
   if (HN && HN.timer) clearTimeout(HN.timer);
   if (HM) moleClearTimers();
   if (HC) clearTimeout(HC.timer);
-  HC = null; CU = null; mcClear(); HMC = null; MC = null; mmClear(); HMM = null; MM = null; kbClear(); HKB = null; KB = null;
+  HC = null; CU = null; mcClear(); HMC = null; MC = null; mmClear(); HMM = null; MM = null; kbClear(); HKB = null; KB = null; dbClear(); HDB = null; DB = null;
   CHAT.length = 0; renderChat();
   net = null; H = null; G = null; PG = null; D = null; NV = null; HN = null; cur = null; me.host = false; me.id = null; players = []; opps.clear();
 }
@@ -757,7 +780,7 @@ function hostDrop(conn){
   net.conns.delete(id);
   if (phase === 'lobby'){ const p = players.find(x => x.id === id); players = players.filter(p => p.id !== id); sendLobby(false); if (p) chatSys(p.name + ' a quitté le salon'); return; }
   if (H && H.alive.has(id)){
-    if (H.game === 'pong') pongDrop(id); else if (H.game === 'curling') curlDrop(id); else if (H.game === 'chairs') chairsDrop(id); else if (H.game === 'master') masterDrop(id); else if (H.game === 'kabaddi') kabaddiDrop(id); else if (H.game === 'derby') derbyDrop(id); else if (H.game === 'naval') navalDrop(id); else if (H.game === 'mole') moleDrop(id); else hostHandle(id, { t:'dead', left:true });
+    if (H.game === 'pong') pongDrop(id); else if (H.game === 'curling') curlDrop(id); else if (H.game === 'chairs') chairsDrop(id); else if (H.game === 'master') masterDrop(id); else if (H.game === 'kabaddi') kabaddiDrop(id); else if (H.game === 'dodge') dodgeDrop(id); else if (H.game === 'derby') derbyDrop(id); else if (H.game === 'naval') navalDrop(id); else if (H.game === 'mole') moleDrop(id); else hostHandle(id, { t:'dead', left:true });
   }
 }
 
@@ -790,7 +813,8 @@ function hostStart(){
     : gameKind === 'curling' ? { pts:0, house:0, best:null, left:false }
     : gameKind === 'chairs' ? { lives:0, seats:0, best:0, early:0, left:false }
     : gameKind === 'master' ? { pts:0, solved:0, tries:0, left:false }
-    : gameKind === 'kabaddi' ? { pts:0, raids:0, touches:0, tackles:0, left:false } : { sc:0, ln:0, sent:0, left:false };
+    : gameKind === 'kabaddi' ? { pts:0, raids:0, touches:0, tackles:0, left:false }
+    : gameKind === 'dodge' ? { lives:0, hits:0, catches:0, left:false } : { sc:0, ln:0, sent:0, left:false };
   H.t0 = performance.now();
   if (H.alive.has('ai')) botInit(gameKind);
   if (gameKind === 'naval') return navalHostStart();
@@ -799,6 +823,7 @@ function hostStart(){
   if (gameKind === 'chairs') return chairsHostStart();
   if (gameKind === 'master') return masterHostStart();
   if (gameKind === 'kabaddi') return kabaddiHostStart();
+  if (gameKind === 'dodge') return dodgeHostStart();
   broadcast({ t:'start', players, game:gameKind, seed:Math.floor(Math.random() * 2**31) });
 }
 
@@ -834,6 +859,12 @@ function hostHandle(id, m){
     navalFire(id, m.x|0, m.y|0);
   } else if (m.t === 'dp'){
     derbyProgress(id, m);
+  } else if (m.t === 'db_in'){
+    dodgeInput(id, m);
+  } else if (m.t === 'db_throw'){
+    dodgeThrow(id, m.x, m.y);
+  } else if (m.t === 'db_catch'){
+    dodgeCatch(id);
   } else if (m.t === 'kb_in'){
     kabaddiInput(id, m);
   } else if (m.t === 'mm_guess'){
@@ -876,9 +907,9 @@ function clientRecv(m){
     case 'lobby':
       players = Array.isArray(m.players) ? m.players : [];
       if (m.you) me.id = m.you;
-      if (['tetris','pong','derby','naval','mole','curling','chairs','master','kabaddi'].includes(m.game)) gameKind = m.game;
+      if (['tetris','pong','derby','naval','mole','curling','chairs','master','kabaddi','dodge'].includes(m.game)) gameKind = m.game;
       if (phase === 'menu' || phase === 'lobby' || m.back){
-        phase = 'lobby'; $('scrEnd').hidden = true; G = null; PG = null; D = null; NV = null; ML = null; CU = null; MC = null; MM = null; KB = null; cur = null; show('scrLobby'); renderLobby();
+        phase = 'lobby'; $('scrEnd').hidden = true; G = null; PG = null; D = null; NV = null; ML = null; CU = null; MC = null; MM = null; KB = null; DB = null; cur = null; show('scrLobby'); renderLobby();
       }
       break;
     case 'nv_start': startNaval(m); break;
@@ -899,7 +930,8 @@ function clientRecv(m){
     case 'mc_round': case 'mc_fake': case 'mc_stop': case 'mc_seat': case 'mc_taken': case 'mc_res': chairsRecv(m); break;
     case 'mm_round': case 'mm_fb': case 'mm_prog': case 'mm_solved': case 'mm_out': case 'mm_left': case 'mm_dl': case 'mm_end': masterRecv(m); break;
     case 'kb_raid': case 'kb_go': case 'kb_in_raid': case 'kb_s': case 'kb_touch': case 'kb_res': case 'kb_left': kabaddiRecv(m); break;
-    case 'start': if (m.game === 'kabaddi') startKabaddi(m); else if (m.game === 'master') startMaster(m); else if (m.game === 'chairs') startChairs(m); else if (m.game === 'curling') startCurling(m); else if (m.game === 'pong') startPong(m.players); else if (m.game === 'derby') startDerby(m.players, m.seed|0); else startGame(m.players); break;
+    case 'db_s': case 'db_ev': dodgeRecv(m); break;
+    case 'start': if (m.game === 'dodge') startDodge(m); else if (m.game === 'kabaddi') startKabaddi(m); else if (m.game === 'master') startMaster(m); else if (m.game === 'chairs') startChairs(m); else if (m.game === 'curling') startCurling(m); else if (m.game === 'pong') startPong(m.players); else if (m.game === 'derby') startDerby(m.players, m.seed|0); else startGame(m.players); break;
     case 'dr': derbyRemote(m); break;
     case 'ps': pongState(m); break;
     case 'pg': pongGoalFx(m.side|0); break;
@@ -907,6 +939,7 @@ function clientRecv(m){
     case 'gb': if (m.from !== me.id) receiveGarbage(m.from, m.cols, m.black); break;
     case 'pdead': if (cur === 'pong'){ pongDeadFx(m.id); break; }
     if (cur === 'chairs'){ chairsDeadFx(m.id, m.left); break; }
+    if (cur === 'dodge'){ dodgeDeadFx(m.id, m.left); break; }
     if (cur === 'naval'){ navalDeadFx(m.id, m.left); break; }
     if (cur === 'mole'){ const p = players.find(x => x.id === m.id); if (m.id === me.id && ML) ML.out = true; if (p && m.left) moleToast(p.name + ' a quitté la partie'); break; }
     { const o = opps.get(m.id); if (o){ o.dead = true; o.left = m.left; o.el.classList.add('dead'); drawOpp(o); } updateAliveHint(); break; }
@@ -1143,7 +1176,7 @@ function showEnd(ranking, game){
   phase = 'end';
   if (G) G.p = null;
   if (PG) PG.ph = 'over';
-  const pong = game === 'pong', derby = game === 'derby', naval = game === 'naval', mole = game === 'mole', curl = game === 'curling', chairs = game === 'chairs', master = game === 'master', kab = game === 'kabaddi';
+  const pong = game === 'pong', derby = game === 'derby', naval = game === 'naval', mole = game === 'mole', curl = game === 'curling', chairs = game === 'chairs', master = game === 'master', kab = game === 'kabaddi', dodge = game === 'dodge';
   if (ML) ML.over = true;
   if (NV) NV.over = true;
   if (D) D.over = true;
@@ -1151,11 +1184,12 @@ function showEnd(ranking, game){
   if (MC){ MC.over = true; MC.ph = 'res'; }
   if (MM){ MM.over = true; MM.ph = 'end'; MM.deadline = 0; }
   if (KB){ KB.over = true; KB.ph = 'res'; }
+  if (DB) DB.over = true;
   const hd = $('rankHead'); hd.textContent = '';
-  for (const h of ['#','Joueur', ...(kab ? ['Points','Raids réussis','Plaquages'] : master ? ['Points','Trouvés','Essais'] : chairs ? ['Vies','Chaises','Réflexe'] : curl ? ['Points','Maison','Meilleure'] : pong ? ['Vies','Renvois'] : derby ? ['Figures','Distance','Temps'] : naval ? ['Tirs','Touchés','À flot'] : mole ? ['Points','Tapées','Échappées'] : ['Lignes','Briques','Score'])]){
+  for (const h of ['#','Joueur', ...(dodge ? ['Vies','Touches','Arrêts'] : kab ? ['Points','Raids réussis','Plaquages'] : master ? ['Points','Trouvés','Essais'] : chairs ? ['Vies','Chaises','Réflexe'] : curl ? ['Points','Maison','Meilleure'] : pong ? ['Vies','Renvois'] : derby ? ['Figures','Distance','Temps'] : naval ? ['Tirs','Touchés','À flot'] : mole ? ['Points','Tapées','Échappées'] : ['Lignes','Briques','Score'])]){
     const th = document.createElement('th'); th.textContent = h; hd.append(th);
   }
-  $('rankNote').textContent = kab ? '« Raids réussis » : raids rentrés avec au moins un défenseur touché. « Plaquages » : attaquants retenus jusqu\'au bout du souffle.' : master ? '« Trouvés » : codes trouvés. « Essais » : total des essais sur la partie.' : chairs ? '« Chaises » : chaises gagnées. « Réflexe » : votre plus rapide, de l\'arrêt du disque à la chaise.' : curl ? '« Maison » : pierres dans la maison en fin de mène. « Meilleure » : pierre la plus proche du centre.' : mole ? '« Tapées » : taupes adverses tapées. « Échappées » : vos taupes que personne n\'a eues.' : naval ? '« À flot » : cases de bateau encore intactes à la fin.' : pong ? '« Renvois » : balles renvoyées avec la raquette.' : derby ? '« Temps » : durée pour franchir la ligne, pour ceux qui l\'ont franchie.' : '« Briques » : nombre de briques envoyées aux adversaires.';
+  $('rankNote').textContent = dodge ? '« Touches » : balles qui ont atteint un adversaire. « Arrêts » : balles attrapées.' : kab ? '« Raids réussis » : raids rentrés avec au moins un défenseur touché. « Plaquages » : attaquants retenus jusqu\'au bout du souffle.' : master ? '« Trouvés » : codes trouvés. « Essais » : total des essais sur la partie.' : chairs ? '« Chaises » : chaises gagnées. « Réflexe » : votre plus rapide, de l\'arrêt du disque à la chaise.' : curl ? '« Maison » : pierres dans la maison en fin de mène. « Meilleure » : pierre la plus proche du centre.' : mole ? '« Tapées » : taupes adverses tapées. « Échappées » : vos taupes que personne n\'a eues.' : naval ? '« À flot » : cases de bateau encore intactes à la fin.' : pong ? '« Renvois » : balles renvoyées avec la raquette.' : derby ? '« Temps » : durée pour franchir la ligne, pour ceux qui l\'ont franchie.' : '« Briques » : nombre de briques envoyées aux adversaires.';
   const tb = $('rankBody'); tb.textContent = '';
   (ranking || []).forEach(r => {
     const tr = document.createElement('tr'); if (r.place === 1) tr.className = 'win';
@@ -1164,7 +1198,8 @@ function showEnd(ranking, game){
     const d = document.createElement('span'); d.className = 'dot'; d.style.background = r.color;
     const s = document.createElement('span'); s.textContent = r.name + (r.id === me.id ? ' (vous)' : '') + (r.left ? ' · parti' : '');
     w.append(d, s); nm.append(w);
-    if (kab) tr.append(td(r.place), nm, td(r.pts|0), td(r.raids|0), td(r.tackles|0));
+    if (dodge) tr.append(td(r.place), nm, td(r.lives|0), td(r.hits|0), td(r.catches|0));
+    else if (kab) tr.append(td(r.place), nm, td(r.pts|0), td(r.raids|0), td(r.tackles|0));
     else if (master) tr.append(td(r.place), nm, td(r.pts|0), td(r.solved|0), td(r.tries|0));
     else if (chairs) tr.append(td(r.place), nm, td(r.lives|0), td(r.seats|0), td(r.best ? fmtSec(r.best) : '–'));
     else if (curl) tr.append(td(r.place), nm, td(r.pts|0), td(r.house|0), td(r.best != null ? r.best + ' cm' : '–'));
@@ -1184,7 +1219,7 @@ function showEnd(ranking, game){
   $('winPanel').style.background = win ? win.color : '#FFD93B';
   $('winName').textContent = win ? (iWon ? 'Vous gagnez !' : win.name + ' gagne !') : '';
   $('myPlace').textContent = (GAME_NAMES[game] || 'Tetris') + (mine ? ' · vous finissez ' + (mine.place === 1 ? '1er' : mine.place + 'e') + ' sur ' + ranking.length : '');
-  (kab ? kabaddiMsg : master ? masterMsg : chairs ? chairsMsg : curl ? curlMsg : pong ? pongMsg : derby ? derbyMsg : naval ? navalMsg : mole ? moleMsg : setMsg)('', '');
+  (dodge ? dodgeMsg : kab ? kabaddiMsg : master ? masterMsg : chairs ? chairsMsg : curl ? curlMsg : pong ? pongMsg : derby ? derbyMsg : naval ? navalMsg : mole ? moleMsg : setMsg)('', '');
   $('btnAgain').hidden = false;
   $('endHint').textContent = me.host ? 'Tout le monde revient au salon : relancez le même jeu ou choisissez-en un autre.' : 'Vous attendrez au salon que le créateur relance.';
   saveGame(ranking, game);
@@ -1348,7 +1383,7 @@ function release(a){
 const KEYMAP = { arrowleft:'left', arrowright:'right', arrowdown:'down', arrowup:'rotr', x:'rotr', z:'rotl', w:'rotl', control:'rotl', ' ':'drop', c:'hold', shift:'hold' };
 addEventListener('keydown', e => {
   if (e.target.tagName === 'INPUT') return;
-  if (cur === 'curl' || cur === 'chairs' || cur === 'master' || cur === 'kabaddi') return;
+  if (cur === 'curl' || cur === 'chairs' || cur === 'master' || cur === 'kabaddi' || cur === 'dodge') return;
   if (cur === 'pong'){ const k = PKEYS[e.key.toLowerCase()]; if (k){ e.preventDefault(); pin[k] = true; } return; }
   const a = KEYMAP[e.key.toLowerCase()]; if (!a) return;
   e.preventDefault();
@@ -4168,6 +4203,343 @@ function drawKabaddi(now){
   if (KB.down && KB.in.x != null && KB.pos.has(me.id)){ ctx.strokeStyle = '#000'; ctx.lineWidth = 2.5; ctx.setLineDash([4, 4]); ctx.beginPath(); ctx.arc(KB.in.x, KB.in.y, 12, 0, Math.PI*2); ctx.stroke(); ctx.setLineDash([]); }
 }
 
+// ================= BALLE AU PRISONNIER (dodgeball) : pick up, throw, dodge, catch =================
+// Host simulates everyone. Drag = move, quick tap = throw at that point, "Attraper" (or E) = hands up for a moment.
+const DB_S = 560, DB_R = 22, DB_BR = 11, DB_SP = 215, DB_BSP = 560, DB_RANGE = 470, DB_TIME = 120, DB_CATCH = .45, DB_CATCH_CD = 1.4, DB_HOLD = 5;
+let HDB = null, DB = null;
+
+// ---- host side ----
+function dbLater(fn, ms){ const g = HDB; const t = setTimeout(() => { if (HDB === g && H && !H.over) fn(); }, ms); HDB.timers.push(t); }
+function dbClear(){ if (HDB) HDB.timers.forEach(t => clearTimeout(t)); }
+function dodgeHostStart(){
+  const n = players.length, lives = n <= 2 ? 3 : 2, C = DB_S/2;
+  HDB = { timers:[], ph:'wait', t:0, P:{}, IN:{}, balls:[], lastSend:0, ev:0 };
+  players.forEach((p, i) => {
+    const a = Math.PI/2 + 2*Math.PI*i/n;
+    HDB.P[p.id] = { x:C + Math.cos(a)*215, y:C + Math.sin(a)*215, fx:-Math.cos(a), fy:-Math.sin(a), ball:-1, held:0, catchT:0, cd:0, inv:0 };
+    HDB.IN[p.id] = { tx:null, ty:null, kx:0, ky:0 };
+    H.stats[p.id].lives = lives;
+  });
+  const nb = Math.max(2, n - 1);
+  for (let k = 0; k < nb; k++){ const a = 2*Math.PI*k/nb + .4; HDB.balls.push({ x:C + Math.cos(a)*55, y:C + Math.sin(a)*55, vx:0, vy:0, st:'free', by:null, d:0 }); }
+  broadcast({ t:'start', players, game:'dodge', lives, time:DB_TIME });
+  dbLater(() => { HDB.ph = 'play'; }, 3200);
+}
+function dodgeInput(id, m){
+  const I = HDB && HDB.IN[id]; if (!I) return;
+  I.tx = m.x == null || !isFinite(+m.x) ? null : Math.max(0, Math.min(DB_S, +m.x));
+  I.ty = m.y == null || !isFinite(+m.y) ? null : Math.max(0, Math.min(DB_S, +m.y));
+  I.kx = Math.sign(+m.kx || 0); I.ky = Math.sign(+m.ky || 0);
+}
+function dodgeThrow(id, x, y){
+  if (!HDB || HDB.ph !== 'play' || !H.alive.has(id)) return;
+  const p = HDB.P[id]; if (!p || p.ball < 0) return;
+  let dx, dy;
+  if (x != null && isFinite(+x)){ dx = +x - p.x; dy = +y - p.y; } else { dx = p.fx; dy = p.fy; }
+  const L = Math.hypot(dx, dy); if (L < 1) return;
+  const b = HDB.balls[p.ball];
+  b.st = 'live'; b.by = id; b.d = 0; b.vx = dx/L * DB_BSP; b.vy = dy/L * DB_BSP;
+  b.x = p.x + dx/L * (DB_R + DB_BR + 2); b.y = p.y + dy/L * (DB_R + DB_BR + 2);
+  p.ball = -1; p.fx = dx/L; p.fy = dy/L;
+  broadcast({ t:'db_ev', k:'throw', id });
+}
+function dodgeCatch(id){
+  if (!HDB || HDB.ph !== 'play' || !H.alive.has(id)) return;
+  const p = HDB.P[id]; if (!p || p.cd > 0 || p.ball >= 0) return;
+  p.catchT = DB_CATCH; p.cd = DB_CATCH_CD;
+}
+function dbStep(h){
+  const ids = players.map(p => p.id).filter(id => H.alive.has(id) && HDB.P[id]);
+  for (const id of ids){
+    const p = HDB.P[id], I = HDB.IN[id];
+    p.catchT = Math.max(0, p.catchT - h); p.cd = Math.max(0, p.cd - h); p.inv = Math.max(0, p.inv - h);
+    const sp = DB_SP * (p.catchT > 0 ? .4 : 1);
+    if (I.kx || I.ky){ const L = Math.hypot(I.kx, I.ky); p.x += I.kx/L*sp*h; p.y += I.ky/L*sp*h; p.fx = I.kx/L; p.fy = I.ky/L; }
+    else if (I.tx != null){ const dx = I.tx - p.x, dy = I.ty - p.y, d = Math.hypot(dx, dy); if (d > 2){ const s = Math.min(d, sp*h); p.x += dx/d*s; p.y += dy/d*s; p.fx = dx/d; p.fy = dy/d; } }
+    p.x = Math.max(DB_R, Math.min(DB_S - DB_R, p.x)); p.y = Math.max(DB_R, Math.min(DB_S - DB_R, p.y));
+    if (p.ball >= 0){ p.held += h; if (p.held > DB_HOLD){ const b = HDB.balls[p.ball]; b.st = 'free'; b.x = p.x + p.fx*30; b.y = p.y + p.fy*30; b.vx = b.vy = 0; p.ball = -1; broadcast({ t:'db_ev', k:'drop', id }); } }
+  }
+  for (let i = 0; i < ids.length; i++) for (let j = i + 1; j < ids.length; j++){
+    const a = HDB.P[ids[i]], b = HDB.P[ids[j]], dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy);
+    if (d >= 2*DB_R || d === 0) continue;
+    const o = (2*DB_R - d)/2; a.x -= dx/d*o; a.y -= dy/d*o; b.x += dx/d*o; b.y += dy/d*o;
+  }
+  HDB.balls.forEach((b, k) => {
+    if (b.st === 'held'){ const p = HDB.P[b.by]; if (p){ b.x = p.x + p.fx*(DB_R + 4); b.y = p.y + p.fy*(DB_R + 4); } return; }
+    if (b.st === 'live' || b.st === 'dead'){
+      b.x += b.vx*h; b.y += b.vy*h;
+      if (b.st === 'live'){ b.d += DB_BSP*h; if (b.d > DB_RANGE){ b.st = 'dead'; b.vx *= .45; b.vy *= .45; } }
+      let wall = false;
+      if (b.x < DB_BR){ b.x = DB_BR; b.vx = Math.abs(b.vx); wall = true; } else if (b.x > DB_S - DB_BR){ b.x = DB_S - DB_BR; b.vx = -Math.abs(b.vx); wall = true; }
+      if (b.y < DB_BR){ b.y = DB_BR; b.vy = Math.abs(b.vy); wall = true; } else if (b.y > DB_S - DB_BR){ b.y = DB_S - DB_BR; b.vy = -Math.abs(b.vy); wall = true; }
+      if (wall && b.st === 'live'){ b.st = 'dead'; b.vx *= .45; b.vy *= .45; HDB.ev++; }
+      if (b.st === 'dead'){ const sp = Math.hypot(b.vx, b.vy), ns = Math.max(0, sp - 420*h); if (ns < 25){ b.vx = b.vy = 0; b.st = 'free'; } else { b.vx *= ns/sp; b.vy *= ns/sp; } }
+    }
+    if (b.st === 'live'){
+      for (const id of ids){
+        if (id === b.by) continue;
+        const p = HDB.P[id]; if (Math.hypot(p.x - b.x, p.y - b.y) > DB_R + DB_BR) continue;
+        if (p.catchT > 0 && p.ball < 0){                // caught: the thrower pays
+          b.st = 'held'; p.ball = k; p.held = 0; p.catchT = 0; H.stats[id].catches++;
+          const by = b.by; b.by = id;
+          broadcast({ t:'db_ev', k:'catch', id, by, x:Math.round(p.x), y:Math.round(p.y) });
+          dbHurt(by, id);
+        } else if (p.inv <= 0){
+          const by = b.by; H.stats[by] && H.stats[by].hits++;
+          b.st = 'dead'; b.vx *= .12; b.vy *= .12;                 // the ball drops at the victim's feet
+          broadcast({ t:'db_ev', k:'hit', id, by, x:Math.round(p.x), y:Math.round(p.y) });
+          dbHurt(id, by);
+        }
+        break;
+      }
+    } else if (b.st === 'free' || (b.st === 'dead' && Math.hypot(b.vx, b.vy) < 160)){
+      for (const id of ids){ const p = HDB.P[id]; if (p.ball < 0 && Math.hypot(p.x - b.x, p.y - b.y) < DB_R + DB_BR + 2){ b.st = 'held'; b.by = id; p.ball = k; p.held = 0; break; } }
+    }
+  });
+}
+function dbHurt(id, by){
+  const st = H.stats[id], p = HDB.P[id]; if (!st || !H.alive.has(id)) return;
+  st.lives = Math.max(0, st.lives - 1); p.inv = 1.6;
+  if (st.lives <= 0){
+    if (p.ball >= 0){ const b = HDB.balls[p.ball]; b.st = 'free'; b.vx = b.vy = 0; p.ball = -1; }
+    hostEliminate(id, false);
+  }
+}
+function dodgeHostFrame(dt, now){
+  if (!HDB || !H || H.over || HDB.ph !== 'play') return;
+  HDB.t += dt;
+  botDodge(dt);
+  const n = Math.ceil(dt / (1/120));
+  for (let i = 0; i < n && !H.over; i++) dbStep(dt/n);
+  if (H.over) return;
+  if (now - HDB.lastSend > 33){
+    HDB.lastSend = now;
+    const r = v => Math.round(v);
+    broadcast({ t:'db_s', tl:Math.max(0, DB_TIME - HDB.t),
+      p:players.filter(q => H.alive.has(q.id) && HDB.P[q.id]).map(q => { const p = HDB.P[q.id]; return [q.id, r(p.x), r(p.y), Math.round(Math.atan2(p.fy, p.fx)*100)/100, p.catchT > 0 ? 1 : 0, p.inv > 0 ? 1 : 0, H.stats[q.id].lives, p.cd > 0 ? 1 : 0]; }),
+      b:HDB.balls.map(b => [r(b.x), r(b.y), b.st === 'live' ? 2 : b.st === 'held' ? 1 : 0]), ev:HDB.ev });
+  }
+  if (HDB.t >= DB_TIME) dodgeTimeUp();
+}
+function dodgeTimeUp(){
+  if (H.over) return;
+  H.over = true;
+  const alive = [...H.alive].sort((a, b) => H.stats[b].lives - H.stats[a].lives || H.stats[b].hits - H.stats[a].hits);
+  const order = [...alive, ...H.deaths.slice().reverse()];
+  const ranking = order.map((pid, i) => { const p = players.find(x => x.id === pid) || { name:'?', color:'#888' }; return { id:pid, name:p.name, color:p.color, place:i+1, ...H.stats[pid] }; });
+  broadcast({ t:'db_ev', k:'time' });
+  setTimeout(() => broadcast({ t:'end', ranking, game:'dodge' }), 900);
+}
+function dodgeDrop(id){
+  if (HDB && HDB.P[id] && HDB.P[id].ball >= 0){ const b = HDB.balls[HDB.P[id].ball]; b.st = 'free'; b.vx = b.vy = 0; HDB.P[id].ball = -1; }
+  if (H && H.stats[id]) H.stats[id].lives = 0;
+  hostEliminate(id, true);
+}
+
+// ---- robot ----
+function botDodge(dt){
+  if (!BOT || !H.alive.has('ai') || !HDB.P.ai) return;
+  const me2 = HDB.P.ai, I = HDB.IN.ai;
+  // dodge or catch a ball coming straight at it
+  for (const b of HDB.balls){
+    if (b.st !== 'live' || b.by === 'ai') continue;
+    const rx = me2.x - b.x, ry = me2.y - b.y, sp = Math.hypot(b.vx, b.vy), along = (rx*b.vx + ry*b.vy)/sp;
+    if (along <= 0 || along > 170) continue;
+    const side = (rx*b.vy - ry*b.vx)/sp;
+    if (Math.abs(side) < DB_R + DB_BR + 8){
+      if (!BOT.dbSaw || BOT.dbSaw !== b){ BOT.dbSaw = b; BOT.dbMove = Math.random() < .3 ? 'catch' : Math.random() < .75 ? 'dodge' : 'none'; }
+      if (BOT.dbMove === 'catch' && along < 90) dodgeCatch('ai');
+      if (BOT.dbMove === 'dodge'){ const s = side >= 0 ? 1 : -1; I.kx = 0; I.ky = 0; I.tx = me2.x + (-b.vy/sp)*s*-60; I.ty = me2.y + (b.vx/sp)*s*-60; return; }
+    }
+  }
+  BOT.dbT = (BOT.dbT || 0) - dt; if (BOT.dbT > 0) return;
+  BOT.dbT = .25 + Math.random()*.15;
+  const foes = players.filter(p => p.id !== 'ai' && H.alive.has(p.id) && HDB.P[p.id]).map(p => HDB.P[p.id]);
+  if (!foes.length) return;
+  const near = foes.reduce((a, q) => Math.hypot(q.x - me2.x, q.y - me2.y) < Math.hypot(a.x - me2.x, a.y - me2.y) ? q : a);
+  const dist = Math.hypot(near.x - me2.x, near.y - me2.y);
+  if (me2.ball >= 0){
+    if (BOT.dbHeld !== me2.ball){ BOT.dbHeld = me2.ball; BOT.dbWait = .6 + Math.random()*.8; }
+    BOT.dbWait -= .3;
+    if ((dist < 260 && BOT.dbWait <= 0) || me2.held > 3.5){                  // throw with a little lead and a human-sized error
+      const t = dist / DB_BSP, I2 = HDB.IN[players.find(p => HDB.P[p.id] === near).id] || {};
+      let lx = 0, ly = 0; if (I2.tx != null){ const dx = I2.tx - near.x, dy = I2.ty - near.y, d = Math.hypot(dx, dy); if (d > 4){ lx = dx/d*DB_SP*t*.7; ly = dy/d*DB_SP*t*.7; } }
+      dodgeThrow('ai', near.x + lx + (Math.random() - .5)*110, near.y + ly + (Math.random() - .5)*110);
+    } else { I.tx = me2.x + (near.x - me2.x)*.4; I.ty = me2.y + (near.y - me2.y)*.4; }
+  } else {
+    const free = HDB.balls.filter(b => b.st === 'free' || (b.st === 'dead' && Math.hypot(b.vx, b.vy) < 160));
+    if (free.length){ const b = free.reduce((a, q) => Math.hypot(q.x - me2.x, q.y - me2.y) < Math.hypot(a.x - me2.x, a.y - me2.y) ? q : a); I.tx = b.x; I.ty = b.y; }
+    else { I.tx = me2.x - (near.x - me2.x)*.5; I.ty = me2.y - (near.y - me2.y)*.5; }      // no ball: keep away
+  }
+  I.kx = I.ky = 0;
+}
+
+// ---- my view ----
+const dbcv = $('dbCv'), dbctx = dbcv.getContext('2d');
+function startDodge(m){
+  lastCountShown = null;
+  players = m.players; cur = 'dodge'; G = null; PG = null; D = null; phase = 'count';
+  $('scrEnd').hidden = true; show('scrDodge');
+  const lv = m.lives|0 || 3;
+  DB = { P:new Map(), balls:[], lives:Object.fromEntries(players.map(p => [p.id, lv])), max:lv, alive:new Set(players.map(p => p.id)), tl:m.time|0 || DB_TIME,
+    in:{ x:null, y:null, kx:0, ky:0 }, sent:'', lastSend:0, down:null, keys:{}, count:3, fx:[], over:false };
+  const C = DB_S/2;
+  players.forEach((p, i) => { const a = Math.PI/2 + 2*Math.PI*i/players.length; const x = C + Math.cos(a)*215, y = C + Math.sin(a)*215; DB.P.set(p.id, { x, y, tx:x, ty:y, a:a + Math.PI, c:0, inv:0, cd:0 }); });
+  dodgeMsg(''); renderDbPlayers(); $('dbTime').textContent = '2:00';
+}
+const dodgeMsg = big => { const m = $('dbMsg'); m.textContent = ''; if (big){ const s = document.createElement('strong'); s.textContent = big; m.append(s); } };
+let dbToastT = null;
+function dbToast(t){ const el = $('dbToast'); el.textContent = t; el.classList.add('on'); clearTimeout(dbToastT); dbToastT = setTimeout(() => el.classList.remove('on'), 1600); }
+const dbName = id => (players.find(p => p.id === id) || {}).name || '?';
+function renderDbPlayers(){
+  const ul = $('dbPlayers'); ul.textContent = '';
+  for (const p of players){
+    const li = document.createElement('li'); if (!DB.alive.has(p.id)) li.classList.add('dead');
+    const d = document.createElement('span'); d.className = 'dot'; d.style.background = p.color;
+    const t = document.createElement('span'); t.textContent = p.name + (p.id === me.id ? ' (vous)' : '');
+    const h = document.createElement('span'); h.className = 'mclife'; const n = Math.max(0, DB.lives[p.id] | 0);
+    h.textContent = '♥'.repeat(n) + '♡'.repeat(Math.max(0, DB.max - n));
+    li.append(d, t, h); ul.append(li);
+  }
+}
+function dodgeRecv(m){
+  if (!DB) return;
+  if (m.t === 'db_s'){
+    if (phase === 'count') return;
+    DB.tl = +m.tl;
+    const seen = new Set();
+    let changed = false;
+    for (const [id, x, y, a, c, inv, lives, cd] of m.p || []){
+      seen.add(id);
+      const o = DB.P.get(id) || { x, y }; o.tx = x; o.ty = y; o.a = a; o.c = c; o.inv = inv; o.cd = cd;
+      if (!DB.P.has(id)) DB.P.set(id, o);
+      if (DB.lives[id] !== lives){ DB.lives[id] = lives; changed = true; }
+    }
+    for (const id of [...DB.P.keys()]) if (!seen.has(id)) DB.P.delete(id);
+    const old = DB.balls; DB.balls = (m.b || []).map(([x, y, s], k) => { const o = old[k]; return { x:o ? o.x : x, y:o ? o.y : y, tx:x, ty:y, s }; });
+    if ((m.ev|0) > (DB.ev|0)) sfx('wall');
+    DB.ev = m.ev|0;
+    if (changed) renderDbPlayers();
+    return;
+  }
+  // db_ev
+  const x = (m.x ?? DB_S/2) / DB_S, y = Math.max(.06, (m.y ?? DB_S/2) / DB_S - .07);
+  if (m.k === 'throw') sfx('paddle');
+  else if (m.k === 'hit'){
+    sfx('bonk'); boom(m.id === me.id ? 'AÏE !' : 'PAF !', { size:28, x, y, pal:m.id === me.id ? BOOM_COLORS[2] : BOOM_COLORS[0], ms:650 });
+    if (m.by === me.id) dbToast('Touché : ' + dbName(m.id));
+    if (m.id === me.id){ const el = $('dbWrap'); el.style.setProperty('--amp', '4px'); el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); }
+  } else if (m.k === 'catch'){
+    sfx('ok'); boom('ATTRAPÉ !', { size:28, x, y, pal:BOOM_COLORS[1], ms:800 });
+    dbToast(m.id === me.id ? 'Bien attrapé ! ' + dbName(m.by) + ' perd un cœur' : dbName(m.id) + ' attrape la balle de ' + dbName(m.by));
+  } else if (m.k === 'drop'){ if (m.id === me.id) dbToast('Balle gardée trop longtemps : lâchée'); }
+  else if (m.k === 'time'){ dbToast('Temps écoulé !'); sfx('goal'); }
+}
+function dodgeDeadFx(id, left){
+  if (!DB) return;
+  DB.alive.delete(id); DB.lives[id] = 0; DB.P.delete(id);
+  if (id === me.id){ dodgeMsg('Éliminé'); sfx('lose'); } else dbToast(dbName(id) + (left ? ' a quitté la partie' : ' est éliminé'));
+  renderDbPlayers();
+}
+
+// ---- input ----
+function dbPoint(e){ const r = dbcv.getBoundingClientRect(); return [(e.clientX - r.left) / r.width * DB_S, (e.clientY - r.top) / r.height * DB_S]; }
+dbcv.addEventListener('pointerdown', e => {
+  if (!DB) return; e.preventDefault(); dbcv.setPointerCapture(e.pointerId);
+  const [x, y] = dbPoint(e); DB.down = { x, y, t:performance.now(), drag:false };
+});
+dbcv.addEventListener('pointermove', e => {
+  if (!DB || !DB.down) return;
+  const [x, y] = dbPoint(e), d = DB.down;
+  if (!d.drag && (Math.hypot(x - d.x, y - d.y) > 14 || performance.now() - d.t > 220)) d.drag = true;
+  if (d.drag){ DB.in.x = x; DB.in.y = y; DB.in.kx = DB.in.ky = 0; }
+});
+const dbUp = e => {
+  if (!DB || !DB.down) return;
+  const d = DB.down; DB.down = null;
+  if (!d.drag && performance.now() - d.t < 260 && phase === 'play'){ toHost({ t:'db_throw', x:Math.round(d.x), y:Math.round(d.y) }); }
+};
+dbcv.addEventListener('pointerup', dbUp); dbcv.addEventListener('pointercancel', () => { if (DB) DB.down = null; });
+setInterval(() => { if (DB && DB.down && !DB.down.drag && performance.now() - DB.down.t > 220){ DB.down.drag = true; DB.in.x = DB.down.x; DB.in.y = DB.down.y; } }, 60);
+$('dbCatch').addEventListener('pointerdown', e => { e.preventDefault(); if (DB && phase === 'play') toHost({ t:'db_catch' }); });
+function dbKeys(){
+  let kx = 0, ky = 0; for (const k in DB.keys) if (DB.keys[k] && KB_KEYS[k]){ kx += KB_KEYS[k][0]; ky += KB_KEYS[k][1]; }
+  DB.in.kx = kx; DB.in.ky = ky; if (kx || ky){ DB.in.x = null; DB.in.y = null; }
+}
+addEventListener('keydown', e => {
+  if (cur !== 'dodge' || !DB || e.target.tagName === 'INPUT') return;
+  const k = e.key.toLowerCase();
+  if (k === ' '){ e.preventDefault(); if (!e.repeat && phase === 'play') toHost({ t:'db_throw' }); return; }
+  if (k === 'e' || k === 'shift'){ e.preventDefault(); if (!e.repeat && phase === 'play') toHost({ t:'db_catch' }); return; }
+  if (!KB_KEYS[k]) return;
+  e.preventDefault(); DB.keys[k] = true; dbKeys();
+});
+addEventListener('keyup', e => { if (cur !== 'dodge' || !DB) return; const k = e.key.toLowerCase(); if (DB.keys[k]){ DB.keys[k] = false; dbKeys(); } });
+
+// ---- loop & drawing ----
+function dodgeFrame(dtMs, now){
+  if (!DB) return;
+  const dt = dtMs / 1000;
+  if (phase === 'count'){ DB.count -= dt; if (DB.count > 0) countBeep(Math.ceil(DB.count)); else { countBeep(0); phase = 'play'; } }
+  if (phase === 'play' && DB.alive.has(me.id)){
+    const r = v => v == null ? null : Math.round(v);
+    const msg = { t:'db_in', x:r(DB.in.x), y:r(DB.in.y), kx:DB.in.kx, ky:DB.in.ky }, key = JSON.stringify(msg);
+    if (key !== DB.sent && now - DB.lastSend > 33){ DB.sent = key; DB.lastSend = now; toHost(msg); }
+  }
+  if (me.host) dodgeHostFrame(dt, now);
+  const k = Math.min(1, dt * 18);
+  for (const o of DB.P.values()){ o.x += (o.tx - o.x)*k; o.y += (o.ty - o.y)*k; }
+  for (const b of DB.balls){ const kk = b.s === 2 ? Math.min(1, dt*30) : k; b.x += (b.tx - b.x)*kk; b.y += (b.ty - b.y)*kk; }
+  const s = Math.ceil(DB.tl); $('dbTime').textContent = Math.floor(s/60) + ':' + String(s % 60).padStart(2, '0');
+  $('dbTime').classList.toggle('low', DB.tl < 15);
+  const mine = DB.P.get(me.id); $('dbCatch').disabled = !mine || !!mine.cd || phase !== 'play';
+  drawDodge(now);
+}
+function drawDodge(now){
+  const ctx = dbctx, S = DB_S, C = S/2;
+  ctx.fillStyle = '#E9B872'; ctx.fillRect(0, 0, S, S);
+  ctx.strokeStyle = 'rgba(120,70,20,.25)'; ctx.lineWidth = 2;
+  for (let y = 0; y < S; y += 40){ ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(S, y); ctx.stroke(); }    // parquet boards
+  ctx.fillStyle = halftone(ctx, .08); ctx.fillRect(0, 0, S, S);
+  ctx.strokeStyle = '#fff'; ctx.lineWidth = 5;
+  ctx.strokeRect(22, 22, S - 44, S - 44);
+  ctx.beginPath(); ctx.arc(C, C, 80, 0, Math.PI*2); ctx.stroke();
+  ctx.strokeStyle = '#E6262B'; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(C, C, 14, 0, Math.PI*2); ctx.stroke();
+  if (!DB) return;
+  const holder = new Set();
+  // balls on the floor / in flight (held ones are drawn with their holder)
+  const drawBall = (x, y, live) => {
+    if (live){ ctx.strokeStyle = 'rgba(0,0,0,.5)'; ctx.lineWidth = 2.5; }
+    ctx.fillStyle = 'rgba(0,0,0,.2)'; ctx.beginPath(); ctx.ellipse(x + 3, y + 4, DB_BR, DB_BR*.8, 0, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(x, y, DB_BR + (live ? 1 : 0), 0, Math.PI*2); ctx.fillStyle = '#E6262B'; ctx.fill();
+    ctx.strokeStyle = '#000'; ctx.lineWidth = 2.5; ctx.stroke();
+    ctx.fillStyle = 'rgba(255,255,255,.65)'; ctx.beginPath(); ctx.arc(x - 3, y - 3, 2.5, 0, Math.PI*2); ctx.fill();
+  };
+  for (const b of DB.balls){
+    if (b.s === 1){ holder.add(b); continue; }
+    if (b.s === 2){                                     // speed lines behind a live ball
+      const dx = b.tx - b.x, dy = b.ty - b.y, L = Math.hypot(dx, dy) || 1;
+      ctx.strokeStyle = '#000'; ctx.lineWidth = 2.5; ctx.lineCap = 'round';
+      for (const o of [-5, 5]){ ctx.beginPath(); ctx.moveTo(b.x - dx/L*14 - dy/L*o, b.y - dy/L*14 + dx/L*o); ctx.lineTo(b.x - dx/L*30 - dy/L*o, b.y - dy/L*30 + dx/L*o); ctx.stroke(); }
+    }
+    drawBall(b.x, b.y, b.s === 2);
+  }
+  for (const [id, o] of DB.P){
+    const p = players.find(x => x.id === id); if (!p) continue;
+    if (o.inv && Math.floor(now/90) % 2) ctx.globalAlpha = .4;
+    ctx.save(); ctx.translate(o.x, o.y); ctx.scale(DB_R/KB_R, DB_R/KB_R); kbPawn(ctx, 0, 0, p.color, o.a ?? 0, { me:id === me.id }); ctx.restore();
+    if (o.c){                                          // hands up to catch
+      for (const s of [-1, 1]){ const hx = o.x + Math.cos(o.a)*25 - Math.sin(o.a)*s*16, hy = o.y + Math.sin(o.a)*25 + Math.cos(o.a)*s*16;
+        ctx.beginPath(); ctx.arc(hx, hy, 9, 0, Math.PI*2); ctx.fillStyle = '#FFE0B8'; ctx.fill(); ctx.strokeStyle = '#000'; ctx.lineWidth = 2.5; ctx.stroke(); }
+    }
+    ctx.globalAlpha = 1;
+    // hearts over the head
+    const n = DB.lives[id] | 0; ctx.font = '15px sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = '#E6262B';
+    ctx.fillText('♥'.repeat(n), o.x, o.y - DB_R - 6);
+  }
+  for (const b of holder){ drawBall(b.x, b.y, false); }
+}
+
 // ================= ROBOT : a medium opponent when one person plays alone =================
 // It runs inside the creator's page and acts through the same host functions a real player triggers.
 function botLater(fn, ms){ setTimeout(() => { if (H && !H.over && BOT) fn(); }, ms); }
@@ -4347,7 +4719,7 @@ function botMoleSees(m){
 const BOOM_COLORS = [['#FFD93B','#E6262B'], ['#FFFFFF','#1E5BFF'], ['#E6262B','#FFFFFF'], ['#1E5BFF','#FFD93B']];
 function gameWrap(){
   return cur === 'tetris' ? document.querySelector('#play .well') : cur === 'pong' ? $('pwrap') : cur === 'derby' ? $('padwrap')
-    : cur === 'naval' ? document.querySelector('#scrNaval .nvwrap') : cur === 'mole' ? $('mlWrap') : cur === 'curl' ? $('cuWrap') : cur === 'chairs' ? $('mcWrap') : cur === 'master' ? $('mmWrap') : cur === 'kabaddi' ? $('kbWrap') : null;
+    : cur === 'naval' ? document.querySelector('#scrNaval .nvwrap') : cur === 'mole' ? $('mlWrap') : cur === 'curl' ? $('cuWrap') : cur === 'chairs' ? $('mcWrap') : cur === 'master' ? $('mmWrap') : cur === 'kabaddi' ? $('kbWrap') : cur === 'dodge' ? $('dbWrap') : null;
 }
 // x, y: position in the wrap (0..1); size in px; pal: one of BOOM_COLORS
 function boom(text, o = {}){
@@ -4494,8 +4866,8 @@ function saveGame(ranking, game){
   if (!Array.isArray(ranking) || !ranking.length || lastSaved === ranking) return;
   lastSaved = ranking;
   const h = loadHist();
-  h.unshift({ at:Date.now(), game:['pong','derby','naval','mole','curling','chairs','master','kabaddi'].includes(game) ? game : 'tetris', n:ranking.length,
-    p:ranking.map(r => ({ name:String(r.name).slice(0,14), color:r.color, place:r.place|0, sc:r.sc|0, ln:r.ln|0, sent:r.sent|0, lives:r.lives|0, seats:r.seats|0, hits:r.hits|0, pts:r.pts|0, whacks:r.whacks|0, shots:r.shots|0, afloat:r.afloat|0, shapes:r.shapes|0, d:Math.round(r.d||0), t:+r.t||0, me:r.id === me.id })) });
+  h.unshift({ at:Date.now(), game:['pong','derby','naval','mole','curling','chairs','master','kabaddi','dodge'].includes(game) ? game : 'tetris', n:ranking.length,
+    p:ranking.map(r => ({ name:String(r.name).slice(0,14), color:r.color, place:r.place|0, sc:r.sc|0, ln:r.ln|0, sent:r.sent|0, lives:r.lives|0, seats:r.seats|0, catches:r.catches|0, hits:r.hits|0, pts:r.pts|0, whacks:r.whacks|0, shots:r.shots|0, afloat:r.afloat|0, shapes:r.shapes|0, d:Math.round(r.d||0), t:+r.t||0, me:r.id === me.id })) });
   store.set(HIST_KEY, JSON.stringify(h.slice(0, HIST_MAX)));
 }
 let lbFilter = 'all', clearArmed = false;
@@ -4510,13 +4882,13 @@ function renderBoard(){
     a.games++; if (p.place === 1 && g.n > 1) a.wins++;
     a.pts += Math.max(0, g.n - p.place);                  // 1 point per player finished ahead of
     if (g.game === 'derby'){ if (p.t > 0 && (!a.bestT || p.t < a.bestT)) a.bestT = p.t; }
-    else a.best = Math.max(a.best, (g.game === 'pong' || g.game === 'naval') ? p.hits : g.game === 'mole' ? (p.whacks || 0) : g.game === 'curling' ? (p.pts || 0) : g.game === 'chairs' ? (p.seats || 0) : (g.game === 'master' || g.game === 'kabaddi') ? (p.pts || 0) : p.sc);
+    else a.best = Math.max(a.best, (g.game === 'pong' || g.game === 'naval') ? p.hits : g.game === 'mole' ? (p.whacks || 0) : g.game === 'curling' ? (p.pts || 0) : g.game === 'chairs' ? (p.seats || 0) : g.game === 'dodge' ? (p.hits || 0) : (g.game === 'master' || g.game === 'kabaddi') ? (p.pts || 0) : p.sc);
     agg.set(k, a);
   }
   const rows = [...agg.values()].sort((x, y) => y.pts - x.pts || y.wins - x.wins || x.games - y.games);
   const showBest = lbFilter !== 'all';
   const hd = $('lbHead'); hd.textContent = '';
-  for (const t of ['#','Joueur','Parties','Victoires','Points', ...(showBest ? [lbFilter === 'pong' ? 'Renvois max' : lbFilter === 'derby' ? 'Meilleur temps' : lbFilter === 'naval' ? 'Touchés max' : lbFilter === 'mole' ? 'Taupes tapées max' : lbFilter === 'curling' ? 'Points max' : lbFilter === 'chairs' ? 'Chaises max' : (lbFilter === 'master' || lbFilter === 'kabaddi') ? 'Points max' : 'Meilleur score'] : [])]){
+  for (const t of ['#','Joueur','Parties','Victoires','Points', ...(showBest ? [lbFilter === 'pong' ? 'Renvois max' : lbFilter === 'derby' ? 'Meilleur temps' : lbFilter === 'naval' ? 'Touchés max' : lbFilter === 'mole' ? 'Taupes tapées max' : lbFilter === 'curling' ? 'Points max' : lbFilter === 'chairs' ? 'Chaises max' : lbFilter === 'dodge' ? 'Touches max' : (lbFilter === 'master' || lbFilter === 'kabaddi') ? 'Points max' : 'Meilleur score'] : [])]){
     const th = document.createElement('th'); th.textContent = t; hd.append(th);
   }
   const tb = $('lbBody'); tb.textContent = '';
@@ -4571,6 +4943,7 @@ function frame(now){
   if (cur === 'chairs') chairsFrame(dt, now);
   if (cur === 'master') masterFrame(dt, now);
   if (cur === 'kabaddi') kabaddiFrame(dt, now);
+  if (cur === 'dodge') dodgeFrame(dt, now);
   if (cur === 'tetris' && G && phase === 'count'){
     G.count -= dt/1000;
     if (G.count <= 0){ phase = 'play'; setMsg('', ''); countBeep(0); }
@@ -4623,11 +4996,11 @@ $('btnQuit').onclick = () => toMenu('');
 function backToLobby(){
   if (me.host){
     if (H) H.over = true;
-    H = null; if (HC) clearTimeout(HC.timer); HC = null; mcClear(); HMC = null; mmClear(); HMM = null; kbClear(); HKB = null;
+    H = null; if (HC) clearTimeout(HC.timer); HC = null; mcClear(); HMC = null; mmClear(); HMM = null; kbClear(); HKB = null; dbClear(); HDB = null;
     players = players.filter(p => p.id === 'h' || net.conns.has(p.id));
     sendLobby(true);                                       // everyone goes back
   } else {
-    phase = 'lobby'; $('scrEnd').hidden = true; G = null; PG = null; D = null; NV = null; ML = null; CU = null; MC = null; MM = null; KB = null; cur = null;
+    phase = 'lobby'; $('scrEnd').hidden = true; G = null; PG = null; D = null; NV = null; ML = null; CU = null; MC = null; MM = null; KB = null; DB = null; cur = null;
     if (HM) moleClearTimers();
     show('scrLobby'); renderLobby();                      // wait there for the creator
   }
