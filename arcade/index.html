@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Baston !</title>
-<meta name="description" content="Dix jeux multijoueurs dans le navigateur : Tetris, Pong, Derby, Armada, Tape-taupe, Curling, Chaises musicales, Code secret, Kabaddi et Balle au prisonnier. Un salon, un code, de 1 à 5 joueurs.">
+<meta name="description" content="Onze jeux multijoueurs dans le navigateur : Tetris, Pong, Derby, Armada, Tape-taupe, Curling, Chaises musicales, Code secret, Kabaddi, Balle au prisonnier et Chars. Un salon, un code, de 1 à 5 joueurs.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Baston !">
-<meta property="og:description" content="Dix jeux multijoueurs dans le navigateur. Créez un salon, partagez le code, et que le meilleur gagne.">
+<meta property="og:description" content="Onze jeux multijoueurs dans le navigateur. Créez un salon, partagez le code, et que le meilleur gagne.">
 <meta property="og:image" content="https://chariftribak.github.io/letsdriveit/arcade/img/share.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -80,7 +80,7 @@ label{font-size:13px;font-weight:900;color:var(--fg)}
 .tiles{display:flex;flex-wrap:wrap;justify-content:center;gap:12px 10px}
 .tiles button{flex:0 0 calc((100% - 20px)/3)}
 .tiles button{padding:0;background:var(--panel);color:var(--fg);box-shadow:3px 3px 0 var(--line);display:flex;flex-direction:column;font-size:15px;min-width:0}
-.tiles button:nth-child(1){transform:rotate(-3deg)}.tiles button:nth-child(2){transform:rotate(2deg)}.tiles button:nth-child(3){transform:rotate(-1deg)}.tiles button:nth-child(4){transform:rotate(3deg)}.tiles button:nth-child(5){transform:rotate(-2deg)}.tiles button:nth-child(6){transform:rotate(2deg)}.tiles button:nth-child(7){transform:rotate(-2deg)}.tiles button:nth-child(8){transform:rotate(3deg)}.tiles button:nth-child(9){transform:rotate(-1deg)}.tiles button:nth-child(10){transform:rotate(2deg)}
+.tiles button:nth-child(1){transform:rotate(-3deg)}.tiles button:nth-child(2){transform:rotate(2deg)}.tiles button:nth-child(3){transform:rotate(-1deg)}.tiles button:nth-child(4){transform:rotate(3deg)}.tiles button:nth-child(5){transform:rotate(-2deg)}.tiles button:nth-child(6){transform:rotate(2deg)}.tiles button:nth-child(7){transform:rotate(-2deg)}.tiles button:nth-child(8){transform:rotate(3deg)}.tiles button:nth-child(9){transform:rotate(-1deg)}.tiles button:nth-child(10){transform:rotate(2deg)}.tiles button:nth-child(11){transform:rotate(-3deg)}
 .tiles img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;border-bottom:3px solid var(--line)}
 .tiles span{padding:3px 0;width:100%;text-align:center;overflow:hidden;white-space:nowrap}
 .tiles button[aria-pressed="true"]{background:var(--accent);color:#fff}
@@ -201,6 +201,15 @@ label{font-size:13px;font-weight:900;color:var(--fg)}
 .colpick button[aria-pressed="true"]{outline:3px solid #000;outline-offset:3px}
 .colpick button:disabled{opacity:1;cursor:not-allowed;filter:saturate(.35) brightness(.8)}
 
+.mlmine{width:min(100%,72vh,700px);display:flex;align-items:center;gap:12px;background:#fff;border:3px solid #000;box-shadow:4px 4px 0 #000;padding:4px 12px;font-weight:800;font-size:14px}
+#mlMineCv{width:60px;height:55px;flex:none}
+
+/* ---- chars ---- */
+#tkWrap{width:min(100%,64vh,640px)}
+#tkCv{display:block;width:100%;height:auto;aspect-ratio:1;touch-action:none;border:3px solid #000;box-shadow:6px 6px 0 #000}
+#tkFire{width:min(100%,640px);height:62px;font-size:26px;touch-action:manipulation}
+#tkRole{font-size:clamp(16px,4.2vw,24px)}
+
 /* ---- curling ---- */
 .curl{display:flex;flex-direction:column;align-items:center;gap:10px;max-width:560px;margin:0 auto}
 .cuhead{width:min(100%,52vh,440px)}
@@ -250,7 +259,8 @@ label{font-size:13px;font-weight:900;color:var(--fg)}
 /* ---- virtual joystick ---- */
 .joy{position:fixed;width:104px;height:104px;margin:-52px 0 0 -52px;border-radius:50%;border:3px solid #000;background:rgba(255,255,255,.35);pointer-events:none;z-index:7;box-shadow:3px 3px 0 #000}
 .joy i{position:absolute;left:50%;top:50%;width:44px;height:44px;border-radius:50%;background:#FFD93B;border:3px solid #000;transform:translate(-50%,-50%)}
-#scrKabaddi,#scrDodge{touch-action:none;user-select:none;-webkit-user-select:none}
+#scrKabaddi,#scrDodge,#scrTank{touch-action:none;user-select:none;-webkit-user-select:none}
+@media (max-height:780px){ #scrKabaddi .hint,#scrDodge .hint,#scrTank .hint{display:none} }
 
 /* ---- kabaddi ---- */
 #kbWrap{width:min(100%,50vh,440px)}
@@ -331,7 +341,7 @@ label{font-size:13px;font-weight:900;color:var(--fg)}
 <section id="scrMenu" class="center">
   <div class="card">
     <h1 class="logosvg" data-appname><svg viewBox="0 0 520 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Baston !"><polygon points="260,8 292,62 352,22 356,86 428,58 404,118 494,120 438,166 508,214 428,226 456,292 384,270 372,322 318,276 262,318 222,270 156,306 152,248 76,262 104,206 18,184 92,148 36,92 116,94 102,30 172,62 204,8 228,58" fill="#000" transform="translate(7,7)"/><polygon points="260,8 292,62 352,22 356,86 428,58 404,118 494,120 438,166 508,214 428,226 456,292 384,270 372,322 318,276 262,318 222,270 156,306 152,248 76,262 104,206 18,184 92,148 36,92 116,94 102,30 172,62 204,8 228,58" fill="#E6262B" stroke="#000" stroke-width="5" stroke-linejoin="round"/><g transform="rotate(-6 260 168)"><text x="264" y="196" text-anchor="middle" font-family="Bangers, Impact, sans-serif" font-size="112" letter-spacing="3" fill="#000">BASTON !</text><text x="258" y="190" text-anchor="middle" font-family="Bangers, Impact, sans-serif" font-size="112" letter-spacing="3" fill="#fff" stroke="#000" stroke-width="6" paint-order="stroke" stroke-linejoin="round">BASTON !</text></g><path d="M60 46 l26 14 M44 76 l30 6 M462 260 l-26 -12 M476 232 l-30 -4" stroke="#000" stroke-width="5" stroke-linecap="round"/></svg></h1>
-    <p class="tagline">Dix jeux, de 1 à 5 joueurs</p>
+    <p class="tagline">Onze jeux, de 1 à 5 joueurs</p>
     <div class="field">
       <label for="nameIn">Votre nom</label>
       <input id="nameIn" maxlength="14" autocomplete="nickname" placeholder="Votre nom">
@@ -344,7 +354,7 @@ label{font-size:13px;font-weight:900;color:var(--fg)}
     </div>
     <button id="btnBoard" class="ghost">Classement général</button>
     <button id="btnSound" class="ghost">Son : activé</button>
-    <p class="hint" id="menuHint">Créez un salon, partagez le code, puis choisissez le jeu : Tetris, Pong, Derby, Armada, Tape-taupe, Curling, Chaises musicales, Code secret, Kabaddi ou Balle au prisonnier. De 1 à 5 joueurs.</p>
+    <p class="hint" id="menuHint">Créez un salon, partagez le code, puis choisissez le jeu : Tetris, Pong, Derby, Armada, Tape-taupe, Curling, Chaises musicales, Code secret, Kabaddi, Balle au prisonnier ou Chars. De 1 à 5 joueurs.</p>
   </div>
 </section>
 
@@ -375,6 +385,7 @@ label{font-size:13px;font-weight:900;color:var(--fg)}
       <button data-g="master" aria-pressed="false"><img src="img/master.jpg" alt=""><span>Code secret</span></button>
       <button data-g="kabaddi" aria-pressed="false"><img src="img/kabaddi.jpg" alt=""><span>Kabaddi</span></button>
       <button data-g="dodge" aria-pressed="false"><img src="img/dodge.jpg" alt=""><span>Prisonnier</span></button>
+      <button data-g="tank" aria-pressed="false"><img src="img/tank.jpg" alt=""><span>Chars</span></button>
     </div>
     <div class="field">
       <label id="lobbyCount">Joueurs</label>
@@ -504,6 +515,7 @@ label{font-size:13px;font-weight:900;color:var(--fg)}
       <button id="mlOk" disabled>Valider</button>
       <button id="mlRand" class="ghost">Au hasard</button>
     </div>
+    <div class="mlmine" id="mlMine"><canvas id="mlMineCv" width="120" height="110" aria-hidden="true"></canvas><span id="mlMineTxt">Vos taupes ressemblent à celle-ci : elles ne se tapent pas.</span></div>
     <ul class="mlscores" id="mlScores"></ul>
   </div>
 </section>
@@ -571,7 +583,7 @@ label{font-size:13px;font-weight:900;color:var(--fg)}
       <div class="toast pm" id="kbToast" aria-live="polite"></div>
     </div>
     <ul class="nvplayers" id="kbPlayers"></ul>
-    <p class="hint" style="text-align:center">Posez le doigt n'importe où et glissez : c'est un joystick. Attaquant : gardez le doigt appuyé (ou Espace) pour retenir votre souffle, touchez des défenseurs puis revenez dans votre camp avant la fin du souffle. Défenseurs : collez-vous à l'attaquant pour l'accrocher, à plusieurs il ne peut plus bouger ; seul, il s'échappe en repartant dans l'autre sens. La bande claire près de la ligne vous est interdite tant qu'il n'est pas entré. Clavier : flèches ou ZQSD.</p>
+    <p class="hint" style="text-align:center">Posez le doigt n'importe où et glissez : c'est un joystick. Attaquant : gardez le doigt appuyé (ou Espace) pour retenir votre souffle, touchez des défenseurs puis revenez dans votre camp avant la fin du souffle. Au contact, l'attaquant reste collé au défenseur : pour se libérer, il doit tirer franchement dans l'autre sens une demi-seconde. Accroché par plusieurs, il est presque bloqué. La bande claire près de la ligne vous est interdite tant qu'il n'est pas entré. Clavier : flèches ou ZQSD.</p>
   </div>
 </section>
 
@@ -587,6 +599,21 @@ label{font-size:13px;font-weight:900;color:var(--fg)}
     <button id="dbCatch">✋ Attraper ✋</button>
     <ul class="nvplayers" id="dbPlayers"></ul>
     <p class="hint" style="text-align:center">Posez le doigt n'importe où et glissez pour courir (joystick). Passez sur une balle pour la ramasser, touchez brièvement le terrain pour la lancer à cet endroit. « Attraper » lève les mains un court instant : une balle attrapée fait perdre un cœur au lanceur. Clavier : flèches ou ZQSD, Espace lancer, E attraper.</p>
+  </div>
+</section>
+
+<!-- CHARS -->
+<section id="scrTank" hidden>
+  <div class="naval">
+    <div class="nvhead"><div class="nvturn" id="tkRole">Chars</div><div class="nvtime" id="tkTime"></div></div>
+    <div class="nvwrap" id="tkWrap">
+      <canvas id="tkCv" width="540" height="540" aria-label="Champ de bataille"></canvas>
+      <div class="msg pm" id="tkMsg"></div>
+      <div class="toast pm" id="tkToast" aria-live="polite"></div>
+    </div>
+    <button id="tkFire">💥 FEU ! 💥</button>
+    <ul class="nvplayers" id="tkPlayers"></ul>
+    <p class="hint" id="tkHelp" style="text-align:center"></p>
   </div>
 </section>
 
@@ -626,6 +653,7 @@ label{font-size:13px;font-weight:900;color:var(--fg)}
       <button data-f="master" aria-pressed="false">Code</button>
       <button data-f="kabaddi" aria-pressed="false">Kabaddi</button>
       <button data-f="dodge" aria-pressed="false">Prisonnier</button>
+      <button data-f="tank" aria-pressed="false">Chars</button>
     </div>
     <div class="rank"><table>
       <thead><tr id="lbHead"></tr></thead>
@@ -681,23 +709,25 @@ let D = null;                   // derby state
 let NV = null, HN = null;       // armada: my view / host's full map
 let BOT = null;                  // host-side robot when someone plays alone
 let ML = null, HM = null;       // tape-taupe: my view / host referee
-const GAME_NAMES = { tetris:'Tetris', pong:'Pong', derby:'Derby', naval:'Armada', mole:'Tape-taupe', curling:'Curling', chairs:'Chaises musicales', master:'Code secret', kabaddi:'Kabaddi', dodge:'Balle au prisonnier' };
+const GAME_NAMES = { tetris:'Tetris', pong:'Pong', derby:'Derby', naval:'Armada', mole:'Tape-taupe', curling:'Curling', chairs:'Chaises musicales', master:'Code secret', kabaddi:'Kabaddi', dodge:'Balle au prisonnier', tank:'Chars' };
 const GAME_DESC = {
   tetris:'Chaque ligne effacée envoie des briques gênantes à tous les adversaires : 1 ligne = 1 brique, 2 = 2, 3 = 4, 4 = 6.',
   pong:'Chaque joueur défend un côté avec 5 vies. Le terrain suit le nombre de joueurs : carré à 2, hexagone à 3, octogone à 4, décagone à 5. Le côté d\'un joueur éliminé devient un mur.',
-  mole:'En même temps, chacun cache 8 taupes à sa couleur dans le pré (8×8). Puis elles sortent une à une, vite : la première personne à taper une taupe d\'un autre gagne 1 point (taper la sienne coûte 2 points), une taupe que personne ne tape rapporte 1 point à son propriétaire. Premier à 20 points.',
+  mole:'Chacun a 8 taupes, placées au hasard dans le pré et reconnaissables à leur couleur et à leur accessoire. Elles sortent une à une, vite : la première personne à taper une taupe d\'un autre gagne 1 point ; une taupe que personne ne tape rapporte 1 point à son propriétaire. Vos propres taupes ne se tapent pas. Premier à 20 points.',
+  moleOld:'En même temps, chacun cache 8 taupes à sa couleur dans le pré (8×8). Puis elles sortent une à une, vite : la première personne à taper une taupe d\'un autre gagne 1 point (taper la sienne coûte 2 points), une taupe que personne ne tape rapporte 1 point à son propriétaire. Premier à 20 points.',
   naval:'Bataille navale à plusieurs sur une seule mer. Chacun voit ses bateaux, rien d\'autre. À tour de rôle, tirez au canon sur une case : touché, tout le monde voit la flamme ; dans l\'eau, vous seul voyez combien de cases de bateau l\'entourent, comme au démineur. Le dernier à flot gagne.',
   curling:'Curling à plusieurs : chacun lance ses pierres à tour de rôle vers la maison, la cible au bout de la piste. Tirez vers l\'arrière pour viser et doser, choisissez l\'effet, puis frottez la glace pour balayer : la pierre glisse plus loin et tourne moins. À chaque mène, le joueur le plus proche du centre marque 1 point par pierre mieux placée que toutes les autres.',
   chairs:'Chaises musicales : la musique joue, le disque tourne, tout le monde fait le tour. Quand le disque s\'arrête, touchez vite une chaise libre : il y en a une de moins que de joueurs. Qui reste debout perd un cœur. Gare aux faux arrêts : tant que le disque tourne, toucher une chaise coûte une pénalité. Le dernier en jeu gagne.',
   master:'Code secret à plusieurs : tout le monde cherche le même code de 4 couleurs. À chaque essai, vous seul voyez vos indices (noir : bien placé, blanc : bonne couleur mal placée) ; les autres voient seulement combien d\'essais vous avez faits. Le premier qui trouve marque le plus, et les autres n\'ont plus que 40 s. Trois manches.',
   kabaddi:'Kabaddi, le sport indien : à tour de rôle, un attaquant entre chez les autres en retenant son souffle (gardez le doigt appuyé). Il touche des défenseurs puis doit rentrer dans son camp avant d\'être à bout de souffle : 1 point par défenseur touché. Les défenseurs l\'accrochent à plusieurs pour le freiner : s\'il échoue, chaque défenseur marque 1 point, 2 s\'il le tenait.',
   dodge:'Balle au prisonnier, chacun pour soi dans le gymnase : ramassez une balle, lancez-la sur les autres, esquivez les leurs. Chaque balle reçue coûte un cœur ; levez les mains au bon moment pour l\'attraper et c\'est le lanceur qui perd un cœur. Le dernier debout gagne (2 minutes au plus).',
+  tank:'Combat de chars à deux par char : l\'un pilote, l\'autre oriente la tourelle et tire (un obus toutes les 1,5 s). Les équipages sont tirés au sort, des robots complètent. Interdit de se parler : il faut se comprendre en jouant. Deux forêts cachent les chars qui y entrent, murs, caisses et rochers arrêtent les obus. 3 vies par char, le dernier char debout gagne.',
   derby:'Course de chevaux : tout le monde reçoit la même série de figures à tracer. Chaque figure réussie fait avancer votre cheval, plus loin si elle est complexe et bien tracée. Le premier à la ligne gagne.'
 };
 
 const cleanName = s => String(s || '').replace(/[\u0000-\u001f<>]/g,'').trim().slice(0,14) || 'Joueur';
 const genCode = () => { const a='ABCDEFGHJKMNPQRSTUVWXYZ23456789'; let s=''; for(let i=0;i<4;i++) s+=a[Math.floor(Math.random()*a.length)]; return s; };
-const show = id => { for (const s of ['scrMenu','scrLobby','scrGame','scrPong','scrDerby','scrNaval','scrMole','scrCurl','scrChairs','scrMaster','scrKabaddi','scrDodge']) $(s).hidden = s !== id; };
+const show = id => { for (const s of ['scrMenu','scrLobby','scrGame','scrPong','scrDerby','scrNaval','scrMole','scrCurl','scrChairs','scrMaster','scrKabaddi','scrDodge','scrTank']) $(s).hidden = s !== id; try { window.scrollTo(0, 0); } catch(_){} };
 const store = { get(k){ try { return localStorage.getItem(k); } catch(_) { return null; } }, set(k,v){ try { localStorage.setItem(k,v); } catch(_){} } };
 
 $('nameIn').value = store.get('tm-name') || ('Joueur' + Math.floor(Math.random()*90+10));
@@ -709,7 +739,7 @@ function teardown(){
   if (HN && HN.timer) clearTimeout(HN.timer);
   if (HM) moleClearTimers();
   if (HC) clearTimeout(HC.timer);
-  HC = null; CU = null; mcClear(); HMC = null; MC = null; mmClear(); HMM = null; MM = null; kbClear(); HKB = null; KB = null; dbClear(); HDB = null; DB = null;
+  HC = null; CU = null; mcClear(); HMC = null; MC = null; mmClear(); HMM = null; MM = null; kbClear(); HKB = null; KB = null; dbClear(); HDB = null; DB = null; tkClear(); HTK = null; TK = null;
   CHAT.length = 0; renderChat();
   net = null; H = null; G = null; PG = null; D = null; NV = null; HN = null; cur = null; me.host = false; me.id = null; players = []; opps.clear();
 }
@@ -821,7 +851,7 @@ function hostDrop(conn){
   net.conns.delete(id);
   if (phase === 'lobby'){ const p = players.find(x => x.id === id); players = players.filter(p => p.id !== id); sendLobby(false); if (p) chatSys(p.name + ' a quitté le salon'); return; }
   if (H && H.alive.has(id)){
-    if (H.game === 'pong') pongDrop(id); else if (H.game === 'curling') curlDrop(id); else if (H.game === 'chairs') chairsDrop(id); else if (H.game === 'master') masterDrop(id); else if (H.game === 'kabaddi') kabaddiDrop(id); else if (H.game === 'dodge') dodgeDrop(id); else if (H.game === 'derby') derbyDrop(id); else if (H.game === 'naval') navalDrop(id); else if (H.game === 'mole') moleDrop(id); else hostHandle(id, { t:'dead', left:true });
+    if (H.game === 'pong') pongDrop(id); else if (H.game === 'curling') curlDrop(id); else if (H.game === 'chairs') chairsDrop(id); else if (H.game === 'master') masterDrop(id); else if (H.game === 'kabaddi') kabaddiDrop(id); else if (H.game === 'dodge') dodgeDrop(id); else if (H.game === 'tank') tankDrop(id); else if (H.game === 'derby') derbyDrop(id); else if (H.game === 'naval') navalDrop(id); else if (H.game === 'mole') moleDrop(id); else hostHandle(id, { t:'dead', left:true });
   }
 }
 
@@ -865,6 +895,7 @@ function hostStart(){
   if (gameKind === 'master') return masterHostStart();
   if (gameKind === 'kabaddi') return kabaddiHostStart();
   if (gameKind === 'dodge') return dodgeHostStart();
+  if (gameKind === 'tank') return tankHostStart();
   broadcast({ t:'start', players, game:gameKind, seed:Math.floor(Math.random() * 2**31) });
 }
 
@@ -900,6 +931,10 @@ function hostHandle(id, m){
     navalFire(id, m.x|0, m.y|0);
   } else if (m.t === 'dp'){
     derbyProgress(id, m);
+  } else if (m.t === 'tk_in'){
+    tankInput(id, m);
+  } else if (m.t === 'tk_fire'){
+    tankFire(id);
   } else if (m.t === 'db_in'){
     dodgeInput(id, m);
   } else if (m.t === 'db_throw'){
@@ -949,9 +984,9 @@ function clientRecv(m){
     case 'lobby':
       players = Array.isArray(m.players) ? m.players : [];
       if (m.you) me.id = m.you;
-      if (['tetris','pong','derby','naval','mole','curling','chairs','master','kabaddi','dodge'].includes(m.game)) gameKind = m.game;
+      if (['tetris','pong','derby','naval','mole','curling','chairs','master','kabaddi','dodge','tank'].includes(m.game)) gameKind = m.game;
       if (phase === 'menu' || phase === 'lobby' || m.back){
-        phase = 'lobby'; $('scrEnd').hidden = true; G = null; PG = null; D = null; NV = null; ML = null; CU = null; MC = null; MM = null; KB = null; DB = null; cur = null; show('scrLobby'); renderLobby();
+        phase = 'lobby'; $('scrEnd').hidden = true; G = null; PG = null; D = null; NV = null; ML = null; CU = null; MC = null; MM = null; KB = null; DB = null; TK = null; cur = null; show('scrLobby'); renderLobby();
       }
       break;
     case 'nv_start': startNaval(m); break;
@@ -973,7 +1008,8 @@ function clientRecv(m){
     case 'mm_round': case 'mm_fb': case 'mm_prog': case 'mm_solved': case 'mm_out': case 'mm_left': case 'mm_dl': case 'mm_end': masterRecv(m); break;
     case 'kb_raid': case 'kb_go': case 'kb_in_raid': case 'kb_s': case 'kb_touch': case 'kb_res': case 'kb_left': kabaddiRecv(m); break;
     case 'db_s': case 'db_ev': dodgeRecv(m); break;
-    case 'start': if (m.game === 'dodge') startDodge(m); else if (m.game === 'kabaddi') startKabaddi(m); else if (m.game === 'master') startMaster(m); else if (m.game === 'chairs') startChairs(m); else if (m.game === 'curling') startCurling(m); else if (m.game === 'pong') startPong(m.players); else if (m.game === 'derby') startDerby(m.players, m.seed|0); else startGame(m.players); break;
+    case 'tk_s': case 'tk_ev': tankRecv(m); break;
+    case 'start': if (m.game === 'tank') startTank(m); else if (m.game === 'dodge') startDodge(m); else if (m.game === 'kabaddi') startKabaddi(m); else if (m.game === 'master') startMaster(m); else if (m.game === 'chairs') startChairs(m); else if (m.game === 'curling') startCurling(m); else if (m.game === 'pong') startPong(m.players); else if (m.game === 'derby') startDerby(m.players, m.seed|0); else startGame(m.players); break;
     case 'dr': derbyRemote(m); break;
     case 'ps': pongState(m); break;
     case 'pg': pongGoalFx(m.side|0); break;
@@ -1229,7 +1265,7 @@ function showEnd(ranking, game){
   phase = 'end';
   if (G) G.p = null;
   if (PG) PG.ph = 'over';
-  const pong = game === 'pong', derby = game === 'derby', naval = game === 'naval', mole = game === 'mole', curl = game === 'curling', chairs = game === 'chairs', master = game === 'master', kab = game === 'kabaddi', dodge = game === 'dodge';
+  const pong = game === 'pong', derby = game === 'derby', naval = game === 'naval', mole = game === 'mole', curl = game === 'curling', chairs = game === 'chairs', master = game === 'master', kab = game === 'kabaddi', dodge = game === 'dodge', tank = game === 'tank';
   if (ML) ML.over = true;
   if (NV) NV.over = true;
   if (D) D.over = true;
@@ -1238,11 +1274,12 @@ function showEnd(ranking, game){
   if (MM){ MM.over = true; MM.ph = 'end'; MM.deadline = 0; }
   if (KB){ KB.over = true; KB.ph = 'res'; }
   if (DB) DB.over = true;
+  if (TK) TK.over = true;
   const hd = $('rankHead'); hd.textContent = '';
-  for (const h of ['#','Joueur', ...(dodge ? ['Vies','Touches','Arrêts'] : kab ? ['Points','Raids réussis','Plaquages'] : master ? ['Points','Trouvés','Essais'] : chairs ? ['Vies','Chaises','Réflexe'] : curl ? ['Points','Maison','Meilleure'] : pong ? ['Vies','Renvois'] : derby ? ['Figures','Distance','Temps'] : naval ? ['Tirs','Touchés','À flot'] : mole ? ['Points','Tapées','Échappées'] : ['Lignes','Briques','Score'])]){
+  for (const h of ['#','Joueur', ...(tank ? ['Char','Rôle','Touches'] : dodge ? ['Vies','Touches','Arrêts'] : kab ? ['Points','Raids réussis','Plaquages'] : master ? ['Points','Trouvés','Essais'] : chairs ? ['Vies','Chaises','Réflexe'] : curl ? ['Points','Maison','Meilleure'] : pong ? ['Vies','Renvois'] : derby ? ['Figures','Distance','Temps'] : naval ? ['Tirs','Touchés','À flot'] : mole ? ['Points','Tapées','Échappées'] : ['Lignes','Briques','Score'])]){
     const th = document.createElement('th'); th.textContent = h; hd.append(th);
   }
-  $('rankNote').textContent = dodge ? '« Touches » : balles qui ont atteint un adversaire. « Arrêts » : balles attrapées.' : kab ? '« Raids réussis » : raids rentrés avec au moins un défenseur touché. « Plaquages » : attaquants retenus jusqu\'au bout du souffle.' : master ? '« Trouvés » : codes trouvés. « Essais » : total des essais sur la partie.' : chairs ? '« Chaises » : chaises gagnées. « Réflexe » : votre plus rapide, de l\'arrêt du disque à la chaise.' : curl ? '« Maison » : pierres dans la maison en fin de mène. « Meilleure » : pierre la plus proche du centre.' : mole ? '« Tapées » : taupes adverses tapées. « Échappées » : vos taupes que personne n\'a eues.' : naval ? '« À flot » : cases de bateau encore intactes à la fin.' : pong ? '« Renvois » : balles renvoyées avec la raquette.' : derby ? '« Temps » : durée pour franchir la ligne, pour ceux qui l\'ont franchie.' : '« Briques » : nombre de briques envoyées aux adversaires.';
+  $('rankNote').textContent = tank ? 'Les deux membres d\'un équipage partagent la même place. « Touches » : obus du canonnier qui ont fait mouche.' : dodge ? '« Touches » : balles qui ont atteint un adversaire. « Arrêts » : balles attrapées.' : kab ? '« Raids réussis » : raids rentrés avec au moins un défenseur touché. « Plaquages » : attaquants retenus jusqu\'au bout du souffle.' : master ? '« Trouvés » : codes trouvés. « Essais » : total des essais sur la partie.' : chairs ? '« Chaises » : chaises gagnées. « Réflexe » : votre plus rapide, de l\'arrêt du disque à la chaise.' : curl ? '« Maison » : pierres dans la maison en fin de mène. « Meilleure » : pierre la plus proche du centre.' : mole ? '« Tapées » : taupes adverses tapées. « Échappées » : vos taupes que personne n\'a eues.' : naval ? '« À flot » : cases de bateau encore intactes à la fin.' : pong ? '« Renvois » : balles renvoyées avec la raquette.' : derby ? '« Temps » : durée pour franchir la ligne, pour ceux qui l\'ont franchie.' : '« Briques » : nombre de briques envoyées aux adversaires.';
   const tb = $('rankBody'); tb.textContent = '';
   (ranking || []).forEach(r => {
     const tr = document.createElement('tr'); if (r.place === 1) tr.className = 'win';
@@ -1251,7 +1288,8 @@ function showEnd(ranking, game){
     const d = document.createElement('span'); d.className = 'dot'; d.style.background = r.color;
     const s = document.createElement('span'); s.textContent = r.name + (r.id === me.id ? ' (vous)' : '') + (r.left ? ' · parti' : '');
     w.append(d, s); nm.append(w);
-    if (dodge) tr.append(td(r.place), nm, td(r.lives|0), td(r.hits|0), td(r.catches|0));
+    if (tank) tr.append(td(r.place), nm, td(r.tank|0), td(r.role || ''), td(r.hits|0));
+    else if (dodge) tr.append(td(r.place), nm, td(r.lives|0), td(r.hits|0), td(r.catches|0));
     else if (kab) tr.append(td(r.place), nm, td(r.pts|0), td(r.raids|0), td(r.tackles|0));
     else if (master) tr.append(td(r.place), nm, td(r.pts|0), td(r.solved|0), td(r.tries|0));
     else if (chairs) tr.append(td(r.place), nm, td(r.lives|0), td(r.seats|0), td(r.best ? fmtSec(r.best) : '–'));
@@ -1272,7 +1310,7 @@ function showEnd(ranking, game){
   $('winPanel').style.background = win ? win.color : '#FFD93B';
   $('winName').textContent = win ? (iWon ? 'Vous gagnez !' : win.name + ' gagne !') : '';
   $('myPlace').textContent = (GAME_NAMES[game] || 'Tetris') + (mine ? ' · vous finissez ' + (mine.place === 1 ? '1er' : mine.place + 'e') + ' sur ' + ranking.length : '');
-  (dodge ? dodgeMsg : kab ? kabaddiMsg : master ? masterMsg : chairs ? chairsMsg : curl ? curlMsg : pong ? pongMsg : derby ? derbyMsg : naval ? navalMsg : mole ? moleMsg : setMsg)('', '');
+  (tank ? tankMsg : dodge ? dodgeMsg : kab ? kabaddiMsg : master ? masterMsg : chairs ? chairsMsg : curl ? curlMsg : pong ? pongMsg : derby ? derbyMsg : naval ? navalMsg : mole ? moleMsg : setMsg)('', '');
   $('btnAgain').hidden = false;
   $('endHint').textContent = me.host ? 'Tout le monde revient au salon : relancez le même jeu ou choisissez-en un autre.' : 'Vous attendrez au salon que le créateur relance.';
   saveGame(ranking, game);
@@ -1436,7 +1474,7 @@ function release(a){
 const KEYMAP = { arrowleft:'left', arrowright:'right', arrowdown:'down', arrowup:'rotr', x:'rotr', z:'rotl', w:'rotl', control:'rotl', ' ':'drop', c:'hold', shift:'hold' };
 addEventListener('keydown', e => {
   if (e.target.tagName === 'INPUT') return;
-  if (cur === 'curl' || cur === 'chairs' || cur === 'master' || cur === 'kabaddi' || cur === 'dodge') return;
+  if (cur === 'curl' || cur === 'chairs' || cur === 'master' || cur === 'kabaddi' || cur === 'dodge' || cur === 'tank') return;
   if (cur === 'pong'){ const k = PKEYS[e.key.toLowerCase()]; if (k){ e.preventDefault(); pin[k] = true; } return; }
   const a = KEYMAP[e.key.toLowerCase()]; if (!a) return;
   e.preventDefault();
@@ -2554,12 +2592,9 @@ function moleNextRound(){
     while (cells.size < ML_PER) cells.add(Math.floor(Math.random()*ML_N) + ',' + Math.floor(Math.random()*ML_N));
     for (const c of cells){ const [x, y] = c.split(',').map(Number); HM.moles.push({ owner:null, x, y }); }
   }
-  // everyone hides their moles at the same time; the round starts when all have confirmed
+  // everyone's moles are placed at random: no placing step any more
   HM.waiting = new Set(moleActive());
-  broadcast({ t:'tt_place', id:'all', ms:ML_PLACE_MS, round:HM.round, total:HM.waiting.size });
-  if (HM.waiting.has('ai')) botLater(() => molePut('ai', null), 1500 + Math.random()*3000);
-  clearTimeout(HM.placeTimer);
-  HM.placeTimer = moleLater(() => { for (const id of [...HM.waiting]) molePut(id, null); }, ML_PLACE_MS + 1500);   // too slow: placed at random
+  for (const id of [...HM.waiting]) molePut(id, null);
 }
 function moleActive(){ return HM.order.filter(id => H.alive.has(id)); }
 function molePut(id, cells){
@@ -2606,13 +2641,7 @@ function moleHit(id, mid, rt){
   if (!HM || !HM.up) return;
   const m = HM.up.get(mid);
   if (!m || m.done || !H.alive.has(id) || !(rt >= 0) || rt > HM.dur + 150) return;
-  if (m.owner === id){                                  // tapping your own mole costs 2 points
-    m.pen = m.pen || new Set(); if (m.pen.has(id)) return; m.pen.add(id);
-    H.stats[id].pts -= 2;
-    const scores = {}; for (const k in H.stats) scores[k] = H.stats[k].pts;
-    broadcast({ t:'tt_pen', id, mid, scores });
-    return;
-  }
+  if (m.owner === id) return;                           // your own moles cannot be tapped
   m.taps.push({ id, rt });
   // fairness over the network: gather taps for a short moment, the fastest reaction wins
   if (m.taps.length === 1) moleLater(() => moleResolve(m), 160);
@@ -2658,6 +2687,10 @@ function startMole(m){
   $('scrEnd').hidden = true; show('scrMole');
   ML = { count:3, scores:Object.fromEntries(players.map(p => [p.id, 0])), placing:null, deadline:0, sel:[], mine:[], up:new Map(), fx:[], hover:null, over:false, round:0 };
   moleMsg('', ''); renderMoleScores();
+  const mc = $('mlMineCv'), x = mc.getContext('2d'); x.clearRect(0, 0, 120, 110);
+  const mine = players.find(p => p.id === me.id);
+  $('mlMine').hidden = !mine || players.length < 2;
+  if (mine){ drawMoleBody(x, 60, 98, 92, mine.color, 1, 0, 0, moleAcc(me.id)); $('mlMineTxt').textContent = 'Vos taupes ressemblent à celle-ci (' + ML_ACC_NAMES[moleAcc(me.id)] + ') : elles ne se tapent pas.'; }
 }
 const moleMsg = (big, small) => {
   const m = $('mlMsg'); m.textContent = '';
@@ -2702,7 +2735,6 @@ function molePlaceTurn(m){
 }
 function molePlaced(m){
   if (!ML) return;
-  if (m.id !== me.id){ const p = molePlayer(m.id); if (p) moleToast(p.name + ' est prêt'); }
   if (ML.sent) setMolePhase('En attente des autres : ' + (m.ready|0) + ' / ' + (m.total|0) + ' prêts', null);
 }
 function syncMoleConfirm(){
@@ -2724,6 +2756,7 @@ $('mlOk').onclick = moleSend;
 $('mlRand').onclick = () => { if (ML){ ML.sel = []; moleSend(); } };
 function moleRound(m){
   if (!ML) return;
+  if (phase === 'count'){ phase = 'play'; moleMsg('', ''); countBeep(0); }
   ML.placing = null; ML.sent = false; ML.deadline = 0; $('mlConfirm').hidden = true; $('mlTime').textContent = '';
   $('mlPhase').classList.remove('mine');
   setMolePhase('Manche ' + m.round + ' : tapez les taupes des autres !', null);
@@ -2781,7 +2814,7 @@ mlcv.addEventListener('pointerdown', e => {
   for (const u of ML.up.values()){
     if (u.x !== c[0] || u.y !== c[1] || u.state !== 'up' || u.tapped) continue;
     u.tapped = true;
-    if (u.owner === me.id){ toHost({ t:'tt_hit', mid:u.mid, rt:Math.round(now - u.t0) }); return; }
+    if (u.owner === me.id){ u.tapped = false; return; }              // yours: nothing happens
     ML.fx.push({ kind:'ring', x:ML_PAD + (c[0] + .5)*mlCell, y:ML_PAD + (c[1] + .5)*mlCell, t:0, col:moleColor(me.id) });
     toHost({ t:'tt_hit', mid:u.mid, rt:Math.round(now - u.t0) });
     return;
@@ -2823,7 +2856,10 @@ function star(ctx, x, y, r){
   for (let k = 0; k < 10; k++){ const a = -Math.PI/2 + k*Math.PI/5, rr = k % 2 ? r*.45 : r; k ? ctx.lineTo(x + Math.cos(a)*rr, y + Math.sin(a)*rr) : ctx.moveTo(x + Math.cos(a)*rr, y + Math.sin(a)*rr); }
   ctx.closePath();
 }
-function drawMoleBody(ctx, cx, cy, s, col, rise, squash, now){
+const ML_ACC = ['chapeau','lunettes','noeud','couronne','casquette','moustache','casque','fleur','bonnet','bandeau'];
+const ML_ACC_NAMES = ['haut-de-forme','lunettes noires','nœud rose','couronne','casquette','moustache','casque de chantier','fleur','bonnet','bandeau'];
+const moleAcc = id => { if (!id) return -1; const i = players.findIndex(p => p.id === id); return i < 0 ? -1 : i % ML_ACC.length; };
+function drawMoleBody(ctx, cx, cy, s, col, rise, squash, now, acc){
   // rise: 0 hidden .. 1 fully out ; clipped at the hole line so it pops out of the ground
   ctx.save();
   ctx.beginPath(); ctx.rect(cx - s, cy - s*1.5, s*2, s*1.5 + s*.02); ctx.clip();
@@ -2849,7 +2885,23 @@ function drawMoleBody(ctx, cx, cy, s, col, rise, squash, now){
   for (const ex of [-.3, .3]){ ctx.beginPath(); ctx.ellipse(s*ex, -s*.26, s*.07, s*.04, 0, 0, Math.PI*2); ctx.fill(); }
   ctx.fillStyle = '#FF9BB0'; ctx.beginPath(); ctx.ellipse(0, -s*.3, s*.1, s*.07, 0, 0, Math.PI*2); ctx.fill(); ctx.stroke();   // nose
   ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.rect(-s*.075, -s*.22, s*.07, s*.09); ctx.rect(s*.005, -s*.22, s*.07, s*.09); ctx.fill(); ctx.stroke();   // teeth
+  if (acc >= 0) moleAccessory(ctx, s, acc, lw);
   ctx.restore();
+}
+function moleAccessory(ctx, s, acc, lw){
+  // drawn in the mole's own frame: top of the head is around y = -0.62 s
+  ctx.lineWidth = lw; ctx.strokeStyle = INK; ctx.lineJoin = 'round';
+  const k = ML_ACC[acc];
+  if (k === 'chapeau'){ ctx.fillStyle = '#222'; ctx.fillRect(-s*.32, -s*.66, s*.64, s*.08); ctx.strokeRect(-s*.32, -s*.66, s*.64, s*.08); ctx.fillRect(-s*.19, -s*.98, s*.38, s*.33); ctx.strokeRect(-s*.19, -s*.98, s*.38, s*.33); ctx.fillStyle = '#E6262B'; ctx.fillRect(-s*.19, -s*.72, s*.38, s*.06); }
+  else if (k === 'lunettes'){ ctx.fillStyle = 'rgba(30,40,60,.85)'; for (const ex of [-.16, .16]){ ctx.beginPath(); ctx.ellipse(s*ex, -s*.43, s*.12, s*.1, 0, 0, Math.PI*2); ctx.fill(); ctx.stroke(); } ctx.beginPath(); ctx.moveTo(-s*.04, -s*.45); ctx.lineTo(s*.04, -s*.45); ctx.stroke(); }
+  else if (k === 'noeud'){ ctx.fillStyle = '#FF5FC8'; ctx.beginPath(); ctx.moveTo(s*.12, -s*.66); ctx.lineTo(s*.38, -s*.8); ctx.lineTo(s*.38, -s*.5); ctx.closePath(); ctx.moveTo(s*.12, -s*.66); ctx.lineTo(-s*.12, -s*.82); ctx.lineTo(-s*.1, -s*.5); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.arc(s*.12, -s*.66, s*.06, 0, Math.PI*2); ctx.fill(); ctx.stroke(); }
+  else if (k === 'couronne'){ ctx.fillStyle = '#FFD21F'; ctx.beginPath(); ctx.moveTo(-s*.26, -s*.6); ctx.lineTo(-s*.28, -s*.88); ctx.lineTo(-s*.13, -s*.72); ctx.lineTo(0, -s*.92); ctx.lineTo(s*.13, -s*.72); ctx.lineTo(s*.28, -s*.88); ctx.lineTo(s*.26, -s*.6); ctx.closePath(); ctx.fill(); ctx.stroke(); }
+  else if (k === 'casquette'){ ctx.fillStyle = '#1E5BFF'; ctx.beginPath(); ctx.ellipse(0, -s*.6, s*.36, s*.2, 0, Math.PI, 0); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.ellipse(s*.3, -s*.6, s*.24, s*.06, 0, 0, Math.PI*2); ctx.fill(); ctx.stroke(); }
+  else if (k === 'moustache'){ ctx.fillStyle = '#3B2A1A'; ctx.beginPath(); ctx.ellipse(-s*.11, -s*.24, s*.12, s*.045, -.3, 0, Math.PI*2); ctx.ellipse(s*.11, -s*.24, s*.12, s*.045, .3, 0, Math.PI*2); ctx.fill(); }
+  else if (k === 'casque'){ ctx.fillStyle = '#FF8A1F'; ctx.beginPath(); ctx.ellipse(0, -s*.58, s*.42, s*.24, 0, Math.PI, 0); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.fillStyle = '#fff'; ctx.fillRect(-s*.05, -s*.8, s*.1, s*.18); ctx.strokeRect(-s*.05, -s*.8, s*.1, s*.18); }
+  else if (k === 'fleur'){ ctx.fillStyle = '#fff'; for (let i = 0; i < 5; i++){ const a = i*Math.PI*2/5; ctx.beginPath(); ctx.arc(-s*.24 + Math.cos(a)*s*.08, -s*.68 + Math.sin(a)*s*.08, s*.07, 0, Math.PI*2); ctx.fill(); ctx.stroke(); } ctx.fillStyle = '#FFD21F'; ctx.beginPath(); ctx.arc(-s*.24, -s*.68, s*.06, 0, Math.PI*2); ctx.fill(); ctx.stroke(); }
+  else if (k === 'bonnet'){ ctx.fillStyle = '#12A150'; ctx.beginPath(); ctx.ellipse(0, -s*.58, s*.4, s*.26, 0, Math.PI, 0); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(0, -s*.88, s*.08, 0, Math.PI*2); ctx.fill(); ctx.stroke(); }
+  else if (k === 'bandeau'){ ctx.fillStyle = '#E6262B'; ctx.fillRect(-s*.44, -s*.62, s*.88, s*.1); ctx.strokeRect(-s*.44, -s*.62, s*.88, s*.1); ctx.beginPath(); ctx.moveTo(s*.42, -s*.58); ctx.lineTo(s*.58, -s*.7); ctx.lineTo(s*.56, -s*.48); ctx.closePath(); ctx.fill(); ctx.stroke(); }
 }
 function drawHole(ctx, cx, cy, c){
   const lw = Math.max(2, c*.04);
@@ -2900,7 +2952,7 @@ function drawMole(now){
     if (u.state === 'up'){ rise = Math.min(1, age / 110); if (age > u.dur - 110) rise = Math.max(0, (u.dur - age) / 110); }
     else if (u.state === 'whacked'){ const k = (now - u.t1) / 450; squash = 1; rise = Math.max(0, 1 - k*1.2); }
     else { rise = Math.max(0, 1 - (now - u.t1) / 160); }
-    drawMoleBody(ctx, cx, cy, c*.8, col, rise, squash, now);
+    drawMoleBody(ctx, cx, cy, c*.8, col, rise, squash, now, moleAcc(u.owner));
     drawHoleFront(ctx, cx, cy, c);
     if (u.owner === me.id && u.state === 'up'){       // your own mole: a tag so you do not tap it
       const ty = ML_PAD + (u.y + .9)*c, fs = Math.round(c*.19);
@@ -2961,7 +3013,7 @@ function curlLater(fn, ms){ const hc = HC; setTimeout(() => { if (HC === hc && H
 function curlHostStart(){
   const n = players.length;
   const base = players.map(p => p.id); for (let i = base.length - 1; i > 0; i--){ const j = Math.floor(Math.random()*(i+1)); [base[i], base[j]] = [base[j], base[i]]; }
-  HC = { n, base, spp:n <= 2 ? 3 : n <= 4 ? 2 : 1, ends:Math.max(2, n), end:0, k:0, order:[], left:{}, stones:[], nid:0, ph:'wait',
+  HC = { n, base, spp:n <= 2 ? 3 : 2, ends:Math.max(2, n), end:0, k:0, order:[], left:{}, stones:[], nid:0, ph:'wait',
     cur:null, thrower:null, sweep:false, clack:0, timer:null, lastSend:0, runT:0, hit:false };
   broadcast({ t:'start', players, game:'curling', spp:HC.spp, ends:HC.ends });
   curlLater(curlNewEnd, 3200);
@@ -3980,7 +4032,7 @@ function kbNextRaid(){
   const raider = HKB.order[HKB.k], defs = players.filter(p => p.id !== raider && kbActive(p.id)).map(p => p.id);
   if (!defs.length) return kabaddiFinish();
   HKB.raider = raider; HKB.defs = defs; HKB.ph = 'ready'; HKB.t = 0; HKB.crossed = false; HKB.breath = KB_BREATH; HKB.grace = 0;
-  HKB.touched = new Set(); HKB.contact = new Set(); HKB.pos = {}; HKB.IN = {};
+  HKB.touched = new Set(); HKB.contact = new Set(); HKB.grip = new Map(); HKB.cd = new Map(); HKB.pos = {}; HKB.IN = {};
   HKB.pos[raider] = [KB_W/2, KB_H - 100];
   defs.forEach((id, i) => { HKB.pos[id] = [KB_W*(i + 1)/(defs.length + 1), 150]; });
   players.forEach(p => HKB.IN[p.id] = { tx:null, ty:null, hold:false, kx:0, ky:0 });
@@ -3997,7 +4049,7 @@ function kabaddiInput(id, m){
 }
 function kbStep(h){
   const P = HKB.pos, rid = HKB.raider, ids = Object.keys(P);
-  const nContact = HKB.contact.size;   // holds from the previous step
+  const nContact = HKB.grip.size;   // holds from the previous step
   for (const id of ids){
     const I = HKB.IN[id] || {}, p = P[id], raider = id === rid;
     const sp = raider ? KB_SP_RAID : KB_SP_DEF;
@@ -4005,31 +4057,37 @@ function kbStep(h){
     if (I.kx || I.ky){ const L = Math.max(1, Math.hypot(I.kx, I.ky)); vx = I.kx/L*sp; vy = I.ky/L*sp; }
     else if (I.tx != null){ const dx = I.tx - p[0], dy = I.ty - p[1], d = Math.hypot(dx, dy); if (d > 1){ const s = Math.min(sp, d/h); vx = dx/d*s; vy = dy/d*s; } }
     if (raider && nContact){
-      // defenders holding on: pushing into them or sideways is hard, pulling away is free (they only stick a moment)
-      for (const did of HKB.contact){ const q = P[did]; if (!q) continue;
+      // held by defenders: barely moves into them or sideways; pulling away works, slowly, and frees him after a moment
+      for (const [did, g] of HKB.grip){ const q = P[did]; if (!q) continue;
         const nx = q[0] - p[0], ny = q[1] - p[1], nl = Math.hypot(nx, ny) || 1, vn = (vx*nx + vy*ny)/nl;
-        if (vn > 0){ vx -= nx/nl*vn*.85; vy -= ny/nl*vn*.85; } }
-      const f = 1 / (1 + .3*nContact); vx *= f; vy *= f;
+        if (vn < 0){ vx -= nx/nl*vn*.55; vy -= ny/nl*vn*.55; if (vn < -.3*sp) g.pull += h; else g.pull = Math.max(0, g.pull - h); }
+        else { vx -= nx/nl*vn*.8; vy -= ny/nl*vn*.8; g.pull = Math.max(0, g.pull - h); } }
+      const f = 1 / (1 + .4*nContact); vx *= f; vy *= f;
     }
     p[0] += vx*h; p[1] += vy*h;
     p[0] = Math.max(KB_R, Math.min(KB_W - KB_R, p[0]));
     p[1] = Math.max(KB_R, Math.min((raider ? KB_H : HKB.crossed ? KB_MID : KB_MID - KB_GAP) - KB_R, p[1]));   // defenders stay in their half, and off the line until the raider is in
   }
-  for (let i = 0; i < ids.length; i++) for (let j = i + 1; j < ids.length; j++){
-    const a = P[ids[i]], b = P[ids[j]], dx = b[0] - a[0], dy = b[1] - a[1], d = Math.hypot(dx, dy);
-    if (d >= 2*KB_R || d === 0) continue;
-    const o = (2*KB_R - d)/2, nx = dx/d, ny = dy/d;
-    a[0] -= nx*o; a[1] -= ny*o; b[0] += nx*o; b[1] += ny*o;
-  }
   const R = P[rid];
-  for (const id of HKB.defs){                      // grabs at contact, lets go once the raider is a little away
-    const q = P[id]; if (!q){ HKB.contact.delete(id); continue; }
-    const d = Math.hypot(q[0] - R[0], q[1] - R[1]);
-    if (d < 2*KB_R + 4) HKB.contact.add(id); else if (d > 2*KB_R + 16) HKB.contact.delete(id);
+  for (const id of HKB.defs){                      // only the raider bumps into defenders; defenders pass each other
+    const q = P[id]; if (!q) continue;
+    const dx = q[0] - R[0], dy = q[1] - R[1], d = Math.hypot(dx, dy);
+    if (d < 2*KB_R && d > 0){ const o = (2*KB_R - d)/2; R[0] -= dx/d*o; R[1] -= dy/d*o; q[0] += dx/d*o; q[1] += dy/d*o; }
   }
+  for (const [id, t] of HKB.cd) if (t > 0) HKB.cd.set(id, t - h);
+  for (const id of HKB.defs){
+    const q = P[id]; if (!q){ HKB.grip.delete(id); continue; }
+    const d = Math.hypot(q[0] - R[0], q[1] - R[1]);
+    if (d < 2*KB_R + 4 && HKB.crossed && !HKB.grip.has(id) && !(HKB.cd.get(id) > 0)) HKB.grip.set(id, { pull:0 });
+    const g = HKB.grip.get(id); if (!g) continue;
+    if (g.pull > .5){ HKB.grip.delete(id); HKB.cd.set(id, .9); continue; }          // pulled free
+    if (d > 2*KB_R + 2){ const k = (d - 2*KB_R - 2)/d; R[0] += (q[0] - R[0])*k; R[1] += (q[1] - R[1])*k; }   // stuck to the defender
+  }
+  R[0] = Math.max(KB_R, Math.min(KB_W - KB_R, R[0])); R[1] = Math.max(KB_R, Math.min(KB_H - KB_R, R[1]));
+  HKB.contact = new Set(HKB.grip.keys());
+  for (const id of HKB.defs){ const q = P[id]; if (q && Math.hypot(q[0] - R[0], q[1] - R[1]) < 2*KB_R + 6 && HKB.crossed && !HKB.touched.has(id)){ HKB.touched.add(id); broadcast({ t:'kb_touch', id }); } }
   if (!HKB.crossed && R[1] < KB_MID){ HKB.crossed = true; broadcast({ t:'kb_in_raid' }); }
   if (!HKB.crossed){ if (HKB.t > 8) kbEnd(false, 'void'); return; }
-  for (const id of HKB.contact) if (!HKB.touched.has(id)){ HKB.touched.add(id); broadcast({ t:'kb_touch', id }); }
   if (R[1] < KB_MID){
     HKB.breath -= h;
     if (!HKB.IN[rid].hold){ HKB.grace += h; if (HKB.grace > .3) return kbEnd(false, 'release'); } else HKB.grace = 0;
@@ -4077,7 +4135,7 @@ function kabaddiDrop(id){
   if (Object.keys(H.stats).filter(kbActive).length <= 1) return kabaddiFinish();
   if (HKB.ph === 'raid' || HKB.ph === 'ready'){
     if (HKB.raider === id){ HKB.ph = 'raid'; kbEnd(false, 'left'); }
-    else { delete HKB.pos[id]; HKB.defs = HKB.defs.filter(x => x !== id); HKB.contact.delete(id); }
+    else { delete HKB.pos[id]; HKB.defs = HKB.defs.filter(x => x !== id); HKB.contact.delete(id); HKB.grip.delete(id); }
   }
 }
 
@@ -4624,6 +4682,439 @@ function drawDodge(now){
   for (const b of holder){ drawBall(b.x, b.y, false); }
 }
 
+// ================= CHARS : two players per tank, one drives, the other aims and fires =================
+// Crews are drawn at random (robots fill the empty seats). Nobody can talk: the crew has to read each other.
+const TK_S = 540, TK_R = 21, TK_SP = 125, TK_TURN = 2.6, TK_TUR = 3.2, TK_SHELL = 430, TK_RELOAD = 1.5, TK_LIVES = 3, TK_TIME = 180, TK_HIDE = 58;
+const TK_MODELS = ['Moyen', 'Lourd', 'Léger', 'Blindé'];
+let HTK = null, TK = null;
+const angN = a => Math.atan2(Math.sin(a), Math.cos(a));
+
+// ---- map: walls, crates, rocks, two forests to hide in; the same seed gives the same map everywhere ----
+function tkMap(seed){
+  const r = rng32(seed), obs = [], hides = [], S = TK_S;
+  const spawns = [[60, S - 60], [S - 60, 60], [S - 60, S - 60], [60, 60], [S/2, 50]];
+  for (let k = 0; hides.length < 2 && k < 800; k++){
+    const x = 110 + r()*(S - 220), y = 110 + r()*(S - 220);
+    if (hides.every(h => Math.hypot(h[0] - x, h[1] - y) > 200) && spawns.every(s => Math.hypot(s[0] - x, s[1] - y) > 120)) hides.push([x, y, TK_HIDE]);
+  }
+  if (hides.length < 2){ hides.length = 0; const f = r() < .5; hides.push([S*.3, f ? S*.35 : S*.65, TK_HIDE], [S*.7, f ? S*.65 : S*.35, TK_HIDE]); }
+  const ctr = o => o.k === 'rock' ? [o.cx, o.cy] : [o.x + o.w/2, o.y + o.h/2];
+  for (let k = 0; obs.length < 10 && k < 800; k++){
+    const kind = r() < .42 ? 'wall' : r() < .55 ? 'crate' : 'rock', x = 60 + r()*(S - 120), y = 60 + r()*(S - 120);
+    let o;
+    if (kind === 'wall'){ const hor = r() < .5, L = 80 + r()*90, T = 18; o = { k:'wall', x:hor ? x - L/2 : x - T/2, y:hor ? y - T/2 : y - L/2, w:hor ? L : T, h:hor ? T : L }; }
+    else if (kind === 'crate'){ const z = 34 + r()*14; o = { k:'crate', x:x - z/2, y:y - z/2, w:z, h:z }; }
+    else o = { k:'rock', cx:x, cy:y, r:20 + r()*14 };
+    const c = ctr(o);
+    if (spawns.some(s => Math.hypot(s[0] - c[0], s[1] - c[1]) < 95)) continue;
+    if (hides.some(h => Math.hypot(h[0] - c[0], h[1] - c[1]) < h[2] + 55)) continue;
+    if (obs.some(q => { const d = ctr(q); return Math.hypot(d[0] - c[0], d[1] - c[1]) < 88; })) continue;
+    o.v = Math.floor(r()*1000); obs.push(o);
+  }
+  return { obs, hides, spawns };
+}
+function tkInObs(map, x, y, pad){
+  if (x < pad || y < pad || x > TK_S - pad || y > TK_S - pad) return true;
+  for (const o of map.obs){
+    if (o.k === 'rock'){ if (Math.hypot(x - o.cx, y - o.cy) < o.r + pad) return true; }
+    else if (x > o.x - pad && x < o.x + o.w + pad && y > o.y - pad && y < o.y + o.h + pad) return true;
+  }
+  return false;
+}
+function tkPush(map, p, rad){
+  for (const o of map.obs){
+    if (o.k === 'rock'){ const dx = p.x - o.cx, dy = p.y - o.cy, d = Math.hypot(dx, dy) || .01; if (d < rad + o.r){ p.x += dx/d*(rad + o.r - d); p.y += dy/d*(rad + o.r - d); } continue; }
+    const cx = Math.max(o.x, Math.min(o.x + o.w, p.x)), cy = Math.max(o.y, Math.min(o.y + o.h, p.y));
+    const dx = p.x - cx, dy = p.y - cy, d = Math.hypot(dx, dy);
+    if (d >= rad) continue;
+    if (d > 0){ p.x += dx/d*(rad - d); p.y += dy/d*(rad - d); }
+    else {                                             // centre inside the box: leave by the nearest side
+      const l = p.x - o.x, rr = o.x + o.w - p.x, t = p.y - o.y, b = o.y + o.h - p.y, m = Math.min(l, rr, t, b);
+      if (m === l) p.x = o.x - rad; else if (m === rr) p.x = o.x + o.w + rad; else if (m === t) p.y = o.y - rad; else p.y = o.y + o.h + rad;
+    }
+  }
+  p.x = Math.max(rad, Math.min(TK_S - rad, p.x)); p.y = Math.max(rad, Math.min(TK_S - rad, p.y));
+}
+function tkSees(map, ax, ay, bx, by){
+  const d = Math.hypot(bx - ax, by - ay), n = Math.ceil(d / 10);
+  for (let i = 1; i < n; i++){ const t = i/n; if (tkInObs(map, ax + (bx - ax)*t, ay + (by - ay)*t, 2)) return false; }
+  return true;
+}
+const tkInHide = (map, x, y) => map.hides.some(h => Math.hypot(h[0] - x, h[1] - y) < h[2] - 8);
+
+// ---- host side ----
+function tkLater(fn, ms){ const g = HTK; const t = setTimeout(() => { if (HTK === g && H && !H.over) fn(); }, ms); HTK.timers.push(t); }
+function tkClear(){ if (HTK) HTK.timers.forEach(t => clearTimeout(t)); }
+function tankHostStart(){
+  const humans = players.filter(p => !p.bot).map(p => p.id);
+  for (let i = humans.length - 1; i > 0; i--){ const j = Math.floor(Math.random()*(i+1)); [humans[i], humans[j]] = [humans[j], humans[i]]; }
+  const nT = Math.max(2, Math.ceil(humans.length / 2));
+  players = players.filter(p => !p.bot);
+  const seats = humans.slice(), bots = [];
+  for (let k = 0; seats.length < nT*2; k++){ const id = k ? 'ai' + (k + 1) : 'ai'; players.push({ id, name:'Robot' + (k ? ' ' + (k + 1) : ''), color:pickColor(), bot:true }); seats.push(id); bots.push(id); }
+  H.alive = new Set(players.map(p => p.id)); H.n = players.length; H.stats = {};
+  const seed = Math.floor(Math.random() * 2**31), map = tkMap(seed), C = TK_S/2;
+  HTK = { seed, map, tanks:[], shells:[], timers:[], t:0, ph:'wait', lastSend:0, order:[], IN:{}, bots:new Set(bots), ev:0 };
+  for (let i = 0; i < nT; i++){
+    const [x, y] = map.spawns[i], a = Math.atan2(C - y, C - x);
+    const t = { i, d:seats[2*i], g:seats[2*i + 1], x, y, a, ta:a, lives:TK_LIVES, rel:1, inv:0, alive:true, reveal:0, model:i % TK_MODELS.length, vx:0, vy:0, bot:{} };
+    HTK.tanks.push(t);
+    H.stats[t.d] = { tank:i + 1, role:'pilote', hits:0, shots:0, lives:TK_LIVES, left:false };
+    H.stats[t.g] = { tank:i + 1, role:'canon', hits:0, shots:0, lives:TK_LIVES, left:false };
+  }
+  players.forEach(p => HTK.IN[p.id] = { jx:0, jy:0, fw:0, tu:0, aa:null, tr:0 });
+  broadcast({ t:'start', players, game:'tank', seed, tanks:HTK.tanks.map(t => ({ d:t.d, g:t.g, model:t.model, x:t.x, y:t.y, a:t.a })) });
+  tkLater(() => { HTK.ph = 'play'; }, 3200);
+}
+function tankInput(id, m){
+  const I = HTK && HTK.IN[id]; if (!I) return;
+  const c = v => Math.max(-1, Math.min(1, +v || 0));
+  I.jx = c(m.jx); I.jy = c(m.jy); I.fw = c(m.fw); I.tu = c(m.tu); I.tr = c(m.tr);
+  I.aa = m.aa == null || !isFinite(+m.aa) ? null : +m.aa;
+}
+function tankFire(id){
+  if (!HTK || HTK.ph !== 'play') return;
+  const t = HTK.tanks.find(q => q.g === id && q.alive); if (!t || t.rel > 0) return;
+  const L = TK_R + 16, x = t.x + Math.cos(t.ta)*L, y = t.y + Math.sin(t.ta)*L;
+  t.rel = TK_RELOAD; t.reveal = .9;
+  if (H.stats[id]) H.stats[id].shots++;
+  if (tkInObs(HTK.map, x, y, 3)){ broadcast({ t:'tk_ev', k:'spark', x:Math.round(x), y:Math.round(y) }); return; }   // barrel against a wall
+  HTK.shells.push({ x, y, vx:Math.cos(t.ta)*TK_SHELL, vy:Math.sin(t.ta)*TK_SHELL, from:t.i });
+  broadcast({ t:'tk_ev', k:'fire', i:t.i });
+}
+function tkStep(h){
+  const map = HTK.map, live = HTK.tanks.filter(t => t.alive);
+  for (const t of live){
+    const D = HTK.IN[t.d] || {}, Gn = HTK.IN[t.g] || {};
+    let thr = 0;
+    if (D.jx || D.jy){
+      const want = Math.atan2(D.jy, D.jx), mag = Math.min(1, Math.hypot(D.jx, D.jy));
+      let diff = angN(want - t.a), rev = false;
+      if (Math.abs(diff) > 2.1){ rev = true; diff = angN(want + Math.PI - t.a); }    // pulling backwards: reverse
+      t.a = angN(t.a + Math.max(-TK_TURN*h, Math.min(TK_TURN*h, diff)));
+      thr = mag * Math.max(0, Math.cos(diff)) * (rev ? -.7 : 1);
+    } else { t.a = angN(t.a + D.tu*TK_TURN*h); thr = D.fw < 0 ? D.fw*.7 : D.fw; }
+    const ox = t.x, oy = t.y;
+    t.x += Math.cos(t.a)*TK_SP*thr*h; t.y += Math.sin(t.a)*TK_SP*thr*h;
+    tkPush(map, t, TK_R);
+    t.vx = (t.x - ox)/h; t.vy = (t.y - oy)/h;
+    if (Gn.aa != null) t.ta = angN(t.ta + Math.max(-TK_TUR*h, Math.min(TK_TUR*h, angN(Gn.aa - t.ta))));
+    else t.ta = angN(t.ta + Gn.tr*TK_TUR*h);
+    t.rel = Math.max(0, t.rel - h); t.inv = Math.max(0, t.inv - h); t.reveal = Math.max(0, t.reveal - h);
+    t.hid = tkInHide(map, t.x, t.y) && t.reveal <= 0;
+  }
+  for (let i = 0; i < live.length; i++) for (let j = i + 1; j < live.length; j++){
+    const a = live[i], b = live[j], dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy) || .01;
+    if (d < 2*TK_R){ const o = (2*TK_R - d)/2; a.x -= dx/d*o; a.y -= dy/d*o; b.x += dx/d*o; b.y += dy/d*o; tkPush(map, a, TK_R); tkPush(map, b, TK_R); }
+  }
+  HTK.shells = HTK.shells.filter(s => {
+    s.x += s.vx*h; s.y += s.vy*h;
+    if (tkInObs(map, s.x, s.y, 3)){ broadcast({ t:'tk_ev', k:'spark', x:Math.round(s.x), y:Math.round(s.y) }); return false; }
+    for (const t of live){
+      if (t.i === s.from || !t.alive || Math.hypot(t.x - s.x, t.y - s.y) > TK_R + 2) continue;
+      if (t.inv <= 0) tkHit(t, s.from);
+      else broadcast({ t:'tk_ev', k:'spark', x:Math.round(s.x), y:Math.round(s.y) });
+      return false;
+    }
+    return true;
+  });
+}
+function tkHit(t, from){
+  t.lives--; t.inv = .9; t.reveal = 1.2;
+  const sh = HTK.tanks[from]; if (sh && H.stats[sh.g]) H.stats[sh.g].hits++;
+  for (const id of [t.d, t.g]) if (H.stats[id]) H.stats[id].lives = Math.max(0, t.lives);
+  broadcast({ t:'tk_ev', k:t.lives > 0 ? 'hit' : 'dead', i:t.i, by:from, x:Math.round(t.x), y:Math.round(t.y) });
+  if (t.lives <= 0){
+    t.alive = false; HTK.order.push(t.i);
+    for (const id of [t.d, t.g]){ H.alive.delete(id); H.deaths.push(id); }
+    if (HTK.tanks.filter(q => q.alive).length <= 1) tankFinish();
+  }
+}
+function tankFinish(){
+  if (!H || H.over) return;
+  H.over = true; tkClear();
+  const alive = HTK.tanks.filter(t => t.alive).sort((a, b) => b.lives - a.lives);
+  const order = [...alive, ...HTK.order.slice().reverse().map(i => HTK.tanks[i])];
+  const ranking = [];
+  order.forEach((t, k) => { for (const id of [t.d, t.g]){ const p = players.find(x => x.id === id) || { name:'?', color:'#888' }; ranking.push({ id, name:p.name, color:p.color, place:k + 1, ...H.stats[id] }); } });
+  setTimeout(() => broadcast({ t:'end', ranking, game:'tank' }), 1200);
+}
+function tankDrop(id){
+  if (!H || !H.stats[id]) return;
+  H.stats[id].left = true;
+  if (HTK){ HTK.bots.add(id); HTK.IN[id] = { jx:0, jy:0, fw:0, tu:0, aa:null, tr:0 }; }   // a robot takes the empty seat
+  broadcast({ t:'tk_ev', k:'left', id });
+}
+function tankHostFrame(dt, now){
+  if (!HTK || !H || H.over || HTK.ph !== 'play') return;
+  HTK.t += dt;
+  botTank(dt);
+  const n = Math.ceil(dt / (1/120));
+  for (let i = 0; i < n && !H.over; i++) tkStep(dt/n);
+  if (H.over) return;
+  if (now - HTK.lastSend > 33){
+    HTK.lastSend = now;
+    const r = v => Math.round(v*10)/10, ra = v => Math.round(v*100)/100;
+    broadcast({ t:'tk_s', tl:Math.max(0, TK_TIME - HTK.t),
+      k:HTK.tanks.map(t => [r(t.x), r(t.y), ra(t.a), ra(t.ta), t.lives, t.hid ? 1 : 0, Math.round(t.rel*10), t.inv > 0 ? 1 : 0, t.alive ? 1 : 0]),
+      s:HTK.shells.map(s => [r(s.x), r(s.y)]) });
+  }
+  if (HTK.t >= TK_TIME) tankFinish();
+}
+
+// ---- robots: the driver roams and keeps a fighting distance, the gunner leads its shots ----
+function botTank(dt){
+  const map = HTK.map;
+  for (const t of HTK.tanks){
+    if (!t.alive) continue;
+    const foes = HTK.tanks.filter(q => q.alive && q.i !== t.i && !q.hid);
+    const B = t.bot;
+    if (HTK.bots.has(t.d)){
+      const I = HTK.IN[t.d]; B.dT = (B.dT || 0) - dt;
+      if (B.dT <= 0 || B.tx == null || Math.hypot(B.tx - t.x, B.ty - t.y) < 30){
+        B.dT = 2 + Math.random()*2.5;
+        const f = foes.length ? foes.reduce((a, q) => Math.hypot(q.x - t.x, q.y - t.y) < Math.hypot(a.x - t.x, a.y - t.y) ? q : a) : null;
+        let tx, ty;
+        if (f && Math.random() < .7){ const ang = Math.atan2(t.y - f.y, t.x - f.x) + (Math.random() - .5)*1.6, d = 170 + Math.random()*120; tx = f.x + Math.cos(ang)*d; ty = f.y + Math.sin(ang)*d; }
+        else if (Math.random() < .35){ const hd = map.hides[Math.floor(Math.random()*map.hides.length)]; tx = hd[0]; ty = hd[1]; }
+        else { tx = 60 + Math.random()*(TK_S - 120); ty = 60 + Math.random()*(TK_S - 120); }
+        B.tx = Math.max(40, Math.min(TK_S - 40, tx)); B.ty = Math.max(40, Math.min(TK_S - 40, ty));
+      }
+      let want = Math.atan2(B.ty - t.y, B.tx - t.x);
+      const probe = (a, d) => tkInObs(map, t.x + Math.cos(a)*d, t.y + Math.sin(a)*d, TK_R - 4);
+      if (probe(t.a, 42)){ B.side = B.side || (Math.random() < .5 ? 1 : -1); want = t.a + B.side*1.4; } else if (!probe(want, 42)) B.side = 0;
+      if (Math.hypot(B.tx - t.x, B.ty - t.y) < 30){ I.jx = I.jy = 0; } else { I.jx = Math.cos(want); I.jy = Math.sin(want); }
+    }
+    if (HTK.bots.has(t.g)){
+      const I = HTK.IN[t.g];
+      const vis = foes.filter(q => tkSees(map, t.x, t.y, q.x, q.y));
+      const f = (vis.length ? vis : foes).reduce((a, q) => !a || Math.hypot(q.x - t.x, q.y - t.y) < Math.hypot(a.x - t.x, a.y - t.y) ? q : a, null);
+      if (!f){ I.aa = t.a; continue; }
+      const d = Math.hypot(f.x - t.x, f.y - t.y), lead = d / TK_SHELL;
+      if (B.err === undefined || B.shot !== t.rel > 0){ B.shot = t.rel > 0; if (!B.shot) B.err = (Math.random() - .5)*.16; }
+      I.aa = Math.atan2(f.y + f.vy*lead*.8 - t.y, f.x + f.vx*lead*.8 - t.x) + (B.err || 0);
+      if (t.rel <= 0 && Math.abs(angN(I.aa - t.ta)) < .06 && vis.includes(f) && d < 520){
+        B.wait = (B.wait ?? .25 + Math.random()*.5) - dt;
+        if (B.wait <= 0){ B.wait = undefined; tankFire(t.g); }
+      }
+    }
+  }
+}
+
+// ---- my view ----
+const tkcv = $('tkCv'), tkctx = tkcv.getContext('2d');
+function startTank(m){
+  lastCountShown = null;
+  players = m.players; cur = 'tank'; G = null; PG = null; D = null; phase = 'count';
+  $('scrEnd').hidden = true; show('scrTank');
+  const map = tkMap(m.seed|0);
+  TK = { map, tanks:(m.tanks || []).map((t, i) => ({ i, d:t.d, g:t.g, model:t.model|0, x:+t.x, y:+t.y, tx:+t.x, ty:+t.y, a:+t.a, ta:+t.a, lives:TK_LIVES, hid:0, rel:0, inv:0, alive:1, tread:0 })),
+    shells:[], tl:TK_TIME, fx:[], count:3, in:{ jx:0, jy:0, fw:0, tu:0, aa:null, tr:0 }, sent:'', lastSend:0, keys:{}, joyOn:false, over:false };
+  const mine = TK.tanks.find(t => t.d === me.id || t.g === me.id);
+  TK.my = mine ? mine.i : -1; TK.role = mine ? (mine.d === me.id ? 'pilote' : 'canon') : '';
+  const partner = mine ? (TK.role === 'pilote' ? mine.g : mine.d) : null;
+  const pn = (players.find(p => p.id === partner) || {}).name || '?';
+  $('tkRole').textContent = !mine ? 'Spectateur' : TK.role === 'pilote' ? 'Vous PILOTEZ le char ' + (mine.i + 1) + ' · ' + pn + ' tire' : 'Vous TIREZ depuis le char ' + (mine.i + 1) + ' · ' + pn + ' pilote';
+  $('tkFire').hidden = TK.role !== 'canon';
+  $('tkHelp').textContent = TK.role === 'pilote'
+    ? 'Pilote : posez le doigt n\'importe où et glissez, le char tourne puis roule dans cette direction (tirez vers l\'arrière pour reculer). Clavier : flèches ou ZQSD. Votre équipier vise et tire : ne lui parlez pas, devinez-le !'
+    : 'Canonnier : glissez pour orienter la tourelle, touchez brièvement ou « FEU ! » pour tirer (un obus toutes les 1,5 s). Souris : visez avec le curseur, cliquez pour tirer. Clavier : ← → tourelle, Espace feu.';
+  tankMsg(''); renderTkPlayers();
+}
+const tankMsg = big => { const m = $('tkMsg'); m.textContent = ''; if (big){ const s = document.createElement('strong'); s.textContent = big; m.append(s); } };
+let tkToastT = null;
+function tkToast(t){ const el = $('tkToast'); el.textContent = t; el.classList.add('on'); clearTimeout(tkToastT); tkToastT = setTimeout(() => el.classList.remove('on'), 1700); }
+const tkP = id => players.find(p => p.id === id) || { name:'?', color:'#888' };
+function renderTkPlayers(){
+  const ul = $('tkPlayers'); ul.textContent = '';
+  for (const t of TK.tanks){
+    const li = document.createElement('li'); if (!t.alive) li.classList.add('dead'); if (t.i === TK.my) li.classList.add('turn');
+    const d1 = document.createElement('span'); d1.className = 'dot'; d1.style.background = tkP(t.d).color;
+    const d2 = document.createElement('span'); d2.className = 'dot'; d2.style.background = tkP(t.g).color;
+    const s = document.createElement('span'); s.textContent = 'Char ' + (t.i + 1) + ' : ' + tkP(t.d).name + ' + ' + tkP(t.g).name;
+    const h = document.createElement('span'); h.className = 'mclife'; h.textContent = '♥'.repeat(Math.max(0, t.lives)) + '♡'.repeat(Math.max(0, TK_LIVES - t.lives));
+    li.append(d1, d2, s, h); ul.append(li);
+  }
+}
+function tankRecv(m){
+  if (!TK) return;
+  if (m.t === 'tk_s'){
+    TK.tl = +m.tl; let ch = false;
+    (m.k || []).forEach(([x, y, a, ta, lives, hid, rel, inv, alive], i) => {
+      const t = TK.tanks[i]; if (!t) return;
+      t.tread += Math.hypot(x - t.tx, y - t.ty);
+      t.tx = x; t.ty = y; t.a = a; t.ta = ta; t.hid = hid; t.rel = rel/10; t.inv = inv;
+      if (t.lives !== lives || t.alive !== alive){ ch = true; t.lives = lives; t.alive = alive; }
+    });
+    TK.shells = (m.s || []).map(([x, y]) => ({ x, y }));
+    if (ch) renderTkPlayers();
+    return;
+  }
+  const t = TK.tanks[m.i];
+  switch (m.k){
+    case 'fire': sfx('fire'); if (t) TK.fx.push({ k:'flash', x:t.tx + Math.cos(t.ta)*(TK_R + 18), y:t.ty + Math.sin(t.ta)*(TK_R + 18), t:0 }); break;
+    case 'spark': TK.fx.push({ k:'spark', x:m.x, y:m.y, t:0 }); sfx('wall'); break;
+    case 'hit': case 'dead':
+      TK.fx.push({ k:'boom', x:m.x, y:m.y, t:0 }); sfx(m.k === 'dead' ? 'sunk' : 'hit');
+      if (m.k === 'dead') boom('KABOUM !', { size:34, x:m.x/TK_S, y:Math.max(.06, m.y/TK_S - .08), pal:BOOM_COLORS[2], ms:900 });
+      if (m.i === TK.my){ const el = $('tkWrap'); el.style.setProperty('--amp', '5px'); el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); tkToast(m.k === 'dead' ? 'Votre char est détruit !' : 'Touchés ! Plus que ' + Math.max(0, (t ? t.lives : 1) - 1) + ' vie(s)'); }
+      else if (m.by === TK.my) tkToast(m.k === 'dead' ? 'Char ' + (m.i + 1) + ' détruit !' : 'Touché !');
+      if (m.k === 'dead' && t){ t.alive = 0; renderTkPlayers(); if (m.i === TK.my) tankMsg('Détruit'); }
+      break;
+    case 'left': tkToast(tkP(m.id).name + ' est parti : un robot prend sa place'); break;
+  }
+}
+
+// ---- input ----
+const tkJoy = makeJoy('scrTank', {
+  active:() => !!TK && phase === 'play' && TK.my >= 0,
+  move:(vx, vy, on) => {
+    if (!TK) return; TK.joyOn = on;
+    if (TK.role === 'pilote'){ TK.in.jx = Math.round(vx*100)/100; TK.in.jy = Math.round(vy*100)/100; }
+    else if (on && Math.hypot(vx, vy) > .3){ TK.in.aa = Math.round(Math.atan2(vy, vx)*100)/100; }
+    if (!on) tkKeys();
+  },
+  tap:e => { if (TK && TK.role === 'canon'){ tkAimAt(e); toHost({ t:'tk_fire' }); } }
+});
+function tkAimAt(e){
+  const r = tkcv.getBoundingClientRect(), t = TK.tanks[TK.my]; if (!t) return;
+  if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) return;
+  const x = (e.clientX - r.left)/r.width*TK_S, y = (e.clientY - r.top)/r.height*TK_S;
+  TK.in.aa = Math.round(Math.atan2(y - t.y, x - t.x)*100)/100; TK.in.tr = 0;
+}
+tkcv.addEventListener('pointermove', e => { if (TK && TK.role === 'canon' && e.pointerType === 'mouse' && !e.buttons) tkAimAt(e); });
+$('tkFire').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); if (TK && phase === 'play') toHost({ t:'tk_fire' }); });
+function tkKeys(){
+  if (!TK || TK.joyOn) return;
+  const k = TK.keys, L = k.arrowleft || k.q || k.a, Rr = k.arrowright || k.d, U = k.arrowup || k.z || k.w, Dn = k.arrowdown || k.s;
+  if (TK.role === 'pilote'){ TK.in.jx = TK.in.jy = 0; TK.in.fw = (U ? 1 : 0) - (Dn ? 1 : 0); TK.in.tu = (Rr ? 1 : 0) - (L ? 1 : 0); }
+  else { TK.in.tr = (Rr ? 1 : 0) - (L ? 1 : 0); if (TK.in.tr) TK.in.aa = null; }
+}
+addEventListener('keydown', e => {
+  if (cur !== 'tank' || !TK || e.target.tagName === 'INPUT') return;
+  const k = e.key.toLowerCase();
+  if (k === ' '){ e.preventDefault(); if (!e.repeat && TK.role === 'canon' && phase === 'play') toHost({ t:'tk_fire' }); return; }
+  if (!KB_KEYS[k]) return;
+  e.preventDefault(); TK.keys[k] = true; tkKeys();
+});
+addEventListener('keyup', e => { if (cur !== 'tank' || !TK) return; const k = e.key.toLowerCase(); if (TK.keys[k]){ TK.keys[k] = false; tkKeys(); } });
+
+// ---- loop & drawing ----
+function tankFrame(dtMs, now){
+  if (!TK) return;
+  const dt = dtMs / 1000;
+  if (phase === 'count'){ TK.count -= dt; if (TK.count > 0) countBeep(Math.ceil(TK.count)); else { countBeep(0); phase = 'play'; } }
+  if (phase === 'play' && TK.my >= 0 && TK.tanks[TK.my] && TK.tanks[TK.my].alive){
+    const msg = { t:'tk_in', ...TK.in }, key = JSON.stringify(msg);
+    if (key !== TK.sent && now - TK.lastSend > 33){ TK.sent = key; TK.lastSend = now; toHost(msg); }
+  }
+  if (me.host) tankHostFrame(dt, now);
+  const k = Math.min(1, dt*18);
+  for (const t of TK.tanks){ t.x += (t.tx - t.x)*k; t.y += (t.ty - t.y)*k; }
+  for (const f of TK.fx) f.t += dt;
+  TK.fx = TK.fx.filter(f => f.t < .7);
+  const s = Math.ceil(TK.tl); $('tkTime').textContent = Math.floor(s/60) + ':' + String(s % 60).padStart(2, '0');
+  $('tkTime').classList.toggle('low', TK.tl < 20);
+  const mt = TK.tanks[TK.my]; $('tkFire').disabled = !mt || !mt.alive || mt.rel > 0 || phase !== 'play';
+  drawTank(now);
+}
+function tkTankShape(ctx, t, colB, colT, now){
+  const m = t.model, lw = 2.5;
+  ctx.save(); ctx.translate(t.x, t.y); ctx.rotate(t.a);
+  ctx.lineJoin = 'round'; ctx.strokeStyle = '#000'; ctx.lineWidth = lw;
+  const off = (t.tread || 0) % 8;
+  const tracks = (L, W, y0) => {
+    for (const s of [-1, 1]){
+      ctx.fillStyle = '#3A3A44'; ctx.fillRect(-L/2, s*y0 - W/2, L, W); ctx.strokeRect(-L/2, s*y0 - W/2, L, W);
+      ctx.strokeStyle = 'rgba(255,255,255,.35)'; ctx.lineWidth = 1.5;
+      for (let x = -L/2 + off; x < L/2; x += 8){ ctx.beginPath(); ctx.moveTo(x, s*y0 - W/2 + 1); ctx.lineTo(x, s*y0 + W/2 - 1); ctx.stroke(); }
+      ctx.strokeStyle = '#000'; ctx.lineWidth = lw;
+    }
+  };
+  const hull = path => { path(); ctx.fillStyle = colB; ctx.fill(); ctx.save(); path(); ctx.clip(); ctx.fillStyle = halftone(ctx, .3); ctx.fillRect(-30, 2, 60, 20); ctx.restore(); path(); ctx.stroke(); };
+  if (m === 0){ tracks(46, 10, 15); hull(() => { ctx.beginPath(); ctx.roundRect ? ctx.roundRect(-20, -12, 40, 24, 5) : ctx.rect(-20, -12, 40, 24); }); }
+  else if (m === 1){ tracks(50, 12, 17); hull(() => { ctx.beginPath(); ctx.moveTo(-24, -14); ctx.lineTo(16, -14); ctx.lineTo(25, -7); ctx.lineTo(25, 7); ctx.lineTo(16, 14); ctx.lineTo(-24, 14); ctx.closePath(); });
+    ctx.fillStyle = '#000'; for (const x of [-18, -6, 6]) for (const s of [-1, 1]){ ctx.beginPath(); ctx.arc(x, s*10, 1.6, 0, Math.PI*2); ctx.fill(); } }
+  else if (m === 2){ tracks(40, 8, 13); hull(() => { ctx.beginPath(); ctx.moveTo(-18, -10); ctx.lineTo(10, -10); ctx.lineTo(22, 0); ctx.lineTo(10, 10); ctx.lineTo(-18, 10); ctx.closePath(); }); }
+  else {
+    for (const x of [-15, 0, 15]) for (const s of [-1, 1]){ ctx.beginPath(); ctx.arc(x, s*15, 6, 0, Math.PI*2); ctx.fillStyle = '#3A3A44'; ctx.fill(); ctx.stroke(); ctx.fillStyle = '#999'; ctx.beginPath(); ctx.arc(x, s*15, 2, 0, Math.PI*2); ctx.fill(); }
+    hull(() => { ctx.beginPath(); ctx.moveTo(-22, -8); ctx.lineTo(-17, -13); ctx.lineTo(17, -13); ctx.lineTo(23, -7); ctx.lineTo(23, 7); ctx.lineTo(17, 13); ctx.lineTo(-17, 13); ctx.lineTo(-22, 8); ctx.closePath(); });
+  }
+  ctx.rotate(angN(t.ta - t.a));                          // turret, in the gunner's colour
+  const barrel = (len, w, y) => { ctx.fillStyle = '#4A4A55'; ctx.fillRect(4, y - w/2, len, w); ctx.strokeRect(4, y - w/2, len, w); };
+  if (m === 0){ barrel(26, 6, 0); ctx.beginPath(); ctx.arc(0, 0, 11, 0, Math.PI*2); }
+  else if (m === 1){ barrel(22, 8, 0); ctx.fillStyle = '#4A4A55'; ctx.fillRect(24, -6, 6, 12); ctx.strokeRect(24, -6, 6, 12); ctx.beginPath(); ctx.roundRect ? ctx.roundRect(-13, -11, 26, 22, 6) : ctx.rect(-13, -11, 26, 22); }
+  else if (m === 2){ barrel(30, 4, 0); ctx.beginPath(); ctx.arc(0, 0, 9, 0, Math.PI*2); }
+  else { barrel(24, 4, -4); barrel(24, 4, 4); ctx.beginPath(); ctx.ellipse(0, 0, 12, 10, 0, 0, Math.PI*2); }
+  ctx.fillStyle = colT; ctx.fill(); ctx.stroke();
+  ctx.fillStyle = 'rgba(255,255,255,.6)'; ctx.beginPath(); ctx.arc(-3, -3, 2.5, 0, Math.PI*2); ctx.fill();
+  ctx.restore();
+}
+function drawTank(now){
+  const ctx = tkctx, S = TK_S;
+  ctx.fillStyle = '#B9C77E'; ctx.fillRect(0, 0, S, S);
+  ctx.fillStyle = halftone(ctx, .07); ctx.fillRect(0, 0, S, S);
+  if (!TK) return;
+  const map = TK.map;
+  // forests: ground patch first
+  for (const [x, y, r] of map.hides){ ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI*2); ctx.fillStyle = '#4E8A3A'; ctx.fill(); }
+  // obstacles
+  for (const o of map.obs){
+    ctx.lineWidth = 3; ctx.strokeStyle = '#000';
+    if (o.k === 'rock'){
+      ctx.fillStyle = 'rgba(0,0,0,.2)'; ctx.beginPath(); ctx.arc(o.cx + 4, o.cy + 5, o.r, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(o.cx, o.cy, o.r, 0, Math.PI*2); ctx.fillStyle = '#A3A6AE'; ctx.fill();
+      ctx.save(); ctx.clip(); ctx.fillStyle = halftone(ctx, .3); ctx.fillRect(o.cx - o.r, o.cy, o.r*2, o.r); ctx.restore(); ctx.stroke();
+      ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(o.cx - o.r*.4, o.cy - o.r*.5); ctx.lineTo(o.cx, o.cy - o.r*.1); ctx.lineTo(o.cx + o.r*.2, o.cy + o.r*.4); ctx.stroke();
+    } else {
+      ctx.fillStyle = 'rgba(0,0,0,.2)'; ctx.fillRect(o.x + 4, o.y + 5, o.w, o.h);
+      ctx.fillStyle = o.k === 'wall' ? '#C0612B' : '#D9A55B'; ctx.fillRect(o.x, o.y, o.w, o.h);
+      ctx.lineWidth = 1.5; ctx.strokeStyle = 'rgba(0,0,0,.45)'; ctx.beginPath();
+      if (o.k === 'wall'){                               // bricks
+        const hor = o.w > o.h;
+        for (let k = 9; k < (hor ? o.w : o.h); k += 18){ if (hor){ ctx.moveTo(o.x + k, o.y); ctx.lineTo(o.x + k, o.y + o.h); } else { ctx.moveTo(o.x, o.y + k); ctx.lineTo(o.x + o.w, o.y + k); } }
+      } else { ctx.moveTo(o.x, o.y); ctx.lineTo(o.x + o.w, o.y + o.h); ctx.moveTo(o.x + o.w, o.y); ctx.lineTo(o.x, o.y + o.h); }
+      ctx.stroke(); ctx.lineWidth = 3; ctx.strokeStyle = '#000'; ctx.strokeRect(o.x, o.y, o.w, o.h);
+    }
+  }
+  // wrecks, then tanks (an enemy hidden in a forest is not drawn at all)
+  for (const t of TK.tanks){
+    const mine = t.i === TK.my;
+    if (!t.alive){ ctx.globalAlpha = .55; tkTankShape(ctx, t, '#555', '#444', now); ctx.globalAlpha = 1; continue; }
+    if (t.hid && !mine) continue;
+    if (t.inv && Math.floor(now/90) % 2) ctx.globalAlpha = .5;
+    if (mine){ ctx.strokeStyle = '#fff'; ctx.lineWidth = 4; ctx.setLineDash([6, 5]); ctx.beginPath(); ctx.arc(t.x, t.y, TK_R + 9, 0, Math.PI*2); ctx.stroke(); ctx.setLineDash([]); }
+    tkTankShape(ctx, t, tkP(t.d).color, tkP(t.g).color, now);
+    ctx.globalAlpha = 1;
+  }
+  // shells
+  for (const s of TK.shells){ ctx.beginPath(); ctx.arc(s.x, s.y, 4.5, 0, Math.PI*2); ctx.fillStyle = '#000'; ctx.fill(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.stroke(); }
+  // forest canopy on top: hides what is underneath (your own tank shows through a little)
+  for (const [x, y, r] of map.hides){
+    const rr = rng32(Math.round(x*7 + y));
+    for (let k = 0; k < 13; k++){
+      const a = rr()*Math.PI*2, d = Math.sqrt(rr())*(r - 14), tx = x + Math.cos(a)*d, ty = y + Math.sin(a)*d, tr = 16 + rr()*10;
+      ctx.beginPath(); ctx.arc(tx, ty, tr, 0, Math.PI*2); ctx.fillStyle = k % 3 ? '#2F7A22' : '#3E9A2E'; ctx.fill(); ctx.strokeStyle = '#000'; ctx.lineWidth = 2.5; ctx.stroke();
+    }
+    const mt = TK.tanks[TK.my];
+    if (mt && mt.alive && mt.hid && Math.hypot(mt.x - x, mt.y - y) < r){ ctx.globalAlpha = .6; tkTankShape(ctx, mt, tkP(mt.d).color, tkP(mt.g).color, now); ctx.globalAlpha = 1; }
+  }
+  // hearts and reload ring
+  for (const t of TK.tanks){
+    if (!t.alive || (t.hid && t.i !== TK.my)) continue;
+    ctx.font = '14px sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = '#E6262B'; ctx.fillText('♥'.repeat(t.lives), t.x, t.y - TK_R - 10);
+    if (t.i === TK.my && t.rel > 0){ ctx.strokeStyle = '#000'; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(t.x, t.y, TK_R + 15, -Math.PI/2, -Math.PI/2 + (1 - t.rel/TK_RELOAD)*Math.PI*2); ctx.stroke(); }
+  }
+  // effects
+  for (const f of TK.fx){
+    const k = f.t/.7; ctx.globalAlpha = Math.max(0, 1 - k);
+    if (f.k === 'boom'){ star(ctx, f.x, f.y, 16 + k*30); ctx.fillStyle = '#FFD93B'; ctx.fill(); ctx.strokeStyle = '#000'; ctx.lineWidth = 3; ctx.stroke(); }
+    else if (f.k === 'flash'){ star(ctx, f.x, f.y, 8 + k*10); ctx.fillStyle = '#FFF3B0'; ctx.fill(); ctx.strokeStyle = '#000'; ctx.lineWidth = 2; ctx.stroke(); }
+    else { ctx.strokeStyle = '#000'; ctx.lineWidth = 2.5; for (let i = 0; i < 6; i++){ const a = i*Math.PI/3; ctx.beginPath(); ctx.moveTo(f.x + Math.cos(a)*4, f.y + Math.sin(a)*4); ctx.lineTo(f.x + Math.cos(a)*(8 + k*12), f.y + Math.sin(a)*(8 + k*12)); ctx.stroke(); } }
+    ctx.globalAlpha = 1;
+  }
+}
+
 // ================= ROBOT : a medium opponent when one person plays alone =================
 // It runs inside the creator's page and acts through the same host functions a real player triggers.
 function botLater(fn, ms){ setTimeout(() => { if (H && !H.over && BOT) fn(); }, ms); }
@@ -4803,7 +5294,7 @@ function botMoleSees(m){
 const BOOM_COLORS = [['#FFD93B','#E6262B'], ['#FFFFFF','#1E5BFF'], ['#E6262B','#FFFFFF'], ['#1E5BFF','#FFD93B']];
 function gameWrap(){
   return cur === 'tetris' ? document.querySelector('#play .well') : cur === 'pong' ? $('pwrap') : cur === 'derby' ? $('padwrap')
-    : cur === 'naval' ? document.querySelector('#scrNaval .nvwrap') : cur === 'mole' ? $('mlWrap') : cur === 'curl' ? $('cuWrap') : cur === 'chairs' ? $('mcWrap') : cur === 'master' ? $('mmWrap') : cur === 'kabaddi' ? $('kbWrap') : cur === 'dodge' ? $('dbWrap') : null;
+    : cur === 'naval' ? document.querySelector('#scrNaval .nvwrap') : cur === 'mole' ? $('mlWrap') : cur === 'curl' ? $('cuWrap') : cur === 'chairs' ? $('mcWrap') : cur === 'master' ? $('mmWrap') : cur === 'kabaddi' ? $('kbWrap') : cur === 'dodge' ? $('dbWrap') : cur === 'tank' ? $('tkWrap') : null;
 }
 // x, y: position in the wrap (0..1); size in px; pal: one of BOOM_COLORS
 function boom(text, o = {}){
@@ -4950,8 +5441,8 @@ function saveGame(ranking, game){
   if (!Array.isArray(ranking) || !ranking.length || lastSaved === ranking) return;
   lastSaved = ranking;
   const h = loadHist();
-  h.unshift({ at:Date.now(), game:['pong','derby','naval','mole','curling','chairs','master','kabaddi','dodge'].includes(game) ? game : 'tetris', n:ranking.length,
-    p:ranking.map(r => ({ name:String(r.name).slice(0,14), color:r.color, place:r.place|0, sc:r.sc|0, ln:r.ln|0, sent:r.sent|0, lives:r.lives|0, seats:r.seats|0, catches:r.catches|0, hits:r.hits|0, pts:r.pts|0, whacks:r.whacks|0, shots:r.shots|0, afloat:r.afloat|0, shapes:r.shapes|0, d:Math.round(r.d||0), t:+r.t||0, me:r.id === me.id })) });
+  h.unshift({ at:Date.now(), game:['pong','derby','naval','mole','curling','chairs','master','kabaddi','dodge','tank'].includes(game) ? game : 'tetris', n:ranking.length,
+    p:ranking.map(r => ({ name:String(r.name).slice(0,14), color:r.color, place:r.place|0, sc:r.sc|0, ln:r.ln|0, sent:r.sent|0, lives:r.lives|0, seats:r.seats|0, catches:r.catches|0, tank:r.tank|0, role:String(r.role || '').slice(0, 8), hits:r.hits|0, pts:r.pts|0, whacks:r.whacks|0, shots:r.shots|0, afloat:r.afloat|0, shapes:r.shapes|0, d:Math.round(r.d||0), t:+r.t||0, me:r.id === me.id })) });
   store.set(HIST_KEY, JSON.stringify(h.slice(0, HIST_MAX)));
 }
 let lbFilter = 'all', clearArmed = false;
@@ -4966,13 +5457,13 @@ function renderBoard(){
     a.games++; if (p.place === 1 && g.n > 1) a.wins++;
     a.pts += Math.max(0, g.n - p.place);                  // 1 point per player finished ahead of
     if (g.game === 'derby'){ if (p.t > 0 && (!a.bestT || p.t < a.bestT)) a.bestT = p.t; }
-    else a.best = Math.max(a.best, (g.game === 'pong' || g.game === 'naval') ? p.hits : g.game === 'mole' ? (p.whacks || 0) : g.game === 'curling' ? (p.pts || 0) : g.game === 'chairs' ? (p.seats || 0) : g.game === 'dodge' ? (p.hits || 0) : (g.game === 'master' || g.game === 'kabaddi') ? (p.pts || 0) : p.sc);
+    else a.best = Math.max(a.best, (g.game === 'pong' || g.game === 'naval') ? p.hits : g.game === 'mole' ? (p.whacks || 0) : g.game === 'curling' ? (p.pts || 0) : g.game === 'chairs' ? (p.seats || 0) : (g.game === 'dodge' || g.game === 'tank') ? (p.hits || 0) : (g.game === 'master' || g.game === 'kabaddi') ? (p.pts || 0) : p.sc);
     agg.set(k, a);
   }
   const rows = [...agg.values()].sort((x, y) => y.pts - x.pts || y.wins - x.wins || x.games - y.games);
   const showBest = lbFilter !== 'all';
   const hd = $('lbHead'); hd.textContent = '';
-  for (const t of ['#','Joueur','Parties','Victoires','Points', ...(showBest ? [lbFilter === 'pong' ? 'Renvois max' : lbFilter === 'derby' ? 'Meilleur temps' : lbFilter === 'naval' ? 'Touchés max' : lbFilter === 'mole' ? 'Taupes tapées max' : lbFilter === 'curling' ? 'Points max' : lbFilter === 'chairs' ? 'Chaises max' : lbFilter === 'dodge' ? 'Touches max' : (lbFilter === 'master' || lbFilter === 'kabaddi') ? 'Points max' : 'Meilleur score'] : [])]){
+  for (const t of ['#','Joueur','Parties','Victoires','Points', ...(showBest ? [lbFilter === 'pong' ? 'Renvois max' : lbFilter === 'derby' ? 'Meilleur temps' : lbFilter === 'naval' ? 'Touchés max' : lbFilter === 'mole' ? 'Taupes tapées max' : lbFilter === 'curling' ? 'Points max' : lbFilter === 'chairs' ? 'Chaises max' : (lbFilter === 'dodge' || lbFilter === 'tank') ? 'Touches max' : (lbFilter === 'master' || lbFilter === 'kabaddi') ? 'Points max' : 'Meilleur score'] : [])]){
     const th = document.createElement('th'); th.textContent = t; hd.append(th);
   }
   const tb = $('lbBody'); tb.textContent = '';
@@ -5028,6 +5519,7 @@ function frame(now){
   if (cur === 'master') masterFrame(dt, now);
   if (cur === 'kabaddi') kabaddiFrame(dt, now);
   if (cur === 'dodge') dodgeFrame(dt, now);
+  if (cur === 'tank') tankFrame(dt, now);
   if (cur === 'tetris' && G && phase === 'count'){
     G.count -= dt/1000;
     if (G.count <= 0){ phase = 'play'; setMsg('', ''); countBeep(0); }
@@ -5080,11 +5572,11 @@ $('btnQuit').onclick = () => toMenu('');
 function backToLobby(){
   if (me.host){
     if (H) H.over = true;
-    H = null; if (HC) clearTimeout(HC.timer); HC = null; mcClear(); HMC = null; mmClear(); HMM = null; kbClear(); HKB = null; dbClear(); HDB = null;
+    H = null; if (HC) clearTimeout(HC.timer); HC = null; mcClear(); HMC = null; mmClear(); HMM = null; kbClear(); HKB = null; dbClear(); HDB = null; tkClear(); HTK = null;
     players = players.filter(p => p.id === 'h' || net.conns.has(p.id));
     sendLobby(true);                                       // everyone goes back
   } else {
-    phase = 'lobby'; $('scrEnd').hidden = true; G = null; PG = null; D = null; NV = null; ML = null; CU = null; MC = null; MM = null; KB = null; DB = null; cur = null;
+    phase = 'lobby'; $('scrEnd').hidden = true; G = null; PG = null; D = null; NV = null; ML = null; CU = null; MC = null; MM = null; KB = null; DB = null; TK = null; cur = null;
     if (HM) moleClearTimers();
     show('scrLobby'); renderLobby();                      // wait there for the creator
   }
