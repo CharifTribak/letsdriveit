@@ -638,7 +638,7 @@ html.joyon,html.joyon body{touch-action:none;overscroll-behavior:none}
     </div>
     <button id="shBark">🐶 OUAF !</button>
     <ul class="nvplayers" id="shPlayers"></ul>
-    <p class="hint" style="text-align:center">Tous ensemble : posez le doigt n'importe où et glissez pour courir. Les moutons fuient les chiens ; rabattez-les dans l'enclos avant le coucher du soleil. « Ouaf ! » (ou une touche brève, ou Espace) fait détaler les moutons proches et chasse le loup. Deux chiens près d'un loup le font fuir, un chien qui le bouscule lui fait lâcher son mouton.</p>
+    <p class="hint" style="text-align:center">Tous ensemble : posez le doigt n'importe où et glissez pour courir. Les moutons fuient les chiens ; rabattez-les dans l'enclos avant le coucher du soleil. « Ouaf ! » (ou une touche brève, ou Espace) fait détaler les moutons proches et chasse le loup. Deux chiens près d'un loup, ou un « Ouaf ! » sous son nez, le font déguerpir (il reviendra ailleurs) ; un chien qui le bouscule lui fait lâcher son mouton.</p>
   </div>
 </section>
 
@@ -5245,7 +5245,7 @@ let HSH = null, SHV = null;
 // ---- field for a round: pen at the top, maybe a river with a bridge, maybe a flower meadow ----
 function shField(seed, round){
   const r = rng32(seed), S = SH_S;
-  const pw = 170, ph = 96, px = 40 + r()*(S - 80 - pw), py = 26, gap = 100;
+  const pw = 170, ph = 96, px = 75 + r()*(S - 150 - pw), py = 0, gap = 100;
   const gx = px + (pw - gap)/2;
   const walls = [
     { x:px, y:py, w:pw, h:8 }, { x:px, y:py, w:8, h:ph }, { x:px + pw - 8, y:py, w:8, h:ph },
@@ -5285,10 +5285,10 @@ function sheepHostStart(){
   shLater(shRound, 3200);
 }
 function shRound(){
-  HSH.round++; HSH.t = 0; HSH.ph = 'play'; HSH.lost = 0; HSH.wolfT = 9 + Math.random()*6;
+  HSH.round++; HSH.t = 0; HSH.ph = 'play'; HSH.lost = 0; HSH.wolfT = 0;
   const seed = Math.floor(Math.random()*2**31), F = HSH.F = shField(seed, HSH.round), n = players.length;
   const count = Math.min(30, 6 + 2*HSH.round + 3*(n - 1));
-  HSH.need = Math.ceil(count * (F.kind === 'river' ? .6 : .65)); HSH.wolfMax = HSH.round < 2 ? 0 : Math.min(4, 1 + Math.floor((n - 1)/2) + Math.floor((HSH.round - 2)/3));
+  HSH.need = Math.ceil(count * (F.kind === 'river' ? .6 : .65)); const extra = Math.min(2, Math.floor((n - 1)/2) + Math.floor((HSH.round - 1)/2)); HSH.wolfMax = 1 + Math.floor(Math.random()*(extra + 1));
   HSH.sheep = []; HSH.wolves = [];
   const below = F.river ? F.river.y + F.river.h + 30 : 230;
   for (let k = 0; k < count; k++){
@@ -5307,8 +5307,13 @@ function sheepBark(id){
   const d = HSH.dogs[id]; if (!d || d.cd > 0) return;
   d.cd = SH_BARK_CD; if (H.stats[id]) H.stats[id].barks++;
   for (const s of HSH.sheep){ if (s.in || s.gone) continue; const dx = s.x - d.x, dy = s.y - d.y, L = Math.hypot(dx, dy); if (L < 140 && L > 0){ const f = 150*(1 - L/170); s.vx += dx/L*f; s.vy += dy/L*f; } }
-  for (const w of HSH.wolves){ if (Math.hypot(w.x - d.x, w.y - d.y) < 120){ w.scare = 2.2; if (w.carry >= 0) shDrop(w); if (H.stats[id]) H.stats[id].wolves++; } }
+  for (const w of HSH.wolves){ if (w.out) continue; const L = Math.hypot(w.x - d.x, w.y - d.y); if (L < 120){ if (H.stats[id]) H.stats[id].wolves++; if (L < 80) shVanish(w); else { w.scare = 1.4; if (w.carry >= 0) shDrop(w); } } }
   broadcast({ t:'sh_ev', k:'bark', id, x:Math.round(d.x), y:Math.round(d.y) });
+}
+function shVanish(w){
+  if (w.carry >= 0) shDrop(w);
+  broadcast({ t:'sh_ev', k:'flee', x:Math.round(w.x), y:Math.round(w.y) });
+  w.out = true; w.scare = 0; w.back = 7 + Math.random()*5;
 }
 function shDrop(w){ const s = HSH.sheep[w.carry]; if (s){ s.gone = false; s.x = w.x; s.y = w.y; s.vx = s.vy = 0; } w.carry = -1; broadcast({ t:'sh_ev', k:'saved', x:Math.round(w.x), y:Math.round(w.y) }); }
 function shStep(h){
@@ -5352,21 +5357,25 @@ function shStep(h){
     if (shInPen(F, s.x, s.y, 6)){ s.in = true; broadcast({ t:'sh_ev', k:'in', x:Math.round(s.x), y:Math.round(s.y) }); }
   }
   // wolves come out of the woods, go for a lonely sheep, run off with it
-  HSH.wolfT -= h;
-  if (HSH.wolfT <= 0 && HSH.wolves.filter(w => !w.out).length < HSH.wolfMax && HSH.t < SH_DAY - 10){
-    HSH.wolfT = 12 + Math.random()*10; const left = Math.random() < .5;
-    HSH.wolves.push({ x:left ? -10 : SH_S + 10, y:180 + Math.random()*(SH_S - 220), carry:-1, scare:0, out:false, tgt:-1 });
-    broadcast({ t:'sh_ev', k:'wolf' });
-  }
+  if (!HSH.wolves.length) for (let k = 0; k < HSH.wolfMax; k++) HSH.wolves.push({ x:0, y:0, carry:-1, scare:0, out:true, back:10 + k*9 + Math.random()*5, tgt:-1, side:-1 });
   for (const w of HSH.wolves){
-    if (w.out) continue;
+    if (w.out){                                     // away: comes back later, somewhere else
+      w.back -= h;
+      if (w.back <= 0 && HSH.t < SH_DAY - 8){
+        const sides = [0, 1, 2].filter(k => k !== w.side), side = sides[Math.floor(Math.random()*sides.length)];
+        w.side = side; w.out = false; w.scare = 0; w.carry = -1;
+        if (side === 2){ w.x = 60 + Math.random()*(SH_S - 120); w.y = SH_S + 10; } else { w.x = side ? SH_S + 10 : -10; w.y = 180 + Math.random()*(SH_S - 220); }
+        broadcast({ t:'sh_ev', k:'wolf' });
+      }
+      continue;
+    }
     let near = 0, nd = 1e9, nx = 0, ny = 0;
     for (const [, d] of dogs){ const L = Math.hypot(d.x - w.x, d.y - w.y); if (L < 90) near++; if (L < nd){ nd = L; nx = d.x; ny = d.y; } }
-    if (near >= 2 && w.carry < 0) w.scare = Math.max(w.scare, 1.5);
+    if (near >= 2 || w.scare > 1.5){ shVanish(w); continue; }              // really frightened: it is gone at once
     if (near >= 1 && w.carry >= 0 && nd < 30) shDrop(w);                 // a dog bumps it: it lets the sheep go
     w.scare = Math.max(0, w.scare - h);
     let tx, ty, sp = 100;
-    if (w.carry >= 0 || w.scare > 0){ const exitL = w.x < SH_S/2; tx = exitL ? -40 : SH_S + 40; ty = w.y; sp = w.carry >= 0 ? 80 : 135; }
+    if (w.carry >= 0 || w.scare > 0){ const ex = [[-40, w.y, w.x], [SH_S + 40, w.y, SH_S - w.x], [w.x, SH_S + 40, SH_S - w.y]].sort((a, b) => a[2] - b[2])[0]; tx = ex[0]; ty = ex[1]; sp = w.carry >= 0 ? 80 : 135; }
     else {
       let best = null, bs = -1e9;
       for (const s of live){ if (s.in) continue; let nb = 0; for (const o of live) if (o !== s && !o.in && Math.hypot(o.x - s.x, o.y - s.y) < 60) nb++;
@@ -5378,7 +5387,7 @@ function shStep(h){
     w.x += dx/L*sp*h; w.y += dy/L*sp*h; w.a = Math.atan2(dy, dx);
     if (w.x > 0 && w.x < SH_S) shPush({ walls:HSH.F.walls.filter(o => !o.river).concat([{ x:F.pen.x - 8, y:F.pen.y - 8, w:F.pen.w + 16, h:F.pen.h + 16 }]) }, w, 14);
     if (w.carry < 0 && w.scare <= 0) for (const s of live){ if (!s.in && Math.hypot(s.x - w.x, s.y - w.y) < 20){ w.carry = HSH.sheep.indexOf(s); s.gone = true; broadcast({ t:'sh_ev', k:'grab', x:Math.round(w.x), y:Math.round(w.y) }); break; } }
-    if (w.x < -30 || w.x > SH_S + 30){ w.out = true; if (w.carry >= 0){ HSH.lost++; broadcast({ t:'sh_ev', k:'lost' }); } }
+    if (w.x < -30 || w.x > SH_S + 30 || w.y > SH_S + 30){ w.out = true; w.back = 6 + Math.random()*5; if (w.carry >= 0){ HSH.lost++; w.carry = -1; broadcast({ t:'sh_ev', k:'lost' }); } }
   }
 }
 function shEndRound(){
@@ -5499,7 +5508,8 @@ function sheepRecv(m){
   // sh_ev
   if (m.k === 'bark'){ sfx('bark'); SHV.fx.push({ k:'ring', x:m.x, y:m.y, t:0 }); boom('OUAF !', { size:20, x:m.x/SH_S, y:Math.max(.05, m.y/SH_S - .07), pal:BOOM_COLORS[0], ms:500 }); }
   else if (m.k === 'in'){ sfx('pop'); SHV.fx.push({ k:'heart', x:m.x, y:m.y, t:0 }); }
-  else if (m.k === 'wolf'){ sfx('goal'); shToast('Un loup sort du bois !'); }
+  else if (m.k === 'wolf'){ sfx('goal'); shToast('Un loup approche !'); }
+  else if (m.k === 'flee'){ sfx('escape'); SHV.fx.push({ k:'puff', x:m.x, y:m.y, t:0 }); boom('FILE !', { size:20, x:m.x/SH_S, y:Math.max(.05, m.y/SH_S - .07), pal:BOOM_COLORS[1], ms:600 }); }
   else if (m.k === 'grab'){ sfx('fail'); boom('AU LOUP !', { size:26, x:m.x/SH_S, y:Math.max(.05, m.y/SH_S - .07), pal:BOOM_COLORS[2], ms:900 }); }
   else if (m.k === 'saved'){ sfx('ok'); boom('LÂCHE ÇA !', { size:22, x:m.x/SH_S, y:Math.max(.05, m.y/SH_S - .07), pal:BOOM_COLORS[1], ms:800 }); }
   else if (m.k === 'lost'){ shToast('Le loup a emporté un mouton'); }
@@ -5646,6 +5656,7 @@ function drawSheep(now){
   for (const f of SHV.fx){
     const k = f.t/.8; ctx.globalAlpha = Math.max(0, 1 - k);
     if (f.k === 'ring'){ ctx.strokeStyle = '#fff'; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(f.x, f.y, 20 + k*120, 0, Math.PI*2); ctx.stroke(); ctx.strokeStyle = '#000'; ctx.lineWidth = 1.5; ctx.stroke(); }
+    else if (f.k === 'puff'){ for (let i = 0; i < 6; i++){ const a = i*Math.PI/3; ctx.beginPath(); ctx.arc(f.x + Math.cos(a)*(6 + k*26), f.y + Math.sin(a)*(6 + k*26), 9 - k*5, 0, Math.PI*2); ctx.fillStyle = '#D8D8E0'; ctx.fill(); ctx.strokeStyle = '#000'; ctx.lineWidth = 2; ctx.stroke(); } }
     else { ctx.font = '18px sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = '#E6262B'; ctx.fillText('♥', f.x, f.y - 12 - k*24); }
     ctx.globalAlpha = 1;
   }
