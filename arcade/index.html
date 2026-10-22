@@ -4822,7 +4822,7 @@ function tkStep(h){
   });
 }
 function tkHit(t, from){
-  t.lives--; t.inv = .9; t.reveal = 1.2;
+  t.lives--; t.inv = 1.4; t.reveal = 1.2;
   const sh = HTK.tanks[from]; if (sh && H.stats[sh.g]) H.stats[sh.g].hits++;
   for (const id of [t.d, t.g]) if (H.stats[id]) H.stats[id].lives = Math.max(0, t.lives);
   broadcast({ t:'tk_ev', k:t.lives > 0 ? 'hit' : 'dead', i:t.i, by:from, x:Math.round(t.x), y:Math.round(t.y) });
@@ -4893,10 +4893,10 @@ function botTank(dt){
       const f = (vis.length ? vis : foes).reduce((a, q) => !a || Math.hypot(q.x - t.x, q.y - t.y) < Math.hypot(a.x - t.x, a.y - t.y) ? q : a, null);
       if (!f){ I.aa = t.a; continue; }
       const d = Math.hypot(f.x - t.x, f.y - t.y), lead = d / TK_SHELL;
-      if (B.err === undefined || B.shot !== t.rel > 0){ B.shot = t.rel > 0; if (!B.shot) B.err = (Math.random() - .5)*.16; }
+      if (B.err === undefined || B.shot !== t.rel > 0){ B.shot = t.rel > 0; if (!B.shot) B.err = (Math.random() - .5)*.42; }
       I.aa = Math.atan2(f.y + f.vy*lead*.8 - t.y, f.x + f.vx*lead*.8 - t.x) + (B.err || 0);
       if (t.rel <= 0 && Math.abs(angN(I.aa - t.ta)) < .06 && vis.includes(f) && d < 520){
-        B.wait = (B.wait ?? .25 + Math.random()*.5) - dt;
+        B.wait = (B.wait ?? .5 + Math.random()*.7) - dt;
         if (B.wait <= 0){ B.wait = undefined; tankFire(t.g); }
       }
     }
