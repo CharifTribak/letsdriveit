@@ -748,7 +748,7 @@ const GAME_DESC = {
   kabaddi:'Kabaddi, le sport indien : à tour de rôle, un attaquant entre chez les autres en retenant son souffle (gardez le doigt appuyé). Il touche des défenseurs puis doit rentrer dans son camp avant d\'être à bout de souffle : 1 point par défenseur touché. Les défenseurs l\'accrochent à plusieurs pour le freiner : s\'il échoue, chaque défenseur marque 1 point, 2 s\'il le tenait.',
   dodge:'Balle au prisonnier, chacun pour soi dans le gymnase : ramassez une balle, lancez-la sur les autres, esquivez les leurs. Chaque balle reçue coûte un cœur ; levez les mains au bon moment pour l\'attraper et c\'est le lanceur qui perd un cœur. Le dernier debout gagne (2 minutes au plus).',
   tank:'Combat de chars à deux par char : l\'un pilote, l\'autre oriente la tourelle et tire (un obus toutes les 1,5 s). Les équipages sont tirés au sort, des robots complètent. Interdit de se parler : il faut se comprendre en jouant. Deux forêts cachent les chars qui y entrent, murs, caisses et rochers arrêtent les obus. 3 vies par char, le dernier char debout gagne.',
-  sheep:'Les bergers, en coopération : vous êtes des chiens de berger et devez rabattre le troupeau dans l\'enclos avant le coucher du soleil (regardez sa course dans le ciel). Les moutons fuient les chiens et ont du caractère : le peureux file, le gourmand broute les fleurs, l\'agneau suit sa mère. « Ouaf ! » fait détaler. Des loups sortent du bois : chassez-les à deux. Manche ratée = fin, visez le record d\'équipe. Seul, un chien robot vous aide.',
+  sheep:'Les bergers, en coopération : vous êtes des chiens de berger et devez rabattre le troupeau dans l\'enclos avant le coucher du soleil (regardez sa course dans le ciel). Les moutons fuient les chiens et ont du caractère : le peureux file, le gourmand broute les fleurs, l\'agneau suit sa mère. « Ouaf ! » fait détaler. Des loups sortent du bois : chassez-les à deux. 6 journées de plus en plus dures (plus de moutons et de loups, journées plus courtes) ; une manche ratée et c\'est fini. Seul, un chien robot vous aide.',
   derby:'Course de chevaux : tout le monde reçoit la même série de figures à tracer. Chaque figure réussie fait avancer votre cheval, plus loin si elle est complexe et bien tracée. Le premier à la ligne gagne.'
 };
 
@@ -1340,11 +1340,11 @@ function showEnd(ranking, game){
   sfx(win && win.id === me.id ? 'win' : 'lose');
   const mine = (ranking || []).find(r => r.id === me.id);
   const iWon = !!(win && win.id === me.id);
-  $('endWord').textContent = coop ? 'Fin de journée !' : iWon ? 'Victoire !' : 'Perdu !';
+  $('endWord').textContent = coop ? (((win && win.rounds) | 0) >= SH_ROUNDS ? 'Troupeau sauvé !' : 'La nuit est tombée') : iWon ? 'Victoire !' : 'Perdu !';
   $('endBurst').classList.toggle('lost', !iWon && !coop);
   $('winPanel').style.background = coop ? '#3DDC97' : win ? win.color : '#FFD93B';
   $('winName').textContent = coop ? 'Score d\'équipe : ' + ((win && win.score) | 0) : win ? (iWon ? 'Vous gagnez !' : win.name + ' gagne !') : '';
-  $('myPlace').textContent = coop ? 'Les bergers · ' + ((win && win.rounds) | 0) + ' manche(s) réussie(s)' : (GAME_NAMES[game] || 'Tetris') + (mine ? ' · vous finissez ' + (mine.place === 1 ? '1er' : mine.place + 'e') + ' sur ' + ranking.length : '');
+  $('myPlace').textContent = coop ? 'Les bergers · ' + ((win && win.rounds) | 0) + '/' + SH_ROUNDS + ' manches réussies' : (GAME_NAMES[game] || 'Tetris') + (mine ? ' · vous finissez ' + (mine.place === 1 ? '1er' : mine.place + 'e') + ' sur ' + ranking.length : '');
   (coop ? sheepMsg : tank ? tankMsg : dodge ? dodgeMsg : kab ? kabaddiMsg : master ? masterMsg : chairs ? chairsMsg : curl ? curlMsg : pong ? pongMsg : derby ? derbyMsg : naval ? navalMsg : mole ? moleMsg : setMsg)('', '');
   $('btnAgain').hidden = false;
   $('endHint').textContent = me.host ? 'Tout le monde revient au salon : relancez le même jeu ou choisissez-en un autre.' : 'Vous attendrez au salon que le créateur relance.';
@@ -5239,7 +5239,7 @@ function drawTank(now){
 
 // ================= LES BERGERS (coop) : herd the sheep into the pen before sunset, keep the wolves away =================
 // Everyone plays together against the field. Host simulates sheep, wolves and dogs; joystick to run, "Ouaf !" to bark.
-const SH_S = 540, SH_DOG = 15, SH_SHEEP = 10, SH_DSP = 175, SH_DAY = 75, SH_BARK_CD = 3, SH_ROUNDS = 10;
+const SH_S = 540, SH_DOG = 15, SH_SHEEP = 10, SH_DSP = 175, SH_DAY = 75, SH_BARK_CD = 3, SH_ROUNDS = 6;
 let HSH = null, SHV = null;
 
 // ---- field for a round: pen at the top, maybe a river with a bridge, maybe a flower meadow ----
@@ -5288,7 +5288,8 @@ function shRound(){
   HSH.round++; HSH.t = 0; HSH.ph = 'play'; HSH.lost = 0; HSH.wolfT = 0;
   const seed = Math.floor(Math.random()*2**31), F = HSH.F = shField(seed, HSH.round), n = players.length;
   const count = Math.min(30, 6 + 2*HSH.round + 3*(n - 1));
-  HSH.need = Math.ceil(count * (F.kind === 'river' ? .6 : .65)); const extra = Math.min(2, Math.floor((n - 1)/2) + Math.floor((HSH.round - 1)/2)); HSH.wolfMax = 1 + Math.floor(Math.random()*(extra + 1));
+  HSH.day = SH_DAY - 4*(HSH.round - 1);                                   // 75 s, then 71, 67… down to 55 s
+  HSH.need = Math.ceil(count * Math.min(.8, (F.kind === 'plain' ? .6 : .55) + .04*HSH.round)); const extra = Math.min(2, Math.floor((n - 1)/2) + Math.floor((HSH.round - 1)/2)); HSH.wolfMax = 1 + Math.floor(Math.random()*(extra + 1));
   HSH.sheep = []; HSH.wolves = [];
   const below = F.river ? F.river.y + F.river.h + 30 : 230;
   for (let k = 0; k < count; k++){
@@ -5299,7 +5300,7 @@ function shRound(){
   }
   players.forEach((p, i) => { HSH.dogs[p.id] = HSH.dogs[p.id] && !H.stats[p.id].left ? HSH.dogs[p.id] : { cd:0 };
     Object.assign(HSH.dogs[p.id], { x:SH_S*(i + 1)/(n + 1), y:SH_S - 30, a:-Math.PI/2, cd:0 }); });
-  broadcast({ t:'sh_round', round:HSH.round, seed, kind:F.kind, kinds:HSH.sheep.map(s => s.kind), count:HSH.sheep.length, need:HSH.need, day:SH_DAY, score:HSH.score });
+  broadcast({ t:'sh_round', round:HSH.round, seed, kind:F.kind, kinds:HSH.sheep.map(s => s.kind), count:HSH.sheep.length, need:HSH.need, day:HSH.day, rounds:SH_ROUNDS, score:HSH.score });
 }
 function sheepInput(id, m){ const I = HSH && HSH.IN[id]; if (!I) return; I.kx = Math.max(-1, Math.min(1, +m.kx || 0)); I.ky = Math.max(-1, Math.min(1, +m.ky || 0)); }
 function sheepBark(id){
@@ -5361,7 +5362,7 @@ function shStep(h){
   for (const w of HSH.wolves){
     if (w.out){                                     // away: comes back later, somewhere else
       w.back -= h;
-      if (w.back <= 0 && HSH.t < SH_DAY - 8){
+      if (w.back <= 0 && HSH.t < HSH.day - 8){
         const sides = [0, 1, 2].filter(k => k !== w.side), side = sides[Math.floor(Math.random()*sides.length)];
         w.side = side; w.out = false; w.scare = 0; w.carry = -1;
         if (side === 2){ w.x = 60 + Math.random()*(SH_S - 120); w.y = SH_S + 10; } else { w.x = side ? SH_S + 10 : -10; w.y = 180 + Math.random()*(SH_S - 220); }
@@ -5393,11 +5394,11 @@ function shStep(h){
 function shEndRound(){
   HSH.ph = 'res';
   const inPen = HSH.sheep.filter(s => s.in).length, total = HSH.sheep.length, ok = inPen >= HSH.need;
-  const left = Math.max(0, SH_DAY - HSH.t), all = inPen === total;
+  const left = Math.max(0, HSH.day - HSH.t), all = inPen === total;
   const pts = inPen*10 + (all ? Math.round(left*3) : 0) + (all && !HSH.lost ? 30 : 0);
   if (ok) HSH.score += pts;
   for (const p of players) if (H.stats[p.id]){ H.stats[p.id].score = HSH.score; if (ok) H.stats[p.id].rounds = HSH.round; H.stats[p.id].sheep += inPen; }
-  broadcast({ t:'sh_res', ok, inPen, total, need:HSH.need, pts:ok ? pts : 0, score:HSH.score, round:HSH.round, all, lost:HSH.lost });
+  broadcast({ t:'sh_res', ok, last:ok && HSH.round >= SH_ROUNDS, inPen, total, need:HSH.need, pts:ok ? pts : 0, score:HSH.score, round:HSH.round, all, lost:HSH.lost });
   if (ok && HSH.round < SH_ROUNDS) shLater(shRound, 4200); else shLater(sheepFinish, 3500);
 }
 function sheepFinish(){
@@ -5416,10 +5417,10 @@ function sheepHostFrame(dt, now){
   const n = Math.ceil(dt / (1/60));
   for (let i = 0; i < n; i++) shStep(dt/n);
   const remaining = HSH.sheep.filter(s => !s.in && !s.gone).length + HSH.wolves.filter(w => !w.out && w.carry >= 0).length;
-  if (HSH.t >= SH_DAY || remaining === 0) return shEndRound();
+  if (HSH.t >= HSH.day || remaining === 0) return shEndRound();
   if (now - HSH.lastSend > 40){
     HSH.lastSend = now; const r = Math.round;
-    broadcast({ t:'sh_s', p:HSH.t / SH_DAY,
+    broadcast({ t:'sh_s', p:HSH.t / HSH.day,
       d:Object.entries(HSH.dogs).map(([id, d]) => [id, r(d.x), r(d.y), Math.round(d.a*100)/100, d.mv|0, Math.ceil(d.cd*10)]),
       s:HSH.sheep.map(s => [r(s.x), r(s.y), s.gone ? 2 : s.in ? 1 : 0, s.eat ? 1 : 0]),
       w:HSH.wolves.filter(w => !w.out).map(w => [r(w.x), r(w.y), Math.round((w.a || 0)*100)/100, w.carry >= 0 ? 1 : 0, w.scare > 0 ? 1 : 0]) });
@@ -5471,7 +5472,7 @@ let shToastT = null;
 function shToast(t){ const el = $('shToast'); el.textContent = t; el.classList.add('on'); clearTimeout(shToastT); shToastT = setTimeout(() => el.classList.remove('on'), 2200); }
 function shHead(){
   const inPen = SHV.sheep.filter(s => s[2] === 1).length;
-  $('shHead').textContent = SHV.round ? 'Manche ' + SHV.round + ' · ' + inPen + '/' + SHV.total + ' (il en faut ' + SHV.need + ')' : 'Les bergers';
+  $('shHead').textContent = SHV.round ? 'Manche ' + SHV.round + '/' + SH_ROUNDS + ' · ' + inPen + '/' + SHV.total + ' (il en faut ' + SHV.need + ')' : 'Les bergers';
   $('shScore').textContent = SHV.score + ' pts';
 }
 function renderShPlayers(){
@@ -5501,7 +5502,8 @@ function sheepRecv(m){
   }
   if (m.t === 'sh_res'){
     SHV.ph = 'res'; SHV.score = m.score|0; shHead();
-    if (m.ok){ sfx('finish'); boom(m.all ? 'TOUS RENTRÉS !' : 'BRAVO !', { size:34, x:.5, y:.3, pal:BOOM_COLORS[0], ms:1300 }); shToast(m.inPen + '/' + m.total + ' moutons rentrés : +' + m.pts + ' points'); }
+    if (m.last){ sfx('win'); boom('TROUPEAU SAUVÉ !', { size:34, x:.5, y:.3, pal:BOOM_COLORS[0], ms:1800 }); shToast('Les ' + SH_ROUNDS + ' journées réussies ! +' + m.pts + ' points'); }
+    else if (m.ok){ sfx('finish'); boom(m.all ? 'TOUS RENTRÉS !' : 'BRAVO !', { size:34, x:.5, y:.3, pal:BOOM_COLORS[0], ms:1300 }); shToast(m.inPen + '/' + m.total + ' moutons rentrés : +' + m.pts + ' points'); }
     else { sfx('lose'); boom('LA NUIT EST TOMBÉE…', { size:28, x:.5, y:.3, pal:BOOM_COLORS[3], ms:1600 }); shToast('Seulement ' + m.inPen + '/' + m.total + ' (il en fallait ' + m.need + ')'); }
     return;
   }
