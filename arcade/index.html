@@ -205,7 +205,7 @@ label{font-size:13px;font-weight:900;color:var(--fg)}
 #mlMineCv{width:60px;height:55px;flex:none}
 
 /* ---- chars ---- */
-#tkWrap{width:min(100%,64vh,640px)}
+#tkWrap{width:min(calc(100vw - 14px),76vh,780px)}
 #tkCv{display:block;width:100%;height:auto;aspect-ratio:1;touch-action:none;border:3px solid #000;box-shadow:6px 6px 0 #000}
 #tkFire{width:min(100%,640px);height:62px;font-size:26px;touch-action:manipulation}
 #tkRole{font-size:clamp(16px,4.2vw,24px)}
@@ -260,6 +260,7 @@ label{font-size:13px;font-weight:900;color:var(--fg)}
 .joy{position:fixed;width:104px;height:104px;margin:-52px 0 0 -52px;border-radius:50%;border:3px solid #000;background:rgba(255,255,255,.35);pointer-events:none;z-index:7;box-shadow:3px 3px 0 #000}
 .joy i{position:absolute;left:50%;top:50%;width:44px;height:44px;border-radius:50%;background:#FFD93B;border:3px solid #000;transform:translate(-50%,-50%)}
 #scrKabaddi,#scrDodge,#scrTank{touch-action:none;user-select:none;-webkit-user-select:none}
+html.joyon,html.joyon body{touch-action:none;overscroll-behavior:none}
 @media (max-height:780px){ #scrKabaddi .hint,#scrDodge .hint,#scrTank .hint{display:none} }
 
 /* ---- kabaddi ---- */
@@ -727,7 +728,7 @@ const GAME_DESC = {
 
 const cleanName = s => String(s || '').replace(/[\u0000-\u001f<>]/g,'').trim().slice(0,14) || 'Joueur';
 const genCode = () => { const a='ABCDEFGHJKMNPQRSTUVWXYZ23456789'; let s=''; for(let i=0;i<4;i++) s+=a[Math.floor(Math.random()*a.length)]; return s; };
-const show = id => { for (const s of ['scrMenu','scrLobby','scrGame','scrPong','scrDerby','scrNaval','scrMole','scrCurl','scrChairs','scrMaster','scrKabaddi','scrDodge','scrTank']) $(s).hidden = s !== id; if (id === 'scrKabaddi') try { window.scrollTo(0, 0); } catch(_){} };
+const show = id => { for (const s of ['scrMenu','scrLobby','scrGame','scrPong','scrDerby','scrNaval','scrMole','scrCurl','scrChairs','scrMaster','scrKabaddi','scrDodge','scrTank']) $(s).hidden = s !== id; if (id === 'scrKabaddi') try { window.scrollTo(0, 0); } catch(_){} document.documentElement.classList.toggle('joyon', ['scrKabaddi','scrDodge','scrTank'].includes(id)); };
 const store = { get(k){ try { return localStorage.getItem(k); } catch(_) { return null; } }, set(k,v){ try { localStorage.setItem(k,v); } catch(_){} } };
 
 $('nameIn').value = store.get('tm-name') || ('Joueur' + Math.floor(Math.random()*90+10));
@@ -3984,14 +3985,15 @@ function makeJoy(screenId, o){
   const scr = $(screenId), ring = document.createElement('div'); ring.className = 'joy'; ring.hidden = true;
   const knob = document.createElement('i'); ring.append(knob); document.body.append(ring);
   let st = null; const RJ = 48;
-  scr.addEventListener('pointerdown', e => {
-    if (st || e.target.closest('button, input, a') || !o.active()) return;
-    e.preventDefault(); try { scr.setPointerCapture(e.pointerId); } catch(_){}
+  // listens on the whole page while this game's screen is shown, so the empty margins work too
+  addEventListener('pointerdown', e => {
+    if (scr.hidden || st || e.target.closest('button, input, a, .overlay') || !o.active()) return;
+    e.preventDefault(); try { e.target.setPointerCapture(e.pointerId); } catch(_){}
     st = { id:e.pointerId, x:e.clientX, y:e.clientY, t:performance.now(), moved:false };
     ring.style.left = e.clientX + 'px'; ring.style.top = e.clientY + 'px'; knob.style.transform = 'translate(-50%,-50%)'; ring.hidden = false;
     o.move(0, 0, true);
   });
-  scr.addEventListener('pointermove', e => {
+  addEventListener('pointermove', e => {
     if (!st || e.pointerId !== st.id) return;
     const dx = e.clientX - st.x, dy = e.clientY - st.y, L = Math.hypot(dx, dy);
     if (L > 10) st.moved = true;
@@ -4005,7 +4007,7 @@ function makeJoy(screenId, o){
     const s0 = st; st = null; ring.hidden = true; o.move(0, 0, false);
     if (e && e.type === 'pointerup' && !s0.moved && performance.now() - s0.t < 260 && o.tap) o.tap(e);
   };
-  scr.addEventListener('pointerup', up); scr.addEventListener('pointercancel', up);
+  addEventListener('pointerup', up); addEventListener('pointercancel', up);
   return { reset(){ st = null; ring.hidden = true; } };
 }
 
@@ -4909,7 +4911,7 @@ function startTank(m){
   $('scrEnd').hidden = true; show('scrTank');
   const map = tkMap(m.seed|0);
   TK = { map, tanks:(m.tanks || []).map((t, i) => ({ i, d:t.d, g:t.g, model:t.model|0, x:+t.x, y:+t.y, tx:+t.x, ty:+t.y, a:+t.a, ta:+t.a, lives:TK_LIVES, hid:0, rel:0, inv:0, alive:1, tread:0 })),
-    shells:[], tl:TK_TIME, fx:[], count:3, in:{ jx:0, jy:0, fw:0, tu:0, aa:null, tr:0 }, sent:'', lastSend:0, keys:{}, joyOn:false, over:false };
+    shells:[], tl:TK_TIME, fx:[], craters:[], marks:[], smoke:[], seed:m.seed|0, count:3, in:{ jx:0, jy:0, fw:0, tu:0, aa:null, tr:0 }, sent:'', lastSend:0, keys:{}, joyOn:false, over:false };
   const mine = TK.tanks.find(t => t.d === me.id || t.g === me.id);
   TK.my = mine ? mine.i : -1; TK.role = mine ? (mine.d === me.id ? 'pilote' : 'canon') : '';
   const partner = mine ? (TK.role === 'pilote' ? mine.g : mine.d) : null;
@@ -4953,9 +4955,9 @@ function tankRecv(m){
   const t = TK.tanks[m.i];
   switch (m.k){
     case 'fire': sfx('fire'); if (t) TK.fx.push({ k:'flash', x:t.tx + Math.cos(t.ta)*(TK_R + 18), y:t.ty + Math.sin(t.ta)*(TK_R + 18), t:0 }); break;
-    case 'spark': TK.fx.push({ k:'spark', x:m.x, y:m.y, t:0 }); sfx('wall'); break;
+    case 'spark': TK.fx.push({ k:'spark', x:m.x, y:m.y, t:0 }); sfx('wall'); TK.craters.push({ x:m.x, y:m.y, r:6 + Math.random()*3, a:Math.random()*3 }); if (TK.craters.length > 40) TK.craters.shift(); break;
     case 'hit': case 'dead':
-      TK.fx.push({ k:'boom', x:m.x, y:m.y, t:0 }); sfx(m.k === 'dead' ? 'sunk' : 'hit');
+      TK.fx.push({ k:'boom', x:m.x, y:m.y, t:0 }); sfx(m.k === 'dead' ? 'sunk' : 'hit'); TK.craters.push({ x:m.x + (Math.random() - .5)*14, y:m.y + (Math.random() - .5)*14, r:12 + Math.random()*5, a:Math.random()*3 }); if (TK.craters.length > 40) TK.craters.shift();
       if (m.k === 'dead') boom('KABOUM !', { size:34, x:m.x/TK_S, y:Math.max(.06, m.y/TK_S - .08), pal:BOOM_COLORS[2], ms:900 });
       if (m.i === TK.my){ const el = $('tkWrap'); el.style.setProperty('--amp', '5px'); el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); tkToast(m.k === 'dead' ? 'Votre char est détruit !' : 'Touchés ! Plus que ' + Math.max(0, (t ? t.lives : 1) - 1) + ' vie(s)'); }
       else if (m.by === TK.my) tkToast(m.k === 'dead' ? 'Char ' + (m.i + 1) + ' détruit !' : 'Touché !');
@@ -5010,7 +5012,17 @@ function tankFrame(dtMs, now){
   }
   if (me.host) tankHostFrame(dt, now);
   const k = Math.min(1, dt*18);
-  for (const t of TK.tanks){ t.x += (t.tx - t.x)*k; t.y += (t.ty - t.y)*k; }
+  for (const t of TK.tanks){
+    t.x += (t.tx - t.x)*k; t.y += (t.ty - t.y)*k;
+    if (t.alive && (t.mx === undefined || Math.hypot(t.x - t.mx, t.y - t.my) > 9)){            // track marks
+      t.mx = t.x; t.my = t.y; TK.marks.push({ x:t.x, y:t.y, a:t.a, w:t.model === 1 ? 17 : t.model === 2 ? 13 : 15, t:now }); if (TK.marks.length > 400) TK.marks.shift();
+    }
+    const sm = !t.alive || t.lives === 1;
+    if (sm && Math.random() < dt*(t.alive ? 5 : 9)) TK.smoke.push({ x:t.x + (Math.random() - .5)*10, y:t.y + (Math.random() - .5)*10 - 4, r:5 + Math.random()*4, t:0, life:1.4 + Math.random(), dark:!t.alive, vx:(Math.random() - .5)*8, vy:-14 - Math.random()*10 });
+  }
+  for (const p of TK.smoke){ p.t += dt; p.x += p.vx*dt; p.y += p.vy*dt; }
+  TK.smoke = TK.smoke.filter(p => p.t < p.life);
+  TK.marks = TK.marks.filter(m => now - m.t < 7000);
   for (const f of TK.fx) f.t += dt;
   TK.fx = TK.fx.filter(f => f.t < .7);
   const s = Math.ceil(TK.tl); $('tkTime').textContent = Math.floor(s/60) + ':' + String(s % 60).padStart(2, '0');
@@ -5050,33 +5062,110 @@ function tkTankShape(ctx, t, colB, colT, now){
   ctx.fillStyle = 'rgba(255,255,255,.6)'; ctx.beginPath(); ctx.arc(-3, -3, 2.5, 0, Math.PI*2); ctx.fill();
   ctx.restore();
 }
-function drawTank(now){
-  const ctx = tkctx, S = TK_S;
-  ctx.fillStyle = '#B9C77E'; ctx.fillRect(0, 0, S, S);
-  ctx.fillStyle = halftone(ctx, .07); ctx.fillRect(0, 0, S, S);
-  if (!TK) return;
-  const map = TK.map;
-  // forests: ground patch first
-  for (const [x, y, r] of map.hides){ ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI*2); ctx.fillStyle = '#4E8A3A'; ctx.fill(); }
+// scenery drawn once per map into two layers: the ground with its obstacles, and the forest canopy on top
+function tkScenery(map, seed){
+  const mk = () => { const c = document.createElement('canvas'); c.width = c.height = TK_S; return c; };
+  const bg = mk(), top = mk(), g = bg.getContext('2d'), tp = top.getContext('2d'), r = rng32(seed ^ 0x5bd1e995), S = TK_S;
+  // grass with lighter and darker patches
+  g.fillStyle = '#9FBF5E'; g.fillRect(0, 0, S, S);
+  for (let k = 0; k < 70; k++){ g.globalAlpha = .55; g.fillStyle = r() < .5 ? '#93B455' : '#AECB6E'; g.beginPath(); g.ellipse(r()*S, r()*S, 20 + r()*45, 12 + r()*30, r()*3, 0, Math.PI*2); g.fill(); }
+  g.globalAlpha = 1;
+  // two dirt tracks crossing the field
+  for (let k = 0; k < 2; k++){
+    const p0 = [r()*S*.2 - 20, r()*S], p3 = [S + 20 - r()*S*.2, r()*S], p1 = [S*.35, r()*S], p2 = [S*.65, r()*S];
+    const path = () => { g.beginPath(); if (k) { g.moveTo(p0[1], p0[0]); g.bezierCurveTo(p1[1], p1[0], p2[1], p2[0], p3[1], p3[0]); } else { g.moveTo(...p0); g.bezierCurveTo(...p1, ...p2, ...p3); } };
+    g.lineCap = 'round'; g.strokeStyle = '#A88A55'; g.lineWidth = 34; path(); g.stroke();
+    g.strokeStyle = '#CFAF74'; g.lineWidth = 26; path(); g.stroke();
+    g.setLineDash([3, 9]); g.strokeStyle = 'rgba(120,90,50,.55)'; g.lineWidth = 3; path(); g.stroke(); g.setLineDash([]);
+  }
+  // puddles, pebbles, grass tufts and flowers
+  for (let k = 0; k < 3; k++){ const x = 40 + r()*(S - 80), y = 40 + r()*(S - 80); g.fillStyle = '#7FA9C9'; g.beginPath(); g.ellipse(x, y, 16 + r()*10, 8 + r()*6, r()*3, 0, Math.PI*2); g.fill(); g.strokeStyle = 'rgba(0,0,0,.5)'; g.lineWidth = 2; g.stroke(); g.fillStyle = 'rgba(255,255,255,.6)'; g.beginPath(); g.ellipse(x - 4, y - 2, 5, 2, 0, 0, Math.PI*2); g.fill(); }
+  for (let k = 0; k < 40; k++){ g.fillStyle = r() < .5 ? '#B7B2A5' : '#9C978B'; g.beginPath(); g.arc(r()*S, r()*S, 1.5 + r()*2.5, 0, Math.PI*2); g.fill(); }
+  g.strokeStyle = '#5E8F35'; g.lineWidth = 2;
+  for (let k = 0; k < 160; k++){ const x = r()*S, y = r()*S; g.beginPath(); g.moveTo(x - 3, y - 6); g.lineTo(x, y); g.lineTo(x + 3, y - 7); g.moveTo(x, y); g.lineTo(x, y - 8); g.stroke(); }
+  for (let k = 0; k < 30; k++){ const x = r()*S, y = r()*S, c = ['#fff', '#FFD21F', '#FF5FC8'][k % 3]; for (let i = 0; i < 5; i++){ const a = i*Math.PI*2/5; g.fillStyle = c; g.beginPath(); g.arc(x + Math.cos(a)*2.6, y + Math.sin(a)*2.6, 2, 0, Math.PI*2); g.fill(); } g.fillStyle = '#E8A21F'; g.beginPath(); g.arc(x, y, 1.6, 0, Math.PI*2); g.fill(); }
+  g.fillStyle = halftone(g, .05); g.fillRect(0, 0, S, S);
+  // forest floor
+  for (const [x, y, rr] of map.hides){
+    g.fillStyle = '#4F7F33'; g.beginPath(); g.arc(x, y, rr + 6, 0, Math.PI*2); g.fill();
+    for (let k = 0; k < 25; k++){ const a = r()*Math.PI*2, d = r()*rr; g.fillStyle = r() < .5 ? '#C98B2E' : '#8E6A2A'; g.beginPath(); g.ellipse(x + Math.cos(a)*d, y + Math.sin(a)*d, 3, 1.6, r()*3, 0, Math.PI*2); g.fill(); }
+  }
   // obstacles
   for (const o of map.obs){
-    ctx.lineWidth = 3; ctx.strokeStyle = '#000';
+    const ro = rng32(o.v + 17);
+    g.lineJoin = 'round';
     if (o.k === 'rock'){
-      ctx.fillStyle = 'rgba(0,0,0,.2)'; ctx.beginPath(); ctx.arc(o.cx + 4, o.cy + 5, o.r, 0, Math.PI*2); ctx.fill();
-      ctx.beginPath(); ctx.arc(o.cx, o.cy, o.r, 0, Math.PI*2); ctx.fillStyle = '#A3A6AE'; ctx.fill();
-      ctx.save(); ctx.clip(); ctx.fillStyle = halftone(ctx, .3); ctx.fillRect(o.cx - o.r, o.cy, o.r*2, o.r); ctx.restore(); ctx.stroke();
-      ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(o.cx - o.r*.4, o.cy - o.r*.5); ctx.lineTo(o.cx, o.cy - o.r*.1); ctx.lineTo(o.cx + o.r*.2, o.cy + o.r*.4); ctx.stroke();
-    } else {
-      ctx.fillStyle = 'rgba(0,0,0,.2)'; ctx.fillRect(o.x + 4, o.y + 5, o.w, o.h);
-      ctx.fillStyle = o.k === 'wall' ? '#C0612B' : '#D9A55B'; ctx.fillRect(o.x, o.y, o.w, o.h);
-      ctx.lineWidth = 1.5; ctx.strokeStyle = 'rgba(0,0,0,.45)'; ctx.beginPath();
-      if (o.k === 'wall'){                               // bricks
-        const hor = o.w > o.h;
-        for (let k = 9; k < (hor ? o.w : o.h); k += 18){ if (hor){ ctx.moveTo(o.x + k, o.y); ctx.lineTo(o.x + k, o.y + o.h); } else { ctx.moveTo(o.x, o.y + k); ctx.lineTo(o.x + o.w, o.y + k); } }
-      } else { ctx.moveTo(o.x, o.y); ctx.lineTo(o.x + o.w, o.y + o.h); ctx.moveTo(o.x + o.w, o.y); ctx.lineTo(o.x, o.y + o.h); }
-      ctx.stroke(); ctx.lineWidth = 3; ctx.strokeStyle = '#000'; ctx.strokeRect(o.x, o.y, o.w, o.h);
+      const pts = Array.from({ length:10 }, (_, i) => { const a = i*Math.PI*2/10, k = .82 + ro()*.26; return [o.cx + Math.cos(a)*o.r*k, o.cy + Math.sin(a)*o.r*k]; });
+      const poly = (dx, dy) => { g.beginPath(); pts.forEach(([x, y], i) => i ? g.lineTo(x + dx, y + dy) : g.moveTo(x + dx, y + dy)); g.closePath(); };
+      g.fillStyle = 'rgba(0,0,0,.25)'; poly(5, 7); g.fill();
+      poly(0, 0); g.fillStyle = '#A3A6AE'; g.fill();
+      g.save(); poly(0, 0); g.clip();
+      g.fillStyle = '#868994'; g.beginPath(); g.arc(o.cx + o.r*.5, o.cy + o.r*.55, o.r*.95, 0, Math.PI*2); g.fill();
+      g.fillStyle = halftone(g, .3); g.fillRect(o.cx - o.r, o.cy, o.r*2, o.r);
+      g.fillStyle = '#CDD0D7'; g.beginPath(); g.ellipse(o.cx - o.r*.35, o.cy - o.r*.4, o.r*.35, o.r*.2, -.5, 0, Math.PI*2); g.fill();
+      g.restore();
+      poly(0, 0); g.strokeStyle = '#000'; g.lineWidth = 3; g.stroke();
+      g.lineWidth = 2; g.beginPath(); g.moveTo(o.cx - o.r*.1, o.cy - o.r*.6); g.lineTo(o.cx + o.r*.05, o.cy - o.r*.1); g.lineTo(o.cx - o.r*.15, o.cy + o.r*.3); g.moveTo(o.cx + o.r*.05, o.cy - o.r*.1); g.lineTo(o.cx + o.r*.4, o.cy + o.r*.05); g.stroke();
+      for (let k = 0; k < 4; k++){ const a = ro()*Math.PI*2; g.fillStyle = '#9C978B'; g.beginPath(); g.arc(o.cx + Math.cos(a)*(o.r + 7), o.cy + Math.sin(a)*(o.r + 7), 2.5, 0, Math.PI*2); g.fill(); g.lineWidth = 1.2; g.stroke(); }
+      continue;
+    }
+    g.fillStyle = 'rgba(0,0,0,.25)'; g.fillRect(o.x + 5, o.y + 7, o.w, o.h);
+    if (o.k === 'wall'){
+      const hor = o.w > o.h, L = hor ? o.w : o.h, T = hor ? o.h : o.w, rows = 2, bh = T/rows, bw = 18;
+      g.save(); g.translate(o.x, o.y); if (!hor){ g.translate(o.w, 0); g.rotate(Math.PI/2); }
+      g.fillStyle = '#E8D9C0'; g.fillRect(0, 0, L, T);                       // mortar
+      for (let row = 0; row < rows; row++) for (let x = row % 2 ? -bw/2 : 0; x < L; x += bw){
+        const x0 = Math.max(0, x) + 1, x1 = Math.min(L, x + bw) - 1;
+        g.fillStyle = ['#C0612B', '#B0552A', '#CC6B33', '#A94E27'][Math.floor(ro()*4)]; g.fillRect(x0, row*bh + 1, x1 - x0, bh - 2);
+        g.fillStyle = 'rgba(255,255,255,.18)'; g.fillRect(x0, row*bh + 1, x1 - x0, 2);
+      }
+      g.strokeStyle = '#000'; g.lineWidth = 3; g.strokeRect(0, 0, L, T);
+      g.restore();
+    } else {                                         // wooden crate
+      const { x, y, w, h } = o;
+      g.fillStyle = '#D9A55B'; g.fillRect(x, y, w, h);
+      g.strokeStyle = 'rgba(120,70,20,.55)'; g.lineWidth = 1.5;
+      for (let k = 1; k < 4; k++){ g.beginPath(); g.moveTo(x, y + h*k/4); g.lineTo(x + w, y + h*k/4); g.stroke(); }
+      g.fillStyle = '#B9823B'; const b = Math.max(5, w*.14);
+      g.fillRect(x, y, w, b); g.fillRect(x, y + h - b, w, b); g.fillRect(x, y, b, h); g.fillRect(x + w - b, y, b, h);
+      g.strokeStyle = '#7A4E1E'; g.lineWidth = b*.7; g.beginPath(); g.moveTo(x + b, y + b); g.lineTo(x + w - b, y + h - b); g.stroke();
+      g.fillStyle = '#333'; for (const [nx, ny] of [[x + b/2, y + b/2], [x + w - b/2, y + b/2], [x + b/2, y + h - b/2], [x + w - b/2, y + h - b/2]]){ g.beginPath(); g.arc(nx, ny, 1.6, 0, Math.PI*2); g.fill(); }
+      g.strokeStyle = '#000'; g.lineWidth = 3; g.strokeRect(x, y, w, h);
     }
   }
+  // canopy layer: shadowed tree crowns with highlights
+  for (const [x, y, rr] of map.hides){
+    const rt = rng32(Math.round(x*7 + y)), crowns = [];
+    for (let k = 0; k < 15; k++){ const a = rt()*Math.PI*2, d = Math.sqrt(rt())*(rr - 12); crowns.push([x + Math.cos(a)*d, y + Math.sin(a)*d, 15 + rt()*11, k]); }
+    crowns.sort((p, q) => p[1] - q[1]);
+    for (const [cx, cy, cr] of crowns){ tp.fillStyle = 'rgba(0,0,0,.25)'; tp.beginPath(); tp.arc(cx + 5, cy + 6, cr, 0, Math.PI*2); tp.fill(); }
+    for (const [cx, cy, cr, k] of crowns){
+      tp.beginPath(); tp.arc(cx, cy, cr, 0, Math.PI*2); tp.fillStyle = k % 3 ? '#2F7A22' : k % 2 ? '#3E9A2E' : '#246A1B'; tp.fill();
+      tp.save(); tp.clip(); tp.fillStyle = halftone(tp, .25); tp.fillRect(cx, cy - cr, cr, cr*2); tp.restore();
+      tp.fillStyle = 'rgba(190,240,120,.55)'; tp.beginPath(); tp.arc(cx - cr*.35, cy - cr*.35, cr*.32, 0, Math.PI*2); tp.fill();
+      tp.strokeStyle = '#000'; tp.lineWidth = 2.5; tp.beginPath(); tp.arc(cx, cy, cr, 0, Math.PI*2); tp.stroke();
+    }
+  }
+  return { bg, top };
+}
+function drawTank(now){
+  const ctx = tkctx, S = TK_S;
+  if (!TK){ ctx.fillStyle = '#9FBF5E'; ctx.fillRect(0, 0, S, S); return; }
+  const map = TK.map;
+  if (!TK.sc) TK.sc = tkScenery(map, TK.seed|0);
+  ctx.drawImage(TK.sc.bg, 0, 0);
+  // craters and track marks left on the ground
+  for (const c of TK.craters){
+    ctx.fillStyle = 'rgba(80,60,30,.55)'; ctx.beginPath(); ctx.ellipse(c.x, c.y, c.r, c.r*.8, c.a, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle = 'rgba(60,40,20,.6)'; ctx.lineWidth = 2; ctx.stroke();
+    ctx.fillStyle = 'rgba(40,30,15,.5)'; ctx.beginPath(); ctx.ellipse(c.x, c.y, c.r*.45, c.r*.35, c.a, 0, Math.PI*2); ctx.fill();
+  }
+  for (const m of TK.marks){
+    ctx.globalAlpha = Math.max(0, .45 * (1 - (now - m.t)/7000));
+    ctx.save(); ctx.translate(m.x, m.y); ctx.rotate(m.a); ctx.fillStyle = '#5A4A2A';
+    ctx.fillRect(-3, -m.w - 3, 6, 6); ctx.fillRect(-3, m.w - 3, 6, 6); ctx.restore();
+  }
+  ctx.globalAlpha = 1;
   // wrecks, then tanks (an enemy hidden in a forest is not drawn at all)
   for (const t of TK.tanks){
     const mine = t.i === TK.my;
@@ -5090,12 +5179,11 @@ function drawTank(now){
   // shells
   for (const s of TK.shells){ ctx.beginPath(); ctx.arc(s.x, s.y, 4.5, 0, Math.PI*2); ctx.fillStyle = '#000'; ctx.fill(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.stroke(); }
   // forest canopy on top: hides what is underneath (your own tank shows through a little)
+  ctx.drawImage(TK.sc.top, 0, 0);
+  // smoke from damaged tanks and wrecks
+  for (const p of TK.smoke){ const k = p.t / p.life; ctx.globalAlpha = Math.max(0, .55*(1 - k)); ctx.fillStyle = p.dark ? '#333' : '#999'; ctx.beginPath(); ctx.arc(p.x, p.y, p.r*(1 + k*1.6), 0, Math.PI*2); ctx.fill(); }
+  ctx.globalAlpha = 1;
   for (const [x, y, r] of map.hides){
-    const rr = rng32(Math.round(x*7 + y));
-    for (let k = 0; k < 13; k++){
-      const a = rr()*Math.PI*2, d = Math.sqrt(rr())*(r - 14), tx = x + Math.cos(a)*d, ty = y + Math.sin(a)*d, tr = 16 + rr()*10;
-      ctx.beginPath(); ctx.arc(tx, ty, tr, 0, Math.PI*2); ctx.fillStyle = k % 3 ? '#2F7A22' : '#3E9A2E'; ctx.fill(); ctx.strokeStyle = '#000'; ctx.lineWidth = 2.5; ctx.stroke();
-    }
     const mt = TK.tanks[TK.my];
     if (mt && mt.alive && mt.hid && Math.hypot(mt.x - x, mt.y - y) < r){ ctx.globalAlpha = .6; tkTankShape(ctx, mt, tkP(mt.d).color, tkP(mt.g).color, now); ctx.globalAlpha = 1; }
   }
