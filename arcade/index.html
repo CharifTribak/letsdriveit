@@ -727,7 +727,7 @@ const GAME_DESC = {
 
 const cleanName = s => String(s || '').replace(/[\u0000-\u001f<>]/g,'').trim().slice(0,14) || 'Joueur';
 const genCode = () => { const a='ABCDEFGHJKMNPQRSTUVWXYZ23456789'; let s=''; for(let i=0;i<4;i++) s+=a[Math.floor(Math.random()*a.length)]; return s; };
-const show = id => { for (const s of ['scrMenu','scrLobby','scrGame','scrPong','scrDerby','scrNaval','scrMole','scrCurl','scrChairs','scrMaster','scrKabaddi','scrDodge','scrTank']) $(s).hidden = s !== id; try { window.scrollTo(0, 0); } catch(_){} };
+const show = id => { for (const s of ['scrMenu','scrLobby','scrGame','scrPong','scrDerby','scrNaval','scrMole','scrCurl','scrChairs','scrMaster','scrKabaddi','scrDodge','scrTank']) $(s).hidden = s !== id; if (id === 'scrKabaddi') try { window.scrollTo(0, 0); } catch(_){} };
 const store = { get(k){ try { return localStorage.getItem(k); } catch(_) { return null; } }, set(k,v){ try { localStorage.setItem(k,v); } catch(_){} } };
 
 $('nameIn').value = store.get('tm-name') || ('Joueur' + Math.floor(Math.random()*90+10));
