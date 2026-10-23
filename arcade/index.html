@@ -5836,6 +5836,7 @@ function drakkarRecv(m){
       if (phase === 'count'){ phase = 'play'; drakkarMsg(''); }
       DK.k = m.k|0; DK.iv = m.iv|0 || 1200; DK.beatAt = performance.now(); DK.q = (m.q|0)/100; DK.pulse = 1;
       sfx('drum');
+      if (DK.role === 'rameur' && SND.on && navigator.vibrate) try { navigator.vibrate(35); } catch(_){}
       break;
     case 'dk_s': DK.d = +m.d; DK.bd = +m.bd; DK.v = +m.v; DK.ph = m.ph || {}; DK.bp = +m.bp; break;
     case 'dk_judge': DK.judge = m.q|0; DK.judgeOff = m.off|0; DK.judgeT = performance.now(); break;
@@ -6292,7 +6293,7 @@ const SFX = {
   needle: () => { tone(330, .3, 'sine', .08, 80); noise(.12, .1, 2000, 300); },
   chant:  i => tone([392, 330, 294][i || 0], .14, 'square', .035),
   bark:   () => { tone(520, .07, 'square', .09, 300); tone(470, .09, 'square', .08, 260, .11); },
-  drum:   () => { tone(95, .2, 'sine', .3, 45); noise(.09, .18, 900, 120); },
+  drum:   () => { tone(110, .25, 'sine', .35, 50); tone(240, .16, 'triangle', .28, 90); tone(480, .05, 'square', .07, 200); noise(.12, .32, 2200, 150, 0, .8); },
   win:    () => [523, 659, 784, 1047, 784, 1047].forEach((f, i) => tone(f, .18, 'square', .08, null, i*.11)),
   lose:   () => [392, 330, 262, 196].forEach((f, i) => tone(f, .22, 'triangle', .1, null, i*.16))
 };
