@@ -74,6 +74,9 @@ label{font-size:13px;font-weight:900;color:var(--fg)}
 .lobbyhead .logo{font-size:clamp(48px,14vw,64px)}
 .burst{width:132px;height:132px;flex:none;background:var(--blue);clip-path:polygon(50% 0%,61% 18%,82% 8%,80% 30%,100% 36%,85% 52%,98% 70%,76% 72%,76% 94%,57% 82%,44% 100%,36% 80%,14% 90%,18% 68%,0% 60%,16% 46%,4% 26%,26% 24%,26% 4%,42% 16%);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;transform:rotate(6deg)}
 .burst span{font-weight:900;font-size:11px}
+.codebox{display:flex;flex-direction:column;align-items:center;gap:8px;flex:none}
+.invite{font-size:13px;padding:6px 10px;white-space:nowrap}
+.invite.ok{background:#13A35B;color:#fff}
 .burst b{font-family:var(--display);font-weight:400;font-size:36px;line-height:1;letter-spacing:.06em}
 .feature{background:var(--panel);border:3px solid var(--line);box-shadow:7px 7px 0 var(--line);display:flex;flex-direction:column}
 .caption{background:var(--blue);color:#fff;border-bottom:3px solid var(--line);padding:6px 10px;font-weight:900;font-size:13px}
@@ -382,7 +385,7 @@ html.joyon,html.joyon body{touch-action:none;overscroll-behavior:none}
 <!-- MENU -->
 <section id="scrMenu" class="center">
   <div class="card">
-    <h1 class="logosvg" data-appname><svg viewBox="0 0 520 384" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Baston Arcade"><polygon points="260,8 292,62 352,22 356,86 428,58 404,118 494,120 438,166 508,214 428,226 456,292 384,270 372,322 318,276 262,318 222,270 156,306 152,248 76,262 104,206 18,184 92,148 36,92 116,94 102,30 172,62 204,8 228,58" fill="#000" transform="translate(7,7)"/><polygon points="260,8 292,62 352,22 356,86 428,58 404,118 494,120 438,166 508,214 428,226 456,292 384,270 372,322 318,276 262,318 222,270 156,306 152,248 76,262 104,206 18,184 92,148 36,92 116,94 102,30 172,62 204,8 228,58" fill="#E6262B" stroke="#000" stroke-width="5" stroke-linejoin="round"/><g transform="rotate(-6 260 168)"><text x="264" y="196" text-anchor="middle" font-family="Bangers, Impact, sans-serif" font-size="112" letter-spacing="3" fill="#000">BASTON !</text><text x="258" y="190" text-anchor="middle" font-family="Bangers, Impact, sans-serif" font-size="112" letter-spacing="3" fill="#fff" stroke="#000" stroke-width="6" paint-order="stroke" stroke-linejoin="round">BASTON !</text></g><path d="M60 46 l26 14 M44 76 l30 6 M462 260 l-26 -12 M476 232 l-30 -4" stroke="#000" stroke-width="5" stroke-linecap="round"/><g transform="rotate(-4 260 350)"><text x="265" y="377" text-anchor="middle" font-family="Bangers, Impact, sans-serif" font-size="64" letter-spacing="14" fill="#000">ARCADE</text><text x="260" y="372" text-anchor="middle" font-family="Bangers, Impact, sans-serif" font-size="64" letter-spacing="14" fill="#FFD93B" stroke="#000" stroke-width="5" paint-order="stroke" stroke-linejoin="round">ARCADE</text></g></svg></h1>
+    <h1 class="logosvg" data-appname><svg viewBox="0 0 520 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Baston Arcade"><polygon points="260,8 292,62 352,22 356,86 428,58 404,118 494,120 438,166 508,214 428,226 456,292 384,270 372,322 318,276 262,318 222,270 156,306 152,248 76,262 104,206 18,184 92,148 36,92 116,94 102,30 172,62 204,8 228,58" fill="#000" transform="translate(7,7)"/><polygon points="260,8 292,62 352,22 356,86 428,58 404,118 494,120 438,166 508,214 428,226 456,292 384,270 372,322 318,276 262,318 222,270 156,306 152,248 76,262 104,206 18,184 92,148 36,92 116,94 102,30 172,62 204,8 228,58" fill="#E6262B" stroke="#000" stroke-width="5" stroke-linejoin="round"/><g transform="rotate(-6 260 168)"><text x="264" y="196" text-anchor="middle" font-family="Bangers, Impact, sans-serif" font-size="112" letter-spacing="3" fill="#000">BASTON !</text><text x="258" y="190" text-anchor="middle" font-family="Bangers, Impact, sans-serif" font-size="112" letter-spacing="3" fill="#fff" stroke="#000" stroke-width="6" paint-order="stroke" stroke-linejoin="round">BASTON !</text><text x="383" y="252" text-anchor="end" font-family="Bangers, Impact, sans-serif" font-size="52" letter-spacing="6" fill="#000">ARCADE</text><text x="379" y="248" text-anchor="end" font-family="Bangers, Impact, sans-serif" font-size="52" letter-spacing="6" fill="#FFD93B" stroke="#000" stroke-width="5" paint-order="stroke" stroke-linejoin="round">ARCADE</text></g><path d="M60 46 l26 14 M44 76 l30 6 M462 260 l-26 -12 M476 232 l-30 -4" stroke="#000" stroke-width="5" stroke-linecap="round"/></svg></h1>
     <p class="tagline">Treize jeux, de 1 à 5 joueurs</p>
     <div class="field">
       <label for="nameIn">Votre nom</label>
@@ -411,10 +414,10 @@ html.joyon,html.joyon body{touch-action:none;overscroll-behavior:none}
 <section id="scrLobby" class="center" hidden>
   <div class="card lobby">
     <div class="lobbyhead">
-      <h1 class="logosvg small" data-appname><svg viewBox="0 0 520 384" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Baston Arcade"><polygon points="260,8 292,62 352,22 356,86 428,58 404,118 494,120 438,166 508,214 428,226 456,292 384,270 372,322 318,276 262,318 222,270 156,306 152,248 76,262 104,206 18,184 92,148 36,92 116,94 102,30 172,62 204,8 228,58" fill="#000" transform="translate(7,7)"/><polygon points="260,8 292,62 352,22 356,86 428,58 404,118 494,120 438,166 508,214 428,226 456,292 384,270 372,322 318,276 262,318 222,270 156,306 152,248 76,262 104,206 18,184 92,148 36,92 116,94 102,30 172,62 204,8 228,58" fill="#E6262B" stroke="#000" stroke-width="5" stroke-linejoin="round"/><g transform="rotate(-6 260 168)"><text x="264" y="196" text-anchor="middle" font-family="Bangers, Impact, sans-serif" font-size="112" letter-spacing="3" fill="#000">BASTON !</text><text x="258" y="190" text-anchor="middle" font-family="Bangers, Impact, sans-serif" font-size="112" letter-spacing="3" fill="#fff" stroke="#000" stroke-width="6" paint-order="stroke" stroke-linejoin="round">BASTON !</text></g><path d="M60 46 l26 14 M44 76 l30 6 M462 260 l-26 -12 M476 232 l-30 -4" stroke="#000" stroke-width="5" stroke-linecap="round"/><g transform="rotate(-4 260 350)"><text x="265" y="377" text-anchor="middle" font-family="Bangers, Impact, sans-serif" font-size="64" letter-spacing="14" fill="#000">ARCADE</text><text x="260" y="372" text-anchor="middle" font-family="Bangers, Impact, sans-serif" font-size="64" letter-spacing="14" fill="#FFD93B" stroke="#000" stroke-width="5" paint-order="stroke" stroke-linejoin="round">ARCADE</text></g></svg></h1>
-      <div class="burst"><span>Code</span><b id="lobbyCode">----</b></div>
+      <h1 class="logosvg small" data-appname><svg viewBox="0 0 520 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Baston Arcade"><polygon points="260,8 292,62 352,22 356,86 428,58 404,118 494,120 438,166 508,214 428,226 456,292 384,270 372,322 318,276 262,318 222,270 156,306 152,248 76,262 104,206 18,184 92,148 36,92 116,94 102,30 172,62 204,8 228,58" fill="#000" transform="translate(7,7)"/><polygon points="260,8 292,62 352,22 356,86 428,58 404,118 494,120 438,166 508,214 428,226 456,292 384,270 372,322 318,276 262,318 222,270 156,306 152,248 76,262 104,206 18,184 92,148 36,92 116,94 102,30 172,62 204,8 228,58" fill="#E6262B" stroke="#000" stroke-width="5" stroke-linejoin="round"/><g transform="rotate(-6 260 168)"><text x="264" y="196" text-anchor="middle" font-family="Bangers, Impact, sans-serif" font-size="112" letter-spacing="3" fill="#000">BASTON !</text><text x="258" y="190" text-anchor="middle" font-family="Bangers, Impact, sans-serif" font-size="112" letter-spacing="3" fill="#fff" stroke="#000" stroke-width="6" paint-order="stroke" stroke-linejoin="round">BASTON !</text><text id="ARC" x="383" y="252" text-anchor="end" font-family="Bangers, Impact, sans-serif" font-size="52" letter-spacing="6" fill="#000">ARCADE</text><text x="379" y="248" text-anchor="end" font-family="Bangers, Impact, sans-serif" font-size="52" letter-spacing="6" fill="#FFD93B" stroke="#000" stroke-width="5" paint-order="stroke" stroke-linejoin="round">ARCADE</text></g><path d="M60 46 l26 14 M44 76 l30 6 M462 260 l-26 -12 M476 232 l-30 -4" stroke="#000" stroke-width="5" stroke-linecap="round"/></svg></h1>
+      <div class="codebox"><div class="burst"><span>Code</span><b id="lobbyCode">----</b></div><button id="btnInvite" class="ghost invite" type="button">🔗 Copier le lien</button></div>
     </div>
-    <p class="hint">Les autres joueurs saisissent ce code depuis le menu.</p>
+    <p class="hint">Les autres joueurs saisissent ce code depuis le menu, ou ouvrent le lien copié.</p>
     <div class="feature">
       <div class="caption" id="gameCaption">Le jeu choisi</div>
       <img id="gameArt" class="gameart" alt="" hidden>
@@ -767,20 +770,21 @@ const COLS = 12, VIS = 22, HID = 2, ROWS = VIS + HID, CELL = 30, MAXP = 5;
 const PREFIX = 'letsdriveit-arcade-';
 const PALETTE = ['#E8202A','#FF8A1F','#FFD21F','#9BE22D','#12A150','#2ED3E6','#1E5BFF','#8E44FF','#FF5FC8','#8B5A2B'];
 const PALETTE_NAMES = ['rouge','orange','jaune','citron vert','vert','turquoise','bleu','violet','rose','marron'];
-// Gravats: pieces of 3 cells (a, b) and the 12 pieces of 5 cells (K is the plus sign). One letter per piece, never a digit or X.
-const PCOL = { a:'#C8553D', b:'#E0A458', I:'#4F86C6', L:'#D9822B', N:'#7A9E3B', Y:'#B86FB0', P:'#E3C567',
+// Gravats: a piece of 2 cells (d), pieces of 3 cells (a, b) and 9 pieces of 5 cells. One letter per piece, never a digit or X.
+// No piece of 4 cells, on purpose. The awkward 5-cell shapes (F, W, plus sign) are left out to keep the game readable.
+const PCOL = { d:'#8C9AA6', a:'#C8553D', b:'#E0A458', I:'#4F86C6', L:'#D9822B', N:'#7A9E3B', Y:'#B86FB0', P:'#E3C567',
   U:'#3FA7A0', T:'#B83A2E', V:'#9A7352', W:'#5C7AEA', Z:'#E07A5F', F:'#6BAA75', K:'#F2B134' };
 const SH = {
+  d:{n:2,c:[[0,1],[1,1]]},
   a:{n:3,c:[[0,1],[1,1],[2,1]]},                 b:{n:2,c:[[0,0],[0,1],[1,1]]},
   I:{n:5,c:[[0,2],[1,2],[2,2],[3,2],[4,2]]},     L:{n:4,c:[[3,0],[0,1],[1,1],[2,1],[3,1]]},
   N:{n:4,c:[[2,0],[3,0],[0,1],[1,1],[2,1]]},     Y:{n:4,c:[[1,0],[0,1],[1,1],[2,1],[3,1]]},
   P:{n:3,c:[[0,0],[1,0],[0,1],[1,1],[2,1]]},     U:{n:3,c:[[0,0],[2,0],[0,1],[1,1],[2,1]]},
   T:{n:3,c:[[0,0],[1,0],[2,0],[1,1],[1,2]]},     V:{n:3,c:[[0,0],[0,1],[0,2],[1,2],[2,2]]},
-  W:{n:3,c:[[0,0],[0,1],[1,1],[1,2],[2,2]]},     Z:{n:3,c:[[0,0],[1,0],[1,1],[1,2],[2,2]]},
-  F:{n:3,c:[[1,0],[2,0],[0,1],[1,1],[1,2]]},     K:{n:3,c:[[1,0],[0,1],[1,1],[2,1],[1,2]]}
+  Z:{n:3,c:[[0,0],[1,0],[1,1],[1,2],[2,2]]}
 };
-// the small pieces come twice per bag so the game breathes a little
-const BAG = () => [...Object.keys(SH), 'a', 'b'];
+// each bag of 17: the 2-cell piece twice, each 3-cell piece three times, each 5-cell piece once
+const BAG = () => [...Object.keys(SH), 'd', 'a', 'a', 'b', 'b'];
 const ROT = {};
 for (const k in SH){
   const {n,c} = SH[k]; ROT[k] = [c];
@@ -869,7 +873,7 @@ let BOT = null;                  // host-side robot when someone plays alone
 let ML = null, HM = null;       // tape-taupe: my view / host referee
 const GAME_NAMES = { tetris:'Gravats', pong:'Les Gardiens', derby:'Derby', naval:'Armada', mole:'Tape-taupe', curling:'Curling', chairs:'Chaises musicales', master:'Code secret', kabaddi:'Kabaddi', dodge:'Balle au prisonnier', tank:'Chars', sheep:'Les bergers', drakkar:'Drakkars' };
 const GAME_DESC = {
-  tetris:'Empilez des pièces de 3 et 5 briques. Chaque ligne effacée envoie des briques fendues à vos adversaires. Effacez une ligne collée à une brique fendue : elle éclate et repart chez son expéditeur.',
+  tetris:'Empilez des pièces de 2, 3 et 5 briques. Chaque ligne effacée envoie des briques fendues à vos adversaires. Effacez une ligne collée à une brique fendue : elle éclate et repart chez son expéditeur.',
   pong:'Chaque joueur garde un but avec 5 vies. Le terrain suit le nombre de joueurs : carré à 2, hexagone à 3, octogone à 4, décagone à 5. Deux ballons à partir de 3 joueurs. Le but d\'un joueur éliminé se ferme.',
   mole:'Chacun a 8 taupes, placées au hasard dans le pré et reconnaissables à leur couleur et à leur accessoire. Elles sortent une à une, vite : la première personne à taper une taupe d\'un autre gagne 1 point ; une taupe que personne ne tape rapporte 1 point à son propriétaire. Vos propres taupes ne se tapent pas. Premier à 20 points.',
   moleOld:'En même temps, chacun cache 8 taupes à sa couleur dans le pré (8×8). Puis elles sortent une à une, vite : la première personne à taper une taupe d\'un autre gagne 1 point (taper la sienne coûte 2 points), une taupe que personne ne tape rapporte 1 point à son propriétaire. Premier à 20 points.',
@@ -1028,7 +1032,7 @@ function announce(){
   supa('salons?on_conflict=code', { method:'POST', headers:{ Prefer:'resolution=merge-duplicates' },
     body:JSON.stringify({ code:net.code, host:me.name, game:gameKind, players:players.length, updated_at:new Date().toISOString() }) });
 }
-function unannounce(){ if (SUPA_ON && annCode){ supa('salons?code=eq.' + annCode, { method:'DELETE' }); annCode = null; } }
+function unannounce(){ if (SUPA_ON && annCode){ supa('salons?code=eq.' + annCode, { method:'DELETE', keepalive:true }); annCode = null; annKey = null; } }   // keepalive: still sent when the tab is closing
 setInterval(() => { if (net && me.host && phase === 'lobby') announce(); else if (annCode && (!net || phase !== 'lobby')) unannounce(); }, 30000);
 addEventListener('pagehide', unannounce);
 async function loadSalons(){
@@ -1123,6 +1127,7 @@ function hostStart(){
   if (gameKind === 'tank') return tankHostStart();
   if (gameKind === 'sheep') return sheepHostStart();
   if (gameKind === 'drakkar') return drakkarHostStart();
+  unannounce();                                   // a started game leaves the public list at once
   broadcast({ t:'start', players, game:gameKind, seed:Math.floor(Math.random() * 2**31) });
 }
 
@@ -1353,14 +1358,13 @@ function move(dx, dy){
   return true;
 }
 function rotate(dir){
-  if (G.p.t === 'K') return;
   const r = (G.p.r + dir + 4) % 4;
   for (const [kx,ky] of KICKS){
     const np = { ...G.p, r, x:G.p.x+kx, y:G.p.y+ky };
     if (fits(np)){ G.p = np; touched(); sfx('rotate'); return; }
   }
 }
-function hardDrop(){ let n = 0; while (move(0,1)) n++; G.score += n*2; sfx('drop'); lock(); }
+function hardDrop(){ let n = 0; while (move(0,1)) n++; G.score += n*2; lock(); }
 function hold(){
   if (!G.canHold || !G.p) return;
   const t = { t:G.p.t, sp:G.p.sp };
@@ -1410,6 +1414,7 @@ function clearLines(shatter){
   return { n, sp, back };
 }
 function lock(){
+  sfx('thud');                                        // the dull thump of a breeze block set down
   const cells = cellsOf(G.p);
   cells.forEach(([x,y], i) => { G.board[y*COLS+x] = i === G.p.sp ? G.p.t + '*' : G.p.t; });
   if (cells.every(([,y]) => y < HID)) return die();
@@ -4394,9 +4399,22 @@ let HKB = null, KB = null;
 // ---- host side ----
 function kbLater(fn, ms){ const g = HKB; const t = setTimeout(() => { if (HKB === g && H && !H.over) fn(); }, ms); HKB.timers.push(t); }
 function kbClear(){ if (HKB) HKB.timers.forEach(t => clearTimeout(t)); }
+// There are always at least 3 defenders: robots fill the court up to 4 pawns. Robots defend; with 1 or 2 people,
+// one robot also takes its turn as raider so everybody gets to defend.
 function kabaddiHostStart(){
-  const n = players.length, per = n <= 2 ? 4 : n === 3 ? 3 : 2;
-  const order = []; for (let r = 0; r < per; r++) players.forEach(p => order.push(p.id));
+  const humans = players.filter(p => !p.bot).map(p => p.id);
+  for (const id of ['ai', 'ai2', 'ai3']){
+    if (players.length >= 4) break;
+    if (players.some(p => p.id === id)) continue;
+    players.push({ id, name:id === 'ai' ? 'Robot' : 'Robot ' + id.slice(2), color:pickColor(), bot:true });
+    H.stats[id] = { pts:0, raids:0, touches:0, tackles:0, left:false }; H.alive.add(id);
+  }
+  H.n = players.length;
+  if (!BOT) BOT = { game:'kabaddi' };
+  BOT.kb = {};
+  const raiders = humans.length <= 2 ? [...humans, 'ai'] : humans;
+  const per = raiders.length <= 2 ? 4 : raiders.length === 3 ? 3 : 2;
+  const order = []; for (let r = 0; r < per; r++) raiders.forEach(id => order.push(id));
   HKB = { order, k:-1, timers:[], ph:'wait', pos:{}, IN:{}, raider:null, lastSend:0 };
   broadcast({ t:'start', players, game:'kabaddi', raids:order.length });
   kbLater(kbNextRaid, 3200);
@@ -4509,7 +4527,7 @@ function kabaddiDrop(id){
   H.stats[id].left = true;
   broadcast({ t:'kb_left', id });
   if (!HKB) return;
-  if (Object.keys(H.stats).filter(kbActive).length <= 1) return kabaddiFinish();
+  if (!players.some(p => !p.bot && kbActive(p.id))) return kabaddiFinish();   // nobody left but robots
   if (HKB.ph === 'raid' || HKB.ph === 'ready'){
     if (HKB.raider === id){ HKB.ph = 'raid'; kbEnd(false, 'left'); }
     else { delete HKB.pos[id]; HKB.defs = HKB.defs.filter(x => x !== id); HKB.contact.delete(id); HKB.grip.delete(id); }
@@ -4518,32 +4536,43 @@ function kabaddiDrop(id){
 
 // ---- robot ----
 function botKabaddi(dt){
-  if (!BOT || !HKB.IN.ai || !HKB.pos.ai) return;
-  BOT.kbT = (BOT.kbT || 0) - dt;
-  if (BOT.kbT > 0) return;
-  BOT.kbT = .22 + Math.random()*.12;                 // reacts a few times per second, not every frame
-  const I = HKB.IN.ai, me2 = HKB.pos.ai, R = HKB.pos[HKB.raider];
-  I.kx = I.ky = 0;
-  if (HKB.raider === 'ai'){
-    I.hold = true;
-    const free = HKB.defs.filter(id => !HKB.touched.has(id) && HKB.pos[id]);
-    const near = HKB.defs.filter(id => HKB.pos[id] && Math.hypot(HKB.pos[id][0] - me2[0], HKB.pos[id][1] - me2[1]) < 70).length;
-    const goHome = HKB.crossed && (HKB.breath < 2.8 || (HKB.touched.size >= 1 && (near >= 2 || HKB.breath < 4 || Math.random() < .15)) || !free.length);
-    if (goHome || BOT.kbHome){ BOT.kbHome = HKB.crossed; I.tx = me2[0] + (Math.random() - .5)*40; I.ty = KB_H - 80; }
-    else if (!HKB.crossed){                              // enter where the defence is thinnest
-      let bx = KB_W/2, bs = -1;
-      for (let x = 50; x <= KB_W - 50; x += 20){ const d = Math.min(...HKB.defs.map(id => HKB.pos[id] ? Math.abs(HKB.pos[id][0] - x) : 999)); if (d > bs){ bs = d; bx = x; } }
-      I.tx = bx; I.ty = KB_MID - 50;
+  if (!BOT || !BOT.kb) return;
+  const R = HKB.pos[HKB.raider];
+  for (const p of players){
+    if (!p.bot || !HKB.IN[p.id] || !HKB.pos[p.id]) continue;
+    const id = p.id, S = BOT.kb[id] || (BOT.kb[id] = { T:Math.random()*.3, home:false, ang:Math.random()*Math.PI*2, keen:.55 + Math.random()*.4 });
+    S.T -= dt;
+    if (S.T > 0) continue;
+    S.T = .24 + Math.random()*.16;                   // reacts a few times per second, not every frame
+    const I = HKB.IN[id], me2 = HKB.pos[id];
+    I.kx = I.ky = 0;
+    if (HKB.raider === id){
+      I.hold = true;
+      const free = HKB.defs.filter(d => !HKB.touched.has(d) && HKB.pos[d]);
+      const near = HKB.defs.filter(d => HKB.pos[d] && Math.hypot(HKB.pos[d][0] - me2[0], HKB.pos[d][1] - me2[1]) < 70).length;
+      const goHome = HKB.crossed && (HKB.breath < 2.8 || (HKB.touched.size >= 1 && (near >= 2 || HKB.breath < 4 || Math.random() < .15)) || !free.length);
+      if (goHome || S.home){ S.home = HKB.crossed; I.tx = me2[0] + (Math.random() - .5)*40; I.ty = KB_H - 80; }
+      else if (!HKB.crossed){                            // enter where the defence is thinnest
+        let bx = KB_W/2, bs = -1;
+        for (let x = 50; x <= KB_W - 50; x += 20){ const d = Math.min(...HKB.defs.map(q => HKB.pos[q] ? Math.abs(HKB.pos[q][0] - x) : 999)); if (d > bs){ bs = d; bx = x; } }
+        I.tx = bx; I.ty = KB_MID - 50;
+      } else {
+        let best = null, bd = 1e9;
+        for (const d of free){ const q = HKB.pos[d], dd = Math.hypot(q[0] - me2[0], q[1] - me2[1]); if (dd < bd){ bd = dd; best = q; } }
+        if (best){ I.tx = best[0] + (Math.random() - .5)*20; I.ty = best[1] + 10; }
+      }
     } else {
-      let best = null, bd = 1e9;
-      for (const id of free){ const q = HKB.pos[id], d = Math.hypot(q[0] - me2[0], q[1] - me2[1]); if (d < bd){ bd = d; best = q; } }
-      if (best){ I.tx = best[0] + (Math.random() - .5)*20; I.ty = best[1] + 10; }
+      S.home = false;
+      I.hold = false;
+      const i = HKB.defs.indexOf(id), dR = R ? Math.hypot(R[0] - me2[0], R[1] - me2[1]) : 999;
+      // each robot defender closes in from its own side, and not always at once: a human raider still has a chance
+      if (R && HKB.crossed && dR < 190 && Math.random() < S.keen){
+        const ox = Math.cos(S.ang)*26, oy = Math.abs(Math.sin(S.ang))*-18;
+        I.tx = R[0] + ox + (Math.random() - .5)*24; I.ty = Math.min(KB_MID - KB_R, R[1] + oy);
+      } else if (R && R[1] < KB_MID + 80){
+        I.tx = me2[0] + (R[0] - me2[0])*.35; I.ty = KB_MID - 90 + (i % 2)*30;    // shadows the raider, keeps its line
+      } else { I.tx = KB_W*(i + 1)/(HKB.defs.length + 1); I.ty = KB_MID - 75; }
     }
-  } else {
-    BOT.kbHome = false;
-    const i = HKB.defs.indexOf('ai');
-    if (HKB.crossed || R[1] < KB_MID + 60){ I.tx = R[0] + (Math.random() - .5)*30; I.ty = Math.min(KB_MID - KB_R, R[1] - 6); }
-    else { I.tx = KB_W*(i + 1)/(HKB.defs.length + 1); I.ty = KB_MID - 70; }
   }
 }
 
@@ -5562,6 +5591,25 @@ function drawTank(now){
     const mt = TK.tanks[TK.my];
     if (mt && mt.alive && mt.hid && Math.hypot(mt.x - x, mt.y - y) < r){ ctx.globalAlpha = .6; tkTankShape(ctx, mt, tkP(mt.d).color, tkP(mt.g).color, now); ctx.globalAlpha = 1; }
   }
+  // my tank: dotted aiming line from the barrel, and a solid arrow ahead of the hull showing where it drives
+  const mt = TK.tanks[TK.my];
+  if (mt && mt.alive){
+    const ca = Math.cos(mt.ta), sa = Math.sin(mt.ta);
+    ctx.lineCap = 'round';
+    for (let d = 40, k = 0; d < 230; d += 13, k++){
+      ctx.globalAlpha = Math.max(.15, .9 - k*.05);
+      ctx.fillStyle = '#fff'; ctx.strokeStyle = '#000'; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(mt.x + ca*d, mt.y + sa*d, 2.6, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+    const cb = Math.cos(mt.a), sb = Math.sin(mt.a), ax = mt.x + cb*(TK_R + 17), ay = mt.y + sb*(TK_R + 17);
+    ctx.beginPath();
+    ctx.moveTo(ax + cb*10, ay + sb*10);
+    ctx.lineTo(ax - cb*5 - sb*9, ay - sb*5 + cb*9);
+    ctx.lineTo(ax - cb*5 + sb*9, ay - sb*5 - cb*9);
+    ctx.closePath();
+    ctx.fillStyle = tkP(mt.d).color; ctx.fill(); ctx.strokeStyle = '#000'; ctx.lineWidth = 2.5; ctx.lineJoin = 'round'; ctx.stroke();
+  }
   // hearts and reload ring
   for (const t of TK.tanks){
     if (!t.alive || (t.hid && t.i !== TK.my)) continue;
@@ -6575,6 +6623,7 @@ const SFX = {
   rotate: () => tone(520, .04, 'square', .035),
   drop:   () => { tone(140, .09, 'triangle', .14, 70); noise(.06, .08, 1200, 200); },
   line:   n => [0, 1, 2, 3].slice(0, n).forEach((k, i) => tone(523 * Math.pow(1.26, k), .12, 'square', .08, null, i*.06)),
+  thud:   () => { tone(150, .12, 'triangle', .16, 70); tone(72, .26, 'sine', .38, 36); noise(.15, .26, 900, 70); },
   garbage:() => { noise(.35, .14, 400, 60); tone(90, .3, 'sawtooth', .05, 50); },
   paddle: () => tone(440, .06, 'square', .09),
   wall:   () => tone(300, .05, 'square', .06),
@@ -6802,6 +6851,28 @@ for (const b of $('gamePick').querySelectorAll('button')){
 }
 $('btnStart').onclick = () => { if (me.host && phase === 'lobby') hostStart(); };
 $('btnLeaveLobby').onclick = () => toMenu('');
+// Invitation link: <page>?salon=CODE. Opening it fills the code and joins straight away when a name is already saved.
+const inviteUrl = () => location.origin + location.pathname + '?salon=' + (net && net.code || $('lobbyCode').textContent);
+let inviteT = null;
+$('btnInvite').onclick = async () => {
+  const url = inviteUrl(), b = $('btnInvite');
+  let ok = false;
+  try { await navigator.clipboard.writeText(url); ok = true; } catch(_){
+    try { const t = document.createElement('textarea'); t.value = url; t.style.position = 'fixed'; t.style.opacity = '0'; document.body.append(t); t.select(); ok = document.execCommand('copy'); t.remove(); } catch(_){}
+  }
+  if (!ok){ window.prompt(tr('Copiez ce lien et envoyez-le à vos amis :'), url); return; }
+  b.textContent = '✔ Lien copié !'; b.classList.add('ok');
+  clearTimeout(inviteT); inviteT = setTimeout(() => { b.textContent = '🔗 Copier le lien'; b.classList.remove('ok'); }, 2200);
+};
+(() => {
+  let c = null;
+  try { c = (new URLSearchParams(location.search).get('salon') || '').trim().toUpperCase(); } catch(_){}
+  if (!c || !/^[A-Z0-9]{4}$/.test(c)) return;
+  try { history.replaceState(null, '', location.pathname); } catch(_){}   // a reload does not rejoin
+  $('codeIn').value = c;
+  if (store.get('tm-name')) $('btnJoin').click();
+  else { menuHint('Choisissez votre nom, puis touchez « Entrer » pour rejoindre le salon ' + c + '.'); $('nameIn').focus(); $('nameIn').select(); }
+})();
 $('btnQuit').onclick = () => toMenu('');
 function backToLobby(){
   if (me.host){
