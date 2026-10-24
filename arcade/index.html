@@ -195,7 +195,8 @@ label{font-size:13px;font-weight:900;color:var(--fg)}
 #padwrap.ko #drawCv{border-color:var(--danger);box-shadow:6px 6px 0 var(--danger)}
 
 /* ---- public lobby list (menu) ---- */
-.privbox{display:flex;gap:8px;align-items:center;font-size:13px;font-weight:800}
+.privbox{display:flex;gap:8px;align-items:center;font-size:13px;font-weight:800;justify-content:flex-start}
+.privbox input{width:20px;height:20px;flex:none;margin:0;padding:0;box-shadow:none;accent-color:#E6262B}
 .salons{border:3px solid #000;background:#fff;box-shadow:4px 4px 0 #000;padding:8px 10px}
 .salonshead{display:flex;justify-content:space-between;align-items:center;font-size:14px}
 .salonshead button{padding:2px 10px;font-size:16px}
@@ -914,7 +915,7 @@ setInterval(() => {
 // Fill these to switch the features on; empty values keep the game working exactly as before.
 const NET_CFG = {
   meteredApp:'baston', meteredKey:'ed029bef44295041e34bf6c29050a4cfbf0a',          // https://<meteredApp>.metered.live, API key from the Metered dashboard
-  supaUrl:'', supaKey:''                 // Supabase project URL and its public "anon" key
+  supaUrl:'https://yxwwkjzcoglfctrbayzv.supabase.co', supaKey:'sb_publishable_EWYQJy2-7-r41_9VT7gNPw_wB00imLH'                 // Supabase project URL and its public "anon" key
 };
 let ICE = null;
 const icePromise = (async () => {
