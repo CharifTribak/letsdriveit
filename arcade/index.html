@@ -926,7 +926,7 @@ const SUPA_ON = !!(NET_CFG.supaUrl && NET_CFG.supaKey);
 async function supa(path, opts = {}){
   if (!SUPA_ON) return null;
   try {
-    const r = await fetch(NET_CFG.supaUrl.replace(/\/$/, '') + '/rest/v1/' + path, { ...opts, headers:{ apikey:NET_CFG.supaKey, Authorization:'Bearer ' + NET_CFG.supaKey, 'Content-Type':'application/json', ...(opts.headers || {}) } });
+    const r = await fetch(NET_CFG.supaUrl.replace(/\/$/, '') + '/rest/v1/' + path, { ...opts, headers:{ apikey:NET_CFG.supaKey, ...(NET_CFG.supaKey.startsWith('eyJ') ? { Authorization:'Bearer ' + NET_CFG.supaKey } : {}), 'Content-Type':'application/json', ...(opts.headers || {}) } });   // legacy anon key (JWT) or new publishable key
     if (!r.ok) return null; const t = await r.text(); return t ? JSON.parse(t) : [];
   } catch(_){ return null; }
 }
