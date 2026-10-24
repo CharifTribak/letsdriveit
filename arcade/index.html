@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Baston !</title>
-<meta name="description" content="Treize jeux multijoueurs dans le navigateur : Tetris, Pong, Derby, Armada, Tape-taupe, Curling, Chaises musicales, Code secret, Kabaddi, Balle au prisonnier, Chars, Les bergers et Drakkars. Un salon, un code, de 1 à 5 joueurs.">
+<meta name="description" content="Treize jeux multijoueurs dans le navigateur : Gravats, Les Gardiens, Derby, Armada, Tape-taupe, Curling, Chaises musicales, Code secret, Kabaddi, Balle au prisonnier, Chars, Les bergers et Drakkars. Un salon, un code, de 1 à 5 joueurs.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Baston !">
 <meta property="og:description" content="Treize jeux multijoueurs dans le navigateur. Créez un salon, partagez le code, et que le meilleur gagne.">
@@ -16,9 +16,13 @@
 <link rel="icon" type="image/png" sizes="64x64" href="img/icon-64.png">
 <link rel="icon" type="image/png" sizes="192x192" href="img/icon-192.png">
 <link rel="apple-touch-icon" href="img/icon-180.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bangers&family=Nunito:wght@600;700;800;900&display=swap">
 <style>
+/* Fonts are served from this site (SIL Open Font License, see fonts/), so no visitor data goes to a font CDN. */
+@font-face{font-family:"Bangers";font-style:normal;font-weight:400;font-display:swap;src:url(fonts/bangers-latin-400-normal.woff2) format("woff2")}
+@font-face{font-family:"Nunito";font-style:normal;font-weight:600;font-display:swap;src:url(fonts/nunito-latin-600-normal.woff2) format("woff2")}
+@font-face{font-family:"Nunito";font-style:normal;font-weight:700;font-display:swap;src:url(fonts/nunito-latin-700-normal.woff2) format("woff2")}
+@font-face{font-family:"Nunito";font-style:normal;font-weight:800;font-display:swap;src:url(fonts/nunito-latin-800-normal.woff2) format("woff2")}
+@font-face{font-family:"Nunito";font-style:normal;font-weight:900;font-display:swap;src:url(fonts/nunito-latin-900-normal.woff2) format("woff2")}
 /* Layout: a comic page. Yellow halftone paper, every block is a panel with a thick ink outline and an offset shadow,
    titles lettered in Bangers, talk in speech bubbles. Game boards keep their own dark palettes inside their panels. */
 :root{
@@ -134,6 +138,8 @@ label{font-size:13px;font-weight:900;color:var(--fg)}
 .wname{font-family:var(--display);font-size:clamp(34px,10vw,48px);line-height:1;color:#fff;-webkit-text-stroke:2px #000;text-shadow:3px 3px 0 #000;text-align:center;margin-top:18px;overflow-wrap:anywhere}
 .wsub{margin:0;font-weight:900;font-size:14px;background:#fff;border:2px solid #000;padding:3px 10px}
 .panelcv{border:3px solid #000;box-shadow:6px 6px 0 #000}
+.legal{margin:4px 0 0;text-align:center;font-size:13px}
+.legal a{color:#000;font-weight:800}
 
 /* ---- tetris ---- */
 .game{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-areas:"play opps" "pad pad";gap:22px;justify-content:center;align-items:start;max-width:1100px;margin:0 auto}
@@ -148,10 +154,10 @@ label{font-size:13px;font-weight:900;color:var(--fg)}
 .well{position:relative;display:flex;gap:8px}
 .meter{width:12px;background:#fff;border:3px solid var(--line);display:flex;flex-direction:column-reverse;overflow:hidden}
 .meter i{display:block;width:100%;border-top:1px solid rgba(0,0,0,.35)}
-#board{display:block;height:min(76vh,640px);aspect-ratio:1/2;max-width:100%;background:#FFF7D6;border:3px solid #000;box-shadow:6px 6px 0 #000;touch-action:none}
+#board{display:block;height:min(76vh,660px);aspect-ratio:6/11;max-width:100%;background:#FFF7D6;border:3px solid #000;box-shadow:6px 6px 0 #000;touch-action:none}
 .opps{grid-area:opps;display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,120px));gap:16px;align-content:start;min-width:0}
 .opp{display:flex;flex-direction:column;gap:6px;min-width:0}
-.opp canvas{width:100%;height:auto;aspect-ratio:1/2;display:block;background:#FFF7D6;border:3px solid #000;box-shadow:3px 3px 0 #000}
+.opp canvas{width:100%;height:auto;aspect-ratio:6/11;display:block;background:#FFF7D6;border:3px solid #000;box-shadow:3px 3px 0 #000}
 .opp .who{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:900;min-width:0}
 .opp .who span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .opp .st{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
@@ -395,7 +401,9 @@ html.joyon,html.joyon body{touch-action:none;overscroll-behavior:none}
     </div>
     <button id="btnBoard" class="ghost">Classement général</button>
     <button id="btnSound" class="ghost">Son : activé</button>
-    <p class="hint" id="menuHint">Créez un salon, partagez le code, puis choisissez le jeu : Tetris, Pong, Derby, Armada, Tape-taupe, Curling, Chaises musicales, Code secret, Kabaddi, Balle au prisonnier, Chars, Les bergers ou Drakkars. De 1 à 5 joueurs.</p>
+    <button id="btnLang" class="ghost" translate="no">English</button>
+    <p class="hint" id="menuHint">Créez un salon, partagez le code, puis choisissez le jeu : Gravats, Les Gardiens, Derby, Armada, Tape-taupe, Curling, Chaises musicales, Code secret, Kabaddi, Balle au prisonnier, Chars, Les bergers ou Drakkars. De 1 à 5 joueurs.</p>
+    <p class="legal"><a href="legal.html">Mentions légales et confidentialité</a></p>
   </div>
 </section>
 
@@ -411,13 +419,13 @@ html.joyon,html.joyon body{touch-action:none;overscroll-behavior:none}
       <div class="caption" id="gameCaption">Le jeu choisi</div>
       <img id="gameArt" class="gameart" alt="" hidden>
       <div class="featbody">
-        <h2 id="gameTitle">Tetris</h2>
+        <h2 id="gameTitle">Gravats</h2>
         <p id="gameDesc"></p>
       </div>
     </div>
     <div class="tiles" id="gamePick" role="group" aria-label="Choix du jeu">
-      <button data-g="tetris" aria-pressed="true"><img src="img/tetris.jpg" alt=""><span>Tetris</span></button>
-      <button data-g="pong" aria-pressed="false"><img src="img/pong.jpg" alt=""><span>Pong</span></button>
+      <button data-g="tetris" aria-pressed="true"><img src="img/tetris.jpg" alt=""><span>Gravats</span></button>
+      <button data-g="pong" aria-pressed="false"><img src="img/pong.jpg" alt=""><span>Gardiens</span></button>
       <button data-g="derby" aria-pressed="false"><img src="img/derby.jpg" alt=""><span>Derby</span></button>
       <button data-g="naval" aria-pressed="false"><img src="img/naval.jpg" alt=""><span>Armada</span></button>
       <button data-g="mole" aria-pressed="false"><img src="img/mole.jpg" alt=""><span>Taupes</span></button>
@@ -470,7 +478,7 @@ html.joyon,html.joyon body{touch-action:none;overscroll-behavior:none}
       </div>
       <div class="well">
         <div class="meter" id="meter" title="Briques en attente"></div>
-        <canvas id="board" width="300" height="600" aria-label="Votre puits"></canvas>
+        <canvas id="board" width="360" height="660" aria-label="Votre puits"></canvas>
         <div class="msg" id="boardMsg"></div>
         <div class="toast" id="toast" aria-live="polite"></div>
       </div>
@@ -490,14 +498,14 @@ html.joyon,html.joyon body{touch-action:none;overscroll-behavior:none}
 <section id="scrPong" hidden>
   <div class="pong">
     <div class="pwrap" id="pwrap">
-      <canvas id="pongCv" width="560" height="560" aria-label="Terrain de Pong"></canvas>
+      <canvas id="pongCv" width="560" height="560" aria-label="Terrain des Gardiens"></canvas>
       <div class="msg pm" id="pongMsg"></div>
       <div class="toast pm" id="pToast" aria-live="polite"></div>
     </div>
-    <div class="slider" id="pslide" role="slider" aria-label="Position de votre raquette" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">
+    <div class="slider" id="pslide" role="slider" aria-label="Position de votre gardien" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">
       <div class="thumb" id="pthumb"></div>
     </div>
-    <p class="keys">← → ou A D : déplacer votre raquette · ou glisser sur le terrain</p>
+    <p class="keys">← → ou A D : déplacer votre gardien · ou glisser sur le terrain</p>
   </div>
 </section>
 
@@ -719,8 +727,8 @@ html.joyon,html.joyon body{touch-action:none;overscroll-behavior:none}
     <h1 style="font-size:24px">Classement général</h1>
     <div class="seg" id="boardTabs">
       <button data-f="all" aria-pressed="true">Tous</button>
-      <button data-f="tetris" aria-pressed="false">Tetris</button>
-      <button data-f="pong" aria-pressed="false">Pong</button>
+      <button data-f="tetris" aria-pressed="false">Gravats</button>
+      <button data-f="pong" aria-pressed="false">Gardiens</button>
       <button data-f="derby" aria-pressed="false">Derby</button>
       <button data-f="naval" aria-pressed="false">Armada</button>
       <button data-f="mole" aria-pressed="false">Taupes</button>
@@ -747,29 +755,101 @@ html.joyon,html.joyon body{touch-action:none;overscroll-behavior:none}
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script src="lib/peerjs.min.js"></script>
+<script src="lib/en.js"></script>
 <script>
 (() => {
 'use strict';
 const $ = id => document.getElementById(id);
 
 // ================= constants =================
-const COLS = 10, VIS = 20, HID = 2, ROWS = VIS + HID, CELL = 30, MAXP = 5;
+const COLS = 12, VIS = 22, HID = 2, ROWS = VIS + HID, CELL = 30, MAXP = 5;
 const PREFIX = 'letsdriveit-arcade-';
 const PALETTE = ['#E8202A','#FF8A1F','#FFD21F','#9BE22D','#12A150','#2ED3E6','#1E5BFF','#8E44FF','#FF5FC8','#8B5A2B'];
 const PALETTE_NAMES = ['rouge','orange','jaune','citron vert','vert','turquoise','bleu','violet','rose','marron'];
-const PCOL = { I:'#36C5D9', J:'#4C6EF5', L:'#F59F3A', O:'#F2CC3D', S:'#4CC77A', T:'#A665E8', Z:'#E8545E' };
+// Gravats: pieces of 3 cells (a, b) and the 12 pieces of 5 cells (K is the plus sign). One letter per piece, never a digit or X.
+const PCOL = { a:'#C8553D', b:'#E0A458', I:'#4F86C6', L:'#D9822B', N:'#7A9E3B', Y:'#B86FB0', P:'#E3C567',
+  U:'#3FA7A0', T:'#B83A2E', V:'#9A7352', W:'#5C7AEA', Z:'#E07A5F', F:'#6BAA75', K:'#F2B134' };
 const SH = {
-  I:{n:4,c:[[0,1],[1,1],[2,1],[3,1]]}, J:{n:3,c:[[0,0],[0,1],[1,1],[2,1]]}, L:{n:3,c:[[2,0],[0,1],[1,1],[2,1]]},
-  O:{n:2,c:[[0,0],[1,0],[0,1],[1,1]]}, S:{n:3,c:[[1,0],[2,0],[0,1],[1,1]]}, T:{n:3,c:[[1,0],[0,1],[1,1],[2,1]]},
-  Z:{n:3,c:[[0,0],[1,0],[1,1],[2,1]]}
+  a:{n:3,c:[[0,1],[1,1],[2,1]]},                 b:{n:2,c:[[0,0],[0,1],[1,1]]},
+  I:{n:5,c:[[0,2],[1,2],[2,2],[3,2],[4,2]]},     L:{n:4,c:[[3,0],[0,1],[1,1],[2,1],[3,1]]},
+  N:{n:4,c:[[2,0],[3,0],[0,1],[1,1],[2,1]]},     Y:{n:4,c:[[1,0],[0,1],[1,1],[2,1],[3,1]]},
+  P:{n:3,c:[[0,0],[1,0],[0,1],[1,1],[2,1]]},     U:{n:3,c:[[0,0],[2,0],[0,1],[1,1],[2,1]]},
+  T:{n:3,c:[[0,0],[1,0],[2,0],[1,1],[1,2]]},     V:{n:3,c:[[0,0],[0,1],[0,2],[1,2],[2,2]]},
+  W:{n:3,c:[[0,0],[0,1],[1,1],[1,2],[2,2]]},     Z:{n:3,c:[[0,0],[1,0],[1,1],[1,2],[2,2]]},
+  F:{n:3,c:[[1,0],[2,0],[0,1],[1,1],[1,2]]},     K:{n:3,c:[[1,0],[0,1],[1,1],[2,1],[1,2]]}
 };
+// the small pieces come twice per bag so the game breathes a little
+const BAG = () => [...Object.keys(SH), 'a', 'b'];
 const ROT = {};
 for (const k in SH){
   const {n,c} = SH[k]; ROT[k] = [c];
   for (let r = 1; r < 4; r++) ROT[k].push(ROT[k][r-1].map(([x,y]) => [n-1-y, x]));
 }
-const KICKS = [[0,0],[-1,0],[1,0],[0,-1],[-2,0],[2,0],[1,-1],[-1,-1]];
+const KICKS = [[0,0],[-1,0],[1,0],[0,-1],[-2,0],[2,0],[1,-1],[-1,-1],[0,-2],[-2,-1],[2,-1]];
+
+// ================= language =================
+// The game is written in French. In English, every text that reaches the screen (page, attributes, canvas)
+// is translated on the way through the table in lib/en.js, so game code keeps its French strings.
+const LANG_KEY = PREFIX + 'lang';
+const LANG = (() => {
+  let l = null;
+  try { l = localStorage.getItem(LANG_KEY); } catch(_){}
+  if (l !== 'fr' && l !== 'en') l = /^fr\b/i.test(navigator.language || '') ? 'fr' : 'en';
+  return window.BASTON_EN ? l : 'fr';
+})();
+document.documentElement.lang = LANG;
+let tr = s => s;
+if (LANG === 'en'){
+  const EN = window.BASTON_EN, W = 'A-Za-zÀ-ÖØ-öø-ÿŒœ';
+  const esc = x => x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const fmap = new Map(EN.F);
+  const fre = new RegExp([...fmap.keys()].sort((a, b) => b.length - a.length)
+    .map(k => (new RegExp('^[' + W + ']').test(k) ? '(?<![' + W + '])' : '') + esc(k) + (new RegExp('[' + W + ']$').test(k) ? '(?![' + W + '])' : '')).join('|'), 'g');
+  const frag = x => x.replace(fre, m => fmap.get(m));
+  const cache = new Map();
+  tr = s => {
+    if (typeof s !== 'string' || !/[A-Za-zÀ-ÿ]/.test(s)) return s;
+    let r = cache.get(s);
+    if (r !== undefined) return r;
+    const t = s.trim();
+    if (Object.prototype.hasOwnProperty.call(EN.E, t)) r = s.replace(t, EN.E[t]);
+    else if (Object.prototype.hasOwnProperty.call(EN.COL, t)) r = s.replace(t, EN.COL[t]);
+    else {
+      const pat = EN.P.find(([re]) => re.test(t));
+      r = pat ? s.replace(t, frag(t.replace(pat[0], pat[1]))) : frag(s);
+    }
+    if (cache.size > 5000) cache.clear();
+    cache.set(s, r);
+    return r;
+  };
+  const ATTRS = ['placeholder', 'aria-label', 'title', 'content'];
+  const trAttr = (el, a) => { const v = el.getAttribute(a); if (v){ const w = tr(v); if (w !== v) el.setAttribute(a, w); } };
+  const trNode = n => {
+    if (n.nodeType === 3){
+      const p = n.parentElement;
+      if (!p || p.nodeName === 'SCRIPT' || p.nodeName === 'STYLE' || p.closest('[translate="no"]')) return;
+      const v = tr(n.data); if (v !== n.data) n.data = v;
+    } else if (n.nodeType === 1){
+      if (n.nodeName === 'SCRIPT' || n.nodeName === 'STYLE' || n.getAttribute('translate') === 'no') return;
+      for (const a of ATTRS) if (a !== 'content' || n.nodeName === 'META') trAttr(n, a);
+      for (const c of n.childNodes) trNode(c);
+    }
+  };
+  trNode(document.head); trNode(document.body);
+  new MutationObserver(ms => {
+    for (const m of ms){
+      if (m.type === 'characterData') trNode(m.target);
+      else if (m.type === 'attributes'){ if (!m.target.closest('[translate="no"]')) trAttr(m.target, m.attributeName); }
+      else m.addedNodes.forEach(trNode);
+    }
+  }).observe(document.documentElement, { subtree:true, childList:true, characterData:true, attributes:true, attributeFilter:['placeholder', 'aria-label', 'title'] });
+  const C2 = CanvasRenderingContext2D.prototype;
+  for (const f of ['fillText', 'strokeText', 'measureText']){
+    const orig = C2[f];
+    C2[f] = function(text, ...rest){ return orig.call(this, typeof text === 'string' ? tr(text) : text, ...rest); };
+  }
+}
 
 // ================= state =================
 let phase = 'menu';             // menu | lobby | count | play | end
@@ -787,10 +867,10 @@ let D = null;                   // derby state
 let NV = null, HN = null;       // armada: my view / host's full map
 let BOT = null;                  // host-side robot when someone plays alone
 let ML = null, HM = null;       // tape-taupe: my view / host referee
-const GAME_NAMES = { tetris:'Tetris', pong:'Pong', derby:'Derby', naval:'Armada', mole:'Tape-taupe', curling:'Curling', chairs:'Chaises musicales', master:'Code secret', kabaddi:'Kabaddi', dodge:'Balle au prisonnier', tank:'Chars', sheep:'Les bergers', drakkar:'Drakkars' };
+const GAME_NAMES = { tetris:'Gravats', pong:'Les Gardiens', derby:'Derby', naval:'Armada', mole:'Tape-taupe', curling:'Curling', chairs:'Chaises musicales', master:'Code secret', kabaddi:'Kabaddi', dodge:'Balle au prisonnier', tank:'Chars', sheep:'Les bergers', drakkar:'Drakkars' };
 const GAME_DESC = {
-  tetris:'Chaque ligne effacée envoie des briques gênantes à tous les adversaires : 1 ligne = 1 brique, 2 = 2, 3 = 4, 4 = 6.',
-  pong:'Chaque joueur défend un côté avec 5 vies. Le terrain suit le nombre de joueurs : carré à 2, hexagone à 3, octogone à 4, décagone à 5. Le côté d\'un joueur éliminé devient un mur.',
+  tetris:'Empilez des pièces de 3 et 5 briques. Chaque ligne effacée envoie des briques fendues à vos adversaires. Effacez une ligne collée à une brique fendue : elle éclate et repart chez son expéditeur.',
+  pong:'Chaque joueur garde un but avec 5 vies. Le terrain suit le nombre de joueurs : carré à 2, hexagone à 3, octogone à 4, décagone à 5. Deux ballons à partir de 3 joueurs. Le but d\'un joueur éliminé se ferme.',
   mole:'Chacun a 8 taupes, placées au hasard dans le pré et reconnaissables à leur couleur et à leur accessoire. Elles sortent une à une, vite : la première personne à taper une taupe d\'un autre gagne 1 point ; une taupe que personne ne tape rapporte 1 point à son propriétaire. Vos propres taupes ne se tapent pas. Premier à 20 points.',
   moleOld:'En même temps, chacun cache 8 taupes à sa couleur dans le pré (8×8). Puis elles sortent une à une, vite : la première personne à taper une taupe d\'un autre gagne 1 point (taper la sienne coûte 2 points), une taupe que personne ne tape rapporte 1 point à son propriétaire. Premier à 20 points.',
   naval:'Bataille navale à plusieurs sur une seule mer. Chacun voit ses bateaux, rien d\'autre. À tour de rôle, tirez au canon sur une case : touché, tout le monde voit la flamme ; dans l\'eau, vous seul voyez combien de cases de bateau l\'entourent, comme au démineur. Le dernier à flot gagne.',
@@ -805,12 +885,12 @@ const GAME_DESC = {
   derby:'Course de chevaux : tout le monde reçoit la même série de figures à tracer. Chaque figure réussie fait avancer votre cheval, plus loin si elle est complexe et bien tracée. Le premier à la ligne gagne.'
 };
 
-const cleanName = s => String(s || '').replace(/[\u0000-\u001f<>]/g,'').trim().slice(0,14) || 'Joueur';
+const cleanName = s => String(s || '').replace(/[\u0000-\u001f<>]/g,'').trim().slice(0,14) || (LANG === 'en' ? 'Player' : 'Joueur');
 const genCode = () => { const a='ABCDEFGHJKMNPQRSTUVWXYZ23456789'; let s=''; for(let i=0;i<4;i++) s+=a[Math.floor(Math.random()*a.length)]; return s; };
 const show = id => { for (const s of ['scrMenu','scrLobby','scrGame','scrPong','scrDerby','scrNaval','scrMole','scrCurl','scrChairs','scrMaster','scrKabaddi','scrDodge','scrTank','scrSheep','scrDrakkar']) $(s).hidden = s !== id; if (id === 'scrKabaddi') try { window.scrollTo(0, 0); } catch(_){} document.documentElement.classList.toggle('joyon', ['scrKabaddi','scrDodge','scrTank','scrSheep'].includes(id)); };
 const store = { get(k){ try { return localStorage.getItem(k); } catch(_) { return null; } }, set(k,v){ try { localStorage.setItem(k,v); } catch(_){} } };
 
-$('nameIn').value = store.get('tm-name') || ('Joueur' + Math.floor(Math.random()*90+10));
+$('nameIn').value = store.get('tm-name') || ((LANG === 'en' ? 'Player' : 'Joueur') + Math.floor(Math.random()*90+10));
 const menuHint = (t, err) => { $('menuHint').textContent = t; $('menuHint').classList.toggle('err', !!err); };
 
 // ================= networking (PeerJS star, host relays) =================
@@ -1059,6 +1139,14 @@ function hostHandle(id, m){
     const cols = Array.from({ length:n }, () => Math.floor(Math.random() * COLS));
     broadcast({ t:'gb', from:id, cols });          // everyone gets the same bricks
     if (id !== 'ai' && BOT && BOT.tet) BOT.tet.pending.push({ from:id, cols });
+  } else if (m.t === 'ret'){
+    if (!H.alive.has(id) || !H.alive.has(m.to) || m.to === id) return;
+    const n = Math.max(1, Math.min(30, m.n|0));
+    st.sent += n;
+    const msg = { t:'gb', from:id, cols:Array.from({ length:n }, () => Math.floor(Math.random() * COLS)) };
+    if (m.to === 'ai'){ if (BOT && BOT.tet) BOT.tet.pending.push({ from:id, cols:msg.cols }); }
+    else if (m.to === 'h') clientRecv(msg);
+    else { const c = net.conns.get(m.to); if (c && c.open) try { c.send(msg); } catch(_){} }
   } else if (m.t === 'blk-removed'){
     // one black brick for one opponent; re-pick if the requested target is gone
     if (!H.alive.has(id)) return;
@@ -1227,7 +1315,7 @@ function renderLobby(){
 // ================= game core =================
 function newGame(){
   const g = { board:new Array(ROWS*COLS).fill(''), bag:[], queue:[], hold:null, canHold:true, falling:[],
-    score:0, lines:0, sent:0, p:null, acc:0, lockT:0, resets:0, alive:true, pending:[], anims:[],
+    score:0, lines:0, sent:0, p:null, acc:0, lockT:0, resets:0, alive:true, pending:[], anims:[], shards:[],
     dirty:true, lastSend:0, count:3, elapsed:0, lvl:0 };
   G = g;
   for (let i = 0; i < 5; i++) g.queue.push(newItem());
@@ -1235,7 +1323,7 @@ function newGame(){
   return g;
 }
 function nextType(){
-  if (!G.bag.length){ G.bag = Object.keys(SH); for (let i = G.bag.length-1; i > 0; i--){ const j = Math.floor(Math.random()*(i+1)); [G.bag[i],G.bag[j]] = [G.bag[j],G.bag[i]]; } }
+  if (!G.bag.length){ G.bag = BAG(); for (let i = G.bag.length-1; i > 0; i--){ const j = Math.floor(Math.random()*(i+1)); [G.bag[i],G.bag[j]] = [G.bag[j],G.bag[i]]; } }
   return G.bag.pop();
 }
 // speed: whichever is higher, lines (10 per level) or time (one level every 30 s)
@@ -1265,7 +1353,7 @@ function move(dx, dy){
   return true;
 }
 function rotate(dir){
-  if (G.p.t === 'O') return;
+  if (G.p.t === 'K') return;
   const r = (G.p.r + dir + 4) % 4;
   for (const [kx,ky] of KICKS){
     const np = { ...G.p, r, x:G.p.x+kx, y:G.p.y+ky };
@@ -1280,7 +1368,25 @@ function hold(){
   else { const h = G.hold; G.hold = t; setPiece(h); if (!fits(G.p)) die(); }
   G.canHold = false; G.dirty = true;
 }
-function clearLines(){
+// Enemy bricks are cracked: a cleared line breaks the enemy bricks right above and below it.
+// Each broken brick goes back to the player who sent it, and the column above it settles by one cell.
+function clearLines(shatter){
+  const full = new Set();
+  for (let y = 0; y < ROWS; y++){
+    let f = true;
+    for (let x = 0; x < COLS; x++){ const c = G.board[y*COLS+x]; if (!c || c === 'X'){ f = false; break; } }
+    if (f) full.add(y);
+  }
+  const back = {};
+  if (shatter && full.size){
+    for (const y of full) for (const yy of [y-1, y+1]){
+      if (yy < 0 || yy >= ROWS || full.has(yy)) continue;
+      for (let x = 0; x < COLS; x++){
+        const c = G.board[yy*COLS+x];
+        if (isBrick(c)){ back[c] = (back[c] || 0) + 1; G.board[yy*COLS+x] = '~'; G.shards.push({ x, y:yy, t0:performance.now(), col:colorOf(c) }); }
+      }
+    }
+  }
   let n = 0, sp = 0;
   for (let y = ROWS-1; y >= 0; y--){
     let full = true;
@@ -1292,21 +1398,36 @@ function clearLines(){
       n++; y++;
     }
   }
-  return { n, sp };
+  if (Object.keys(back).length){
+    for (let x = 0; x < COLS; x++){
+      const col = []; let gone = 0;
+      for (let y = 0; y < ROWS; y++){ const c = G.board[y*COLS+x]; if (c === '~') gone++; else col.push(c); }
+      if (!gone) continue;
+      for (let i = 0; i < gone; i++) col.unshift('');
+      for (let y = 0; y < ROWS; y++) G.board[y*COLS+x] = col[y];
+    }
+  }
+  return { n, sp, back };
 }
 function lock(){
   const cells = cellsOf(G.p);
   cells.forEach(([x,y], i) => { G.board[y*COLS+x] = i === G.p.sp ? G.p.t + '*' : G.p.t; });
   if (cells.every(([,y]) => y < HID)) return die();
-  const cl = clearLines(), n = cl.n;
+  const cl = clearLines(true), n = cl.n;
   if (n){
-    G.score += [0,100,300,500,800][n] * (level()+1);
+    G.score += [0,100,300,500,800,1200][n] * (level()+1);
     G.lines += n;
     sfx('line', n);
-    boom(['', 'CRAC !', 'PAF !', 'BING !', 'BAM !'][n], { size:28 + n*6, x:.5, y:.55 });
-    const k = [0, 1, 2, 4, 6][n];                     // bricks sent to every opponent
+    boom(['', 'CRAC !', 'PAF !', 'BING !', 'BAM !', 'BOUM !'][n], { size:28 + n*6, x:.5, y:.55 });
+    const k = [0, 1, 2, 4, 6, 8][n];                  // bricks sent to every opponent
     if (k){ G.sent += k; toHost({ t:'atk', n:k }); }
   }
+  let ret = 0;
+  for (const [slot, k] of Object.entries(cl.back)){   // broken enemy bricks fly back to their sender
+    const p = players[+slot]; ret += k;
+    if (p && p.id !== me.id){ G.sent += k; toHost({ t:'ret', to:p.id, n:k }); }
+  }
+  if (ret){ G.score += 50 * ret; boom('RETOUR !', { size:26, x:.5, y:.35, pal:BOOM_COLORS[1] }); }
   G.canHold = true;
   if (G.pending.length) startGarbageFall();   // bricks fall from the top first; next piece comes after
   else spawn();
@@ -1437,10 +1558,10 @@ function showEnd(ranking, game){
   if (SHV) SHV.over = true;
   if (DK) DK.over = true;
   const hd = $('rankHead'); hd.textContent = '';
-  for (const h of ['#','Joueur', ...(viking ? ['Rôle','Coups','Synchro'] : coop ? ['Manches','Moutons','Ouaf'] : tank ? ['Char','Rôle','Touches'] : dodge ? ['Vies','Touches','Arrêts'] : kab ? ['Points','Raids réussis','Plaquages'] : master ? ['Points','Trouvés','Essais'] : chairs ? ['Vies','Chaises','Réflexe'] : curl ? ['Points','Maison','Meilleure'] : pong ? ['Vies','Renvois'] : derby ? ['Figures','Distance','Temps'] : naval ? ['Tirs','Touchés','À flot'] : mole ? ['Points','Tapées','Échappées'] : ['Lignes','Briques','Score'])]){
+  for (const h of ['#','Joueur', ...(viking ? ['Rôle','Coups','Synchro'] : coop ? ['Manches','Moutons','Ouaf'] : tank ? ['Char','Rôle','Touches'] : dodge ? ['Vies','Touches','Arrêts'] : kab ? ['Points','Raids réussis','Plaquages'] : master ? ['Points','Trouvés','Essais'] : chairs ? ['Vies','Chaises','Réflexe'] : curl ? ['Points','Maison','Meilleure'] : pong ? ['Vies','Arrêts'] : derby ? ['Figures','Distance','Temps'] : naval ? ['Tirs','Touchés','À flot'] : mole ? ['Points','Tapées','Échappées'] : ['Lignes','Briques','Score'])]){
     const th = document.createElement('th'); th.textContent = h; hd.append(th);
   }
-  $('rankNote').textContent = viking ? 'Course en équipe. « Synchro » : coups de rame donnés en rythme avec le tambour.' : coop ? 'Partie en équipe : tout le monde partage le score. « Moutons » : moutons rentrés au total, « Ouaf » : aboiements.' : tank ? 'Les deux membres d\'un équipage partagent la même place. « Touches » : obus du canonnier qui ont fait mouche.' : dodge ? '« Touches » : balles qui ont atteint un adversaire. « Arrêts » : balles attrapées.' : kab ? '« Raids réussis » : raids rentrés avec au moins un défenseur touché. « Plaquages » : attaquants retenus jusqu\'au bout du souffle.' : master ? '« Trouvés » : codes trouvés. « Essais » : total des essais sur la partie.' : chairs ? '« Chaises » : chaises gagnées. « Réflexe » : votre plus rapide, de l\'arrêt du disque à la chaise.' : curl ? '« Maison » : pierres dans la maison en fin de mène. « Meilleure » : pierre la plus proche du centre.' : mole ? '« Tapées » : taupes adverses tapées. « Échappées » : vos taupes que personne n\'a eues.' : naval ? '« À flot » : cases de bateau encore intactes à la fin.' : pong ? '« Renvois » : balles renvoyées avec la raquette.' : derby ? '« Temps » : durée pour franchir la ligne, pour ceux qui l\'ont franchie.' : '« Briques » : nombre de briques envoyées aux adversaires.';
+  $('rankNote').textContent = viking ? 'Course en équipe. « Synchro » : coups de rame donnés en rythme avec le tambour.' : coop ? 'Partie en équipe : tout le monde partage le score. « Moutons » : moutons rentrés au total, « Ouaf » : aboiements.' : tank ? 'Les deux membres d\'un équipage partagent la même place. « Touches » : obus du canonnier qui ont fait mouche.' : dodge ? '« Touches » : balles qui ont atteint un adversaire. « Arrêts » : balles attrapées.' : kab ? '« Raids réussis » : raids rentrés avec au moins un défenseur touché. « Plaquages » : attaquants retenus jusqu\'au bout du souffle.' : master ? '« Trouvés » : codes trouvés. « Essais » : total des essais sur la partie.' : chairs ? '« Chaises » : chaises gagnées. « Réflexe » : votre plus rapide, de l\'arrêt du disque à la chaise.' : curl ? '« Maison » : pierres dans la maison en fin de mène. « Meilleure » : pierre la plus proche du centre.' : mole ? '« Tapées » : taupes adverses tapées. « Échappées » : vos taupes que personne n\'a eues.' : naval ? '« À flot » : cases de bateau encore intactes à la fin.' : pong ? '« Arrêts » : ballons repoussés par le gardien.' : derby ? '« Temps » : durée pour franchir la ligne, pour ceux qui l\'ont franchie.' : '« Briques » : nombre de briques envoyées aux adversaires.';
   const tb = $('rankBody'); tb.textContent = '';
   (ranking || []).forEach(r => {
     const tr = document.createElement('tr'); if (r.place === 1) tr.className = 'win';
@@ -1472,7 +1593,7 @@ function showEnd(ranking, game){
   $('endBurst').classList.toggle('lost', !iWon && !coop);
   $('winPanel').style.background = viking ? (iWon ? '#3DDC97' : '#8A84B0') : coop ? '#3DDC97' : win ? win.color : '#FFD93B';
   $('winName').textContent = viking ? (iWon ? 'L\'Angleterre est à vous !' : 'Les autres Vikings arrivent avant vous') : coop ? 'Score d\'équipe : ' + ((win && win.score) | 0) : win ? (iWon ? 'Vous gagnez !' : win.name + ' gagne !') : '';
-  $('myPlace').textContent = viking ? 'Drakkars' + (iWon && win.t ? ' · ' + fmtSec(win.t) : '') : coop ? 'Les bergers · ' + ((win && win.rounds) | 0) + '/' + SH_ROUNDS + ' manches réussies' : (GAME_NAMES[game] || 'Tetris') + (mine ? ' · vous finissez ' + (mine.place === 1 ? '1er' : mine.place + 'e') + ' sur ' + ranking.length : '');
+  $('myPlace').textContent = viking ? 'Drakkars' + (iWon && win.t ? ' · ' + fmtSec(win.t) : '') : coop ? 'Les bergers · ' + ((win && win.rounds) | 0) + '/' + SH_ROUNDS + ' manches réussies' : (GAME_NAMES[game] || 'Gravats') + (mine ? ' · vous finissez ' + (mine.place === 1 ? '1er' : mine.place + 'e') + ' sur ' + ranking.length : '');
   (viking ? drakkarMsg : coop ? sheepMsg : tank ? tankMsg : dodge ? dodgeMsg : kab ? kabaddiMsg : master ? masterMsg : chairs ? chairsMsg : curl ? curlMsg : pong ? pongMsg : derby ? derbyMsg : naval ? navalMsg : mole ? moleMsg : setMsg)('', '');
   $('btnAgain').hidden = false;
   $('endHint').textContent = me.host ? 'Tout le monde revient au salon : relancez le même jeu ou choisissez-en un autre.' : 'Vous attendrez au salon que le créateur relance.';
@@ -1504,22 +1625,46 @@ function updateStats(){
 const bctx = $('board').getContext('2d');
 const colorOf = c => PCOL[c[0]] || (players[+c] ? players[+c].color : '#888');
 const isSpecial = c => !!c && c[1] === '*';
-function drawCell(ctx, px, py, s, color, brick){
-  const lw = Math.max(1.2, s*.08);
-  ctx.fillStyle = color; ctx.fillRect(px, py, s, s);
-  ctx.fillStyle = halftone(ctx, .3); ctx.fillRect(px + s*.55, py + s*.1, s*.45, s*.9);    // halftone shade, right side
-  ctx.fillStyle = 'rgba(255,255,255,.55)'; ctx.fillRect(px + lw*1.6, py + lw*1.6, s*.28, s*.16);   // shine
-  if (brick){                                   // enemy bricks: ink mortar joints
-    ctx.strokeStyle = '#000'; ctx.lineWidth = Math.max(1, s/16);
+// Every cell is a little brick: clay colour, two rows of offset bricks with light mortar, a few grains.
+// Enemy bricks are darker and carry a black crack. Each look is drawn once per colour and size, then stamped.
+const CELL_CACHE = new Map();
+function cellSprite(s, color, brick){
+  const key = color + '|' + s + '|' + (brick ? 1 : 0);
+  let cv = CELL_CACHE.get(key);
+  if (cv) return cv;
+  cv = document.createElement('canvas'); cv.width = cv.height = Math.ceil(s);
+  const ctx = cv.getContext('2d'), lw = Math.max(1.2, s*.08);
+  ctx.fillStyle = color; ctx.fillRect(0, 0, s, s);
+  if (s >= 14){
+    // mortar joints: one horizontal course, staggered verticals
+    ctx.strokeStyle = 'rgba(255,248,225,.55)'; ctx.lineWidth = Math.max(1, s/18);
     ctx.beginPath();
-    ctx.moveTo(px, py + s/2); ctx.lineTo(px + s, py + s/2);
-    ctx.moveTo(px + s/2, py); ctx.lineTo(px + s/2, py + s/2);
-    ctx.moveTo(px + s/4, py + s/2); ctx.lineTo(px + s/4, py + s);
-    ctx.moveTo(px + 3*s/4, py + s/2); ctx.lineTo(px + 3*s/4, py + s);
+    ctx.moveTo(0, s/2); ctx.lineTo(s, s/2);
+    ctx.moveTo(s*.55, 0); ctx.lineTo(s*.55, s/2);
+    ctx.moveTo(s*.22, s/2); ctx.lineTo(s*.22, s); ctx.moveTo(s*.8, s/2); ctx.lineTo(s*.8, s);
+    ctx.stroke();
+    // grains, fixed pattern so every brick of a colour looks alike
+    ctx.fillStyle = 'rgba(0,0,0,.18)';
+    for (const [gx, gy] of [[.18,.2],[.4,.32],[.75,.15],[.1,.7],[.5,.66],[.68,.85],[.9,.62],[.33,.88]]) ctx.fillRect(gx*s, gy*s, Math.max(1, s/18), Math.max(1, s/18));
+    ctx.fillStyle = 'rgba(255,255,255,.22)';
+    for (const [gx, gy] of [[.28,.12],[.85,.3],[.6,.58],[.12,.9]]) ctx.fillRect(gx*s, gy*s, Math.max(1, s/20), Math.max(1, s/20));
+  }
+  // bevel: light top-left, dark bottom-right
+  ctx.fillStyle = 'rgba(255,255,255,.35)'; ctx.fillRect(lw, lw, s - 2*lw, s*.09);
+  ctx.fillStyle = 'rgba(0,0,0,.22)'; ctx.fillRect(lw, s - lw - s*.1, s - 2*lw, s*.1); ctx.fillRect(s - lw - s*.09, lw, s*.09, s - 2*lw);
+  if (brick){
+    ctx.fillStyle = 'rgba(0,0,0,.18)'; ctx.fillRect(0, 0, s, s);
+    ctx.strokeStyle = '#000'; ctx.lineWidth = Math.max(1, s/13); ctx.lineJoin = 'miter';
+    ctx.beginPath();                              // the crack
+    ctx.moveTo(s*.62, 0); ctx.lineTo(s*.48, s*.3); ctx.lineTo(s*.62, s*.48); ctx.lineTo(s*.38, s*.74); ctx.lineTo(s*.46, s);
+    ctx.moveTo(s*.62, s*.48); ctx.lineTo(s*.9, s*.6);
     ctx.stroke();
   }
-  ctx.strokeStyle = '#000'; ctx.lineWidth = lw; ctx.strokeRect(px + lw/2, py + lw/2, s - lw, s - lw);
+  ctx.strokeStyle = '#000'; ctx.lineWidth = lw; ctx.strokeRect(lw/2, lw/2, s - lw, s - lw);
+  CELL_CACHE.set(key, cv);
+  return cv;
 }
+function drawCell(ctx, px, py, s, color, brick){ ctx.drawImage(cellSprite(s, color, brick), px, py); }
 const isBrick = c => c >= '0' && c <= '9';
 function drawBlack(ctx, px, py, s){
   ctx.fillStyle = '#000'; ctx.fillRect(px+1, py+1, s-2, s-2);
@@ -1562,11 +1707,18 @@ function drawBoard(now){
     paint(ctx, a.col*CELL, yy, CELL, a.v, now);
   }
   if (G.p && G.alive){
-    let gy = 0; while (fits({ ...G.p, y:G.p.y+gy+1 })) gy++;
-    ctx.setLineDash([5, 4]); ctx.strokeStyle = '#000'; ctx.lineWidth = 2.5;      // ghost piece: dashed ink
-    for (const [x,y] of cellsOf({ ...G.p, y:G.p.y+gy })) if (y >= HID){ ctx.fillStyle = PCOL[G.p.t] + '33'; ctx.fillRect(x*CELL+3, (y-HID)*CELL+3, CELL-6, CELL-6); ctx.strokeRect(x*CELL+3, (y-HID)*CELL+3, CELL-6, CELL-6); }
-    ctx.setLineDash([]);
     cellsOf(G.p).forEach(([x,y], i) => { if (y >= HID) paint(ctx, x*CELL, (y-HID)*CELL, CELL, i === G.p.sp ? G.p.t + '*' : G.p.t, now); });
+  }
+  G.shards = G.shards.filter(sh => now < sh.t0 + 420);
+  for (const sh of G.shards){                    // broken enemy brick: four chips flying apart
+    const k = (now - sh.t0) / 420, cx = sh.x*CELL + CELL/2, cy = (sh.y-HID)*CELL + CELL/2, q = CELL*.42;
+    ctx.globalAlpha = 1 - k;
+    for (let i = 0; i < 4; i++){
+      const dx = (i & 1 ? 1 : -1) * k * CELL * .9, dy = (i & 2 ? 1 : -1) * k * CELL * .6 + k*k*CELL;
+      ctx.fillStyle = sh.col; ctx.fillRect(cx + dx - q/2, cy + dy - q/2, q, q);
+      ctx.strokeStyle = '#000'; ctx.lineWidth = 1.5; ctx.strokeRect(cx + dx - q/2, cy + dy - q/2, q, q);
+    }
+    ctx.globalAlpha = 1;
   }
 }
 function drawMini(ctx, width, it, top, alpha){
@@ -1593,7 +1745,7 @@ function drawOpp(o){
   for (let i = 0; i < d.length && i < COLS*VIS; i++){
     const c = d[i]; if (c === '.') continue;
     if (c === 'X') drawBlack(ctx, (i % COLS)*s, Math.floor(i / COLS)*s, s);
-    else drawCell(ctx, (i % COLS)*s, Math.floor(i / COLS)*s, s, c === '*' ? '#FFFFFF' : colorOf(c), false);
+    else drawCell(ctx, (i % COLS)*s, Math.floor(i / COLS)*s, s, c === '*' ? '#FFFFFF' : colorOf(c), isBrick(c));
   }
   o.st.textContent = o.dead ? (o.left ? 'Parti' : 'Éliminé') : (o.ln + (o.ln > 1 ? ' lignes' : ' ligne'));
 }
@@ -1703,7 +1855,9 @@ function startPong(pl){
   const ar = pongArena(players.length);
   const myIdx = players.findIndex(p => p.id === me.id);
   PG = { ar, pads:ar.edges.map(e => e.L/2), lives:players.map(() => PONG_LIVES), alive:players.map(() => true),
-    hits:players.map(() => 0), ball:{ x:ar.C[0], y:ar.C[1], vx:0, vy:0 }, ph:'serve', t:1.2, count:3,
+    hits:players.map(() => 0), ph:'play', count:3,
+    // Les Gardiens: one ball, a second one from 3 players on. Each ball has its own serve timer.
+    balls:Array.from({ length:players.length >= 3 ? 2 : 1 }, (_, i) => ({ x:ar.C[0], y:ar.C[1], vx:0, vy:0, ph:'serve', t:1.2 + i*2.2, idle:0, rot:0 })),
     flash:new Array(ar.M).fill(0), myIdx, mySide:ar.owner.indexOf(myIdx), lastSend:0, sentU:-1 };
   PG.rot = PG.mySide > 0 ? -2*Math.PI*PG.mySide/ar.M : 0;
   pongMsg('', '');
@@ -1731,34 +1885,31 @@ function pongDrop(id){
   if (H) H.stats[id].lives = 0;
   hostEliminate(id, true);
 }
-function pongServe(){
+function pongServe(b){
   const live = PG.ar.owner.map((o, k) => (o >= 0 && PG.alive[o]) ? k : -1).filter(k => k >= 0);
   if (!live.length){ PG.ph = 'over'; return; }
   const E = PG.ar.edges[live[Math.floor(Math.random()*live.length)]];
   const ang = (Math.random()*2 - 1) * 0.4, sp = 250;
   const dx = -E.n[0], dy = -E.n[1];                       // towards that side
-  PG.ball = { x:PG.ar.C[0], y:PG.ar.C[1], vx:(dx*Math.cos(ang) - dy*Math.sin(ang))*sp, vy:(dx*Math.sin(ang) + dy*Math.cos(ang))*sp };
-  PG.ph = 'play';
+  Object.assign(b, { x:PG.ar.C[0], y:PG.ar.C[1], vx:(dx*Math.cos(ang) - dy*Math.sin(ang))*sp, vy:(dx*Math.sin(ang) + dy*Math.cos(ang))*sp, ph:'play', idle:0 });
 }
-function pongGoal(k, o){
-  PG.idle = 0;
+const ballReset = (b, t) => Object.assign(b, { x:PG.ar.C[0], y:PG.ar.C[1], vx:0, vy:0, ph:'serve', t });
+function pongGoal(k, o, b){
   PG.lives[o] = Math.max(0, PG.lives[o] - 1);
   const id = players[o].id;
   if (H) H.stats[id].lives = PG.lives[o];
   broadcast({ t:'pg', side:k });
   if (PG.lives[o] === 0){ PG.alive[o] = false; hostEliminate(id, false); }
-  PG.ball = { x:PG.ar.C[0], y:PG.ar.C[1], vx:0, vy:0 };
-  if (PG.ph !== 'over'){ PG.ph = 'serve'; PG.t = 1.2; }
+  if (PG.ph !== 'over') ballReset(b, 1.2);
 }
-function pongStep(h){
-  const b = PG.ball;
+function pongStep(b, h){
   b.x += b.vx*h; b.y += b.vy*h;
   // gentle speed-up over time
   const sp0 = Math.hypot(b.vx, b.vy);
   if (sp0 < 900){ const f = 1 + 0.06*h; b.vx *= f; b.vy *= f; }
   // anti-stall: a ball that only bounces between walls for 5 s gets a small random deflection
-  PG.idle = (PG.idle || 0) + h;
-  if (PG.idle > 5){ PG.idle = 0; const a = (Math.random() - .5) * 0.8, c = Math.cos(a), s = Math.sin(a); const vx = b.vx; b.vx = vx*c - b.vy*s; b.vy = vx*s + b.vy*c; }
+  b.idle = (b.idle || 0) + h;
+  if (b.idle > 5){ b.idle = 0; const a = (Math.random() - .5) * 0.8, c = Math.cos(a), s = Math.sin(a); const vx = b.vx; b.vx = vx*c - b.vy*s; b.vy = vx*s + b.vy*c; }
   PG.ar.edges.forEach((E, k) => {
     const dx = b.x - E.a[0], dy = b.y - E.a[1];
     const d = dx*E.n[0] + dy*E.n[1];
@@ -1782,18 +1933,18 @@ function pongStep(h){
       b.vx = (E.n[0]*Math.cos(a) + E.e[0]*Math.sin(a)) * sp;
       b.vy = (E.n[1]*Math.cos(a) + E.e[1]*Math.sin(a)) * sp;
       b.x += E.n[0]*(BALL_R - d); b.y += E.n[1]*(BALL_R - d);
-      PG.idle = 0; PG.sh = (PG.sh || 0) + 1; sfx('paddle'); PG.hits[o]++; if (H) H.stats[players[o].id].hits = PG.hits[o];
-    } else if (d < -BALL_R*1.5){
-      pongGoal(k, o);
+      b.idle = 0; PG.sh = (PG.sh || 0) + 1; sfx('paddle'); PG.hits[o]++; if (H) H.stats[players[o].id].hits = PG.hits[o];
+    } else if (d < -BALL_R*1.5 && b.ph === 'play'){
+      pongGoal(k, o, b);
     }
   });
-  if (Math.hypot(b.x - PG.ar.C[0], b.y - PG.ar.C[1]) > PSZ){ PG.ball = { x:PG.ar.C[0], y:PG.ar.C[1], vx:0, vy:0 }; PG.ph = 'serve'; PG.t = 0.8; }
+  if (b.ph === 'play' && Math.hypot(b.x - PG.ar.C[0], b.y - PG.ar.C[1]) > PSZ) ballReset(b, 0.8);
 }
 
 // ---- guest side ----
 function pongState(m){
   if (!PG || me.host || !Array.isArray(m.b)) return;
-  PG.ball = { x:+m.b[0], y:+m.b[1], vx:+m.b[2], vy:+m.b[3] };
+  m.b.forEach((a, i) => { if (!Array.isArray(a)) return; const b = PG.balls[i] || (PG.balls[i] = { rot:0 }); Object.assign(b, { x:+a[0], y:+a[1], vx:+a[2], vy:+a[3], ph:a[4] ? 'play' : 'serve' }); });
   if (Array.isArray(m.p)) m.p.forEach((u, k) => { if (k !== PG.mySide) PG.pads[k] = +u; });
   if (Array.isArray(m.l)) m.l.forEach((l, i) => { PG.lives[i] = l|0; PG.alive[i] = l > 0; });
   if (PG.ph !== 'over' && typeof m.ph === 'string') PG.ph = m.ph;
@@ -1805,19 +1956,19 @@ function pongGoalFx(k){
   if (!PG) return;
   PG.flash[k] = 1;
   sfx('goal');
-  boom(k === PG.mySide ? 'AÏE !' : 'PAF !', { size:38, x:.5, y:k === PG.mySide ? .78 : .3, pal:k === PG.mySide ? BOOM_COLORS[2] : BOOM_COLORS[0] });
+  boom(k === PG.mySide ? 'BUT…' : 'BUT !', { size:38, x:.5, y:k === PG.mySide ? .78 : .3, pal:k === PG.mySide ? BOOM_COLORS[2] : BOOM_COLORS[0] });
   if (k === PG.mySide){
     const el = $('pwrap'); el.style.setProperty('--amp', '5px');
     el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake');
   }
   const o = PG.ar.owner[k];
-  if (o >= 0) pToast(players[o].name + ' perd une vie');
+  if (o >= 0) pToast(players[o].name + ' encaisse un but');
 }
 function pongDeadFx(id){
   if (!PG) return;
   const i = players.findIndex(p => p.id === id); if (i < 0) return;
   PG.alive[i] = false; PG.lives[i] = 0;
-  if (i === PG.myIdx) pongMsg('Éliminé', 'Votre côté devient un mur');
+  if (i === PG.myIdx) pongMsg('Éliminé', 'Votre but est fermé');
   else pToast(players[i].name + ' est éliminé');
 }
 
@@ -1878,17 +2029,21 @@ function pongFrame(dtMs, now){
     PG.pads[PG.mySide] = Math.max(E.plen/2, Math.min(E.L - E.plen/2, u));
   }
   if (me.host && phase === 'play' && PG.ph !== 'over'){
-    if (PG.ph === 'serve'){ PG.t -= dt; if (PG.t <= 0) pongServe(); }
-    else { const n = Math.ceil(dt / (1/240)); for (let i = 0; i < n && PG.ph === 'play'; i++) pongStep(dt / n); }
+    for (const b of PG.balls){
+      if (PG.ph === 'over') break;
+      if (b.ph === 'serve'){ b.t -= dt; if (b.t <= 0) pongServe(b); }
+      else { const n = Math.ceil(dt / (1/240)); for (let i = 0; i < n && b.ph === 'play'; i++) pongStep(b, dt / n); }
+    }
     botPong(dt);
     if (now - PG.lastSend > 33){
       PG.lastSend = now;
-      const b = PG.ball, r1 = v => Math.round(v*10)/10;
-      broadcast({ t:'ps', b:[r1(b.x), r1(b.y), r1(b.vx), r1(b.vy)], p:PG.pads.map(r1), l:PG.lives, ph:PG.ph, sh:PG.sh || 0, sw:PG.sw || 0 }, 'h');
+      const r1 = v => Math.round(v*10)/10;
+      broadcast({ t:'ps', b:PG.balls.map(b => [r1(b.x), r1(b.y), r1(b.vx), r1(b.vy), b.ph === 'play' ? 1 : 0]), p:PG.pads.map(r1), l:PG.lives, ph:PG.ph, sh:PG.sh || 0, sw:PG.sw || 0 }, 'h');
     }
   } else if (!me.host && PG.ph === 'play'){
-    PG.ball.x += PG.ball.vx*dt; PG.ball.y += PG.ball.vy*dt;   // dead reckoning between host updates
+    for (const b of PG.balls) if (b.ph === 'play'){ b.x += b.vx*dt; b.y += b.vy*dt; }   // dead reckoning between host updates
   }
+  for (const b of PG.balls) if (b.ph === 'play') b.rot = (b.rot || 0) + Math.hypot(b.vx, b.vy) * dt / (BALL_R * 1.6);
   if (!me.host && mine && now - PG.lastSend > 33 && Math.abs(PG.pads[PG.mySide] - PG.sentU) > 0.5){
     PG.lastSend = now; PG.sentU = PG.pads[PG.mySide];
     toHost({ t:'pp', u:Math.round(PG.sentU*10)/10 });
@@ -1900,6 +2055,36 @@ function pongFrame(dtMs, now){
 
 // ---- drawing ----
 const pctx = pcv.getContext('2d');
+// Les Gardiens: a football pitch. Each player's side is a goal with a net behind it; the paddle is a goalkeeper
+// stretching out with both gloves; closed goals and corner sides are advertising boards.
+function drawFootball(ctx, x, y, r, rot){
+  ctx.save(); ctx.translate(x, y); ctx.rotate(rot);
+  ctx.fillStyle = '#FFFFFF'; ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI*2); ctx.fill();
+  ctx.save(); ctx.clip();
+  ctx.fillStyle = '#000';
+  const pent = (cx, cy, rr, a0) => { ctx.beginPath(); for (let i = 0; i < 5; i++){ const a = a0 + i*2*Math.PI/5; ctx.lineTo(cx + Math.cos(a)*rr, cy + Math.sin(a)*rr); } ctx.closePath(); ctx.fill(); };
+  pent(0, 0, r*.38, -Math.PI/2);
+  for (let i = 0; i < 5; i++){ const a = -Math.PI/2 + Math.PI/5 + i*2*Math.PI/5; pent(Math.cos(a)*r*1.02, Math.sin(a)*r*1.02, r*.34, a + Math.PI/2); }
+  ctx.restore();
+  ctx.strokeStyle = '#000'; ctx.lineWidth = 2.2; ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI*2); ctx.stroke();
+  ctx.restore();
+}
+function drawKeeper(ctx, E, cx, cy, h, col){
+  // body across the goal line, gloves at both ends, head towards the pitch
+  const ex = E.e[0], ey = E.e[1], nx = E.n[0], ny = E.n[1];
+  const seg = (w, c) => { ctx.strokeStyle = c; ctx.lineWidth = w; ctx.beginPath(); ctx.moveTo(cx - ex*(h-9), cy - ey*(h-9)); ctx.lineTo(cx + ex*(h-9), cy + ey*(h-9)); ctx.stroke(); };
+  ctx.lineCap = 'round';
+  seg(15, '#000'); seg(9, col);                                 // outstretched arms, jersey colour
+  ctx.fillStyle = col; ctx.strokeStyle = '#000'; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.ellipse(cx, cy, 15, 11, Math.atan2(ey, ex), 0, Math.PI*2); ctx.fill(); ctx.stroke();   // torso
+  ctx.fillStyle = '#F2C29B';
+  ctx.beginPath(); ctx.arc(cx + nx*9, cy + ny*9, 7, 0, Math.PI*2); ctx.fill(); ctx.stroke();                 // head
+  for (const sgn of [-1, 1]){                                   // big gloves
+    const gx = cx + ex*h*sgn, gy = cy + ey*h*sgn;
+    ctx.fillStyle = '#FFFFFF'; ctx.beginPath(); ctx.arc(gx, gy, 9, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = col; ctx.beginPath(); ctx.arc(gx, gy, 4, 0, Math.PI*2); ctx.fill();
+  }
+}
 function drawPong(){
   const ctx = pctx, ar = PG.ar, C = ar.C;
   ctx.fillStyle = '#FFD93B'; ctx.fillRect(0, 0, PSZ, PSZ);
@@ -1907,36 +2092,63 @@ function drawPong(){
   ctx.save();
   ctx.translate(C[0], C[1]); ctx.rotate(PG.rot); ctx.translate(-C[0], -C[1]);
   const poly = () => { ctx.beginPath(); ar.P.forEach(([x,y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.closePath(); };
-  poly(); ctx.fillStyle = '#FFF7D6'; ctx.fill();
+  // nets behind the open goals, drawn first so the pitch covers their inner half
+  ar.edges.forEach((E, k) => {
+    const o = ar.owner[k]; if (o < 0 || !PG.alive[o]) return;
+    const d = 22, ox = -E.n[0]*d, oy = -E.n[1]*d;
+    ctx.fillStyle = '#FFFFFF'; ctx.strokeStyle = '#000'; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(E.a[0], E.a[1]); ctx.lineTo(E.a[0] + ox, E.a[1] + oy); ctx.lineTo(E.b[0] + ox, E.b[1] + oy); ctx.lineTo(E.b[0], E.b[1]); ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.save(); ctx.clip();
+    ctx.strokeStyle = 'rgba(0,0,0,.35)'; ctx.lineWidth = 1;     // net mesh
+    ctx.beginPath();
+    for (let t = 0; t <= E.L; t += 9){ ctx.moveTo(E.a[0] + E.e[0]*t, E.a[1] + E.e[1]*t); ctx.lineTo(E.a[0] + E.e[0]*t + ox, E.a[1] + E.e[1]*t + oy); }
+    for (let t = 6; t < d; t += 7){ ctx.moveTo(E.a[0] - E.n[0]*t, E.a[1] - E.n[1]*t); ctx.lineTo(E.b[0] - E.n[0]*t, E.b[1] - E.n[1]*t); }
+    ctx.stroke();
+    ctx.fillStyle = players[o].color; ctx.globalAlpha = .18; ctx.fillRect(0, 0, PSZ, PSZ); ctx.globalAlpha = 1;
+    ctx.restore();
+  });
+  poly(); ctx.fillStyle = '#3FA34D'; ctx.fill();
   ctx.save(); poly(); ctx.clip();
-  ctx.fillStyle = halftone(ctx, .05); ctx.fillRect(0, 0, PSZ, PSZ);
-  ctx.strokeStyle = 'rgba(0,0,0,.18)'; ctx.lineWidth = 3;
+  ctx.fillStyle = '#4DB55A';                                     // mowing stripes
+  for (let y = -PSZ; y < PSZ*2; y += 56) ctx.fillRect(-PSZ, y, PSZ*3, 28);
+  ctx.fillStyle = halftone(ctx, .06); ctx.fillRect(0, 0, PSZ, PSZ);
+  ctx.strokeStyle = 'rgba(255,255,255,.85)'; ctx.lineWidth = 3;
   ctx.beginPath(); ctx.arc(C[0], C[1], 56, 0, Math.PI*2); ctx.stroke();
+  ctx.fillStyle = '#FFFFFF'; ctx.beginPath(); ctx.arc(C[0], C[1], 4, 0, Math.PI*2); ctx.fill();
+  ar.edges.forEach((E, k) => {                                   // goal areas
+    const o = ar.owner[k]; if (o < 0) return;
+    const w = Math.min(E.L*.55, 150), dd = 34, m = E.L/2;
+    const p0 = [E.a[0] + E.e[0]*(m - w/2), E.a[1] + E.e[1]*(m - w/2)], p1 = [E.a[0] + E.e[0]*(m + w/2), E.a[1] + E.e[1]*(m + w/2)];
+    ctx.beginPath(); ctx.moveTo(p0[0], p0[1]); ctx.lineTo(p0[0] + E.n[0]*dd, p0[1] + E.n[1]*dd); ctx.lineTo(p1[0] + E.n[0]*dd, p1[1] + E.n[1]*dd); ctx.lineTo(p1[0], p1[1]); ctx.stroke();
+  });
   ctx.restore();
   ar.edges.forEach((E, k) => {
     const o = ar.owner[k], live = o >= 0 && PG.alive[o];
     ctx.lineCap = 'round';
     const line = () => { ctx.beginPath(); ctx.moveTo(E.a[0], E.a[1]); ctx.lineTo(E.b[0], E.b[1]); ctx.stroke(); };
-    if (!live){ ctx.strokeStyle = '#000'; ctx.lineWidth = 9; line(); }
-    else {
-      ctx.strokeStyle = '#000'; ctx.lineWidth = 3; ctx.setLineDash([10, 9]); line();
-      ctx.strokeStyle = players[o].color; ctx.lineWidth = 6; ctx.globalAlpha = .55; ctx.setLineDash([]); line(); ctx.globalAlpha = 1;
+    if (!live){                                                  // advertising boards
+      ctx.lineCap = 'butt';
+      ctx.strokeStyle = '#000'; ctx.lineWidth = 12; line();
+      ctx.strokeStyle = o >= 0 ? '#9A9A9A' : '#FFFFFF'; ctx.lineWidth = 7; line();
+      ctx.strokeStyle = o >= 0 ? '#555' : '#E6262B'; ctx.lineWidth = 7; ctx.setLineDash([14, 14]); line(); ctx.setLineDash([]);
+    } else {
+      ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = 4; line();
+      for (const q of [E.a, E.b]){ ctx.fillStyle = '#FFFFFF'; ctx.strokeStyle = '#000'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(q[0], q[1], 6, 0, Math.PI*2); ctx.fill(); ctx.stroke(); }   // posts
     }
     if (PG.flash[k] > 0){ ctx.strokeStyle = '#E6262B'; ctx.globalAlpha = PG.flash[k]; ctx.lineWidth = 12; line(); ctx.globalAlpha = 1; }
     if (live){
       const u = PG.pads[k], h = E.plen/2, off = 10;
-      const cx = E.a[0] + E.e[0]*u + E.n[0]*off, cy = E.a[1] + E.e[1]*u + E.n[1]*off;
-      const pad = () => { ctx.beginPath(); ctx.moveTo(cx - E.e[0]*h, cy - E.e[1]*h); ctx.lineTo(cx + E.e[0]*h, cy + E.e[1]*h); ctx.stroke(); };
-      ctx.strokeStyle = '#000'; ctx.lineWidth = 17; pad();                 // ink outline
-      ctx.strokeStyle = players[o].color; ctx.lineWidth = 10; pad();
+      drawKeeper(ctx, E, E.a[0] + E.e[0]*u + E.n[0]*off, E.a[1] + E.e[1]*u + E.n[1]*off, h, players[o].color);
     }
   });
-  if (phase === 'play' && PG.ph === 'play'){
-    const b = PG.ball, v = Math.hypot(b.vx, b.vy) || 1, ux = b.vx/v, uy = b.vy/v;
-    ctx.strokeStyle = '#000'; ctx.lineWidth = 2.5; ctx.lineCap = 'round';          // speed lines
-    for (const off of [-5, 0, 5]){ ctx.beginPath(); ctx.moveTo(b.x - ux*14 - uy*off, b.y - uy*14 + ux*off); ctx.lineTo(b.x - ux*(24 + Math.min(18, v/40)) - uy*off, b.y - uy*(24 + Math.min(18, v/40)) + ux*off); ctx.stroke(); }
-    ctx.fillStyle = '#FFFFFF'; ctx.beginPath(); ctx.arc(b.x, b.y, BALL_R + 1, 0, Math.PI*2); ctx.fill();
-    ctx.strokeStyle = '#000'; ctx.lineWidth = 3; ctx.stroke();
+  if (phase === 'play'){
+    for (const b of PG.balls){
+      if (b.ph !== 'play') continue;
+      const v = Math.hypot(b.vx, b.vy) || 1, ux = b.vx/v, uy = b.vy/v;
+      ctx.strokeStyle = '#000'; ctx.lineWidth = 2.5; ctx.lineCap = 'round';          // speed lines
+      for (const off of [-5, 0, 5]){ ctx.beginPath(); ctx.moveTo(b.x - ux*14 - uy*off, b.y - uy*14 + ux*off); ctx.lineTo(b.x - ux*(24 + Math.min(18, v/40)) - uy*off, b.y - uy*(24 + Math.min(18, v/40)) + ux*off); ctx.stroke(); }
+      drawFootball(ctx, b.x, b.y, BALL_R + 2, b.rot || 0);
+    }
   }
   ctx.restore();
   // labels, drawn upright inside the arena near each player's side
@@ -1944,15 +2156,16 @@ function drawPong(){
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.lineJoin = 'round';
   ar.edges.forEach((E, k) => {
     const o = ar.owner[k]; if (o < 0) return;
-    const wx = E.mid[0] + E.n[0]*62 - C[0], wy = E.mid[1] + E.n[1]*62 - C[1];
+    const wx = E.mid[0] + E.n[0]*66 - C[0], wy = E.mid[1] + E.n[1]*66 - C[1];
     const x = C[0] + wx*c - wy*s, y = C[1] + wx*s + wy*c;
     const p = players[o], live = PG.alive[o];
-    ctx.globalAlpha = live ? 1 : .45;
+    ctx.globalAlpha = live ? 1 : .55;
     ctx.font = '900 15px Nunito, sans-serif'; ctx.strokeStyle = '#000'; ctx.lineWidth = 4; ctx.fillStyle = p.color;
     const label = p.name + (o === PG.myIdx ? ' (vous)' : '');
     ctx.strokeText(label, x, y - 10); ctx.fillText(label, x, y - 10);
-    ctx.font = '14px Nunito, sans-serif'; ctx.fillStyle = '#000';
-    ctx.fillText(live ? '●'.repeat(PG.lives[o]) + '○'.repeat(PONG_LIVES - PG.lives[o]) : 'éliminé', x, y + 9);
+    ctx.font = '900 14px Nunito, sans-serif'; ctx.fillStyle = '#FFFFFF'; ctx.lineWidth = 3;
+    const lv = live ? '●'.repeat(PG.lives[o]) + '○'.repeat(PONG_LIVES - PG.lives[o]) : 'éliminé';
+    ctx.strokeText(lv, x, y + 9); ctx.fillText(lv, x, y + 9);
     ctx.globalAlpha = 1;
   });
 }
@@ -6137,7 +6350,7 @@ function botInit(game){
 // ---- Tetris: evaluates every rotation and column, sometimes picks a lesser move ----
 function botTetrisStart(){
   const T = BOT.tet = { board:new Array(ROWS*COLS).fill(''), bag:[], pending:[], lines:0, sc:0, alive:true, t0:performance.now() + 3000 };
-  const next = () => { if (!T.bag.length){ T.bag = Object.keys(SH); for (let i = T.bag.length-1; i > 0; i--){ const j = Math.floor(Math.random()*(i+1)); [T.bag[i], T.bag[j]] = [T.bag[j], T.bag[i]]; } } return T.bag.pop(); };
+  const next = () => { if (!T.bag.length){ T.bag = BAG(); for (let i = T.bag.length-1; i > 0; i--){ const j = Math.floor(Math.random()*(i+1)); [T.bag[i], T.bag[j]] = [T.bag[j], T.bag[i]]; } } return T.bag.pop(); };
   T.next = next;
   botLater(botTetrisStep, 3600);
 }
@@ -6160,7 +6373,7 @@ function botEval(b, lines){
     for (let y = 0; y < ROWS; y++){ if (b[y*COLS+x]){ if (!seen){ h = ROWS - y; seen = true; } } else if (seen) holes++; }
     agg += h; maxH = Math.max(maxH, h); if (prev >= 0) bump += Math.abs(h - prev); prev = h;
   }
-  return -0.51*agg + 0.76*lines - 0.36*holes - 0.18*bump - (maxH > 15 ? 3 : 0);
+  return -0.51*agg + 0.76*lines - 0.36*holes - 0.18*bump - (maxH > 16 ? 3 : 0);
 }
 function botTetrisStep(){
   const T = BOT.tet; if (!T || !T.alive) return;
@@ -6175,7 +6388,7 @@ function botTetrisStep(){
     botClear(T.board);
   }
   const t = T.next(), moves = [];
-  for (let r = 0; r < 4; r++) for (let x = -3; x < COLS; x++){
+  for (let r = 0; r < 4; r++) for (let x = -4; x < COLS; x++){
     if (!botFits(T.board, t, r, x, 0)) continue;
     let y = 0; while (botFits(T.board, t, r, x, y+1)) y++;
     const b = T.board.slice();
@@ -6195,8 +6408,8 @@ function botTetrisStep(){
   if (pick.top < HID) return botTetrisDie();
   T.board = pick.b;
   if (pick.n){
-    T.lines += pick.n; T.sc += [0,100,300,500,800][pick.n];
-    const k = [0, 1, 2, 4, 6][pick.n];
+    T.lines += pick.n; T.sc += [0,100,300,500,800,1200][pick.n];
+    const k = [0, 1, 2, 4, 6, 8][pick.n];
     if (k) hostHandle('ai', { t:'atk', n:k });
   }
   hostHandle('ai', { t:'bd', s:T.board.slice(HID*COLS).map(c => c ? c[0] : '.').join(''), sc:T.sc, ln:T.lines });
@@ -6212,12 +6425,15 @@ function botPong(dt){
   if (!BOT || BOT.game !== 'pong' || !PG) return;
   const idx = players.findIndex(p => p.id === 'ai'), side = PG.ar.owner.indexOf(idx);
   if (side < 0 || !PG.alive[idx]) return;
-  const E = PG.ar.edges[side], b = PG.ball;
-  const dx = b.x - E.a[0], dy = b.y - E.a[1];
-  const d = dx*E.n[0] + dy*E.n[1], u = dx*E.e[0] + dy*E.e[1];
-  const vn = b.vx*E.n[0] + b.vy*E.n[1], ve = b.vx*E.e[0] + b.vy*E.e[1];
-  let target = E.L/2;
-  if (PG.ph === 'play' && vn < -1){ const t = d / -vn; target = u + ve*t; }
+  const E = PG.ar.edges[side];
+  let target = E.L/2, best = Infinity;
+  for (const b of PG.balls){                            // keeps an eye on the ball that arrives first
+    if (b.ph !== 'play') continue;
+    const dx = b.x - E.a[0], dy = b.y - E.a[1];
+    const d = dx*E.n[0] + dy*E.n[1], u = dx*E.e[0] + dy*E.e[1];
+    const vn = b.vx*E.n[0] + b.vy*E.n[1], ve = b.vx*E.e[0] + b.vy*E.e[1];
+    if (vn < -1){ const t = d / -vn; if (t < best){ best = t; target = u + ve*t; } }
+  }
   if (BOT.err === undefined || BOT.lastHits !== PG.sh){ BOT.lastHits = PG.sh; BOT.err = (Math.random()*2 - 1) * E.plen * 0.6; }
   target = Math.max(E.plen/2, Math.min(E.L - E.plen/2, target + BOT.err));
   const cur = PG.pads[side], step = 290 * dt;
@@ -6396,6 +6612,8 @@ function countBeep(n){
   else if (n === 0){ sfx('go'); boom('BASTON !', { fixed:true, big:true, size:Math.min(64, innerWidth / 7), x:.5, y:.45, ms:1100, rot:-6, pal:BOOM_COLORS[2] }); }
 }
 function syncSoundBtn(){ $('btnSound').textContent = 'Son : ' + (SND.on ? 'activé' : 'coupé'); }
+$('btnLang').textContent = LANG === 'fr' ? 'English' : 'Français';
+$('btnLang').onclick = () => { try { localStorage.setItem(LANG_KEY, LANG === 'fr' ? 'en' : 'fr'); } catch(_){} location.reload(); };
 $('btnSound').onclick = () => {
   SND.on = !SND.on; try { localStorage.setItem('tm-sound', SND.on ? '1' : '0'); } catch(_){}
   syncSoundBtn(); if (SND.on) sfx('ok');
@@ -6432,7 +6650,8 @@ function renderChat(){
     const av = document.createElement('span'); av.className = 'av'; av.style.background = c.color;
     const tx = document.createElement('div'); tx.className = 'tx';
     const who = document.createElement('span'); who.className = 'who'; who.textContent = c.id === me.id ? 'Vous' : c.name;
-    tx.append(who, document.createTextNode(c.text));
+    const said = document.createElement('span'); said.setAttribute('translate', 'no'); said.textContent = c.text;   // players' own words are never translated
+    tx.append(who, said);
     b.append(av, tx); log.append(b);
   }
   log.scrollTop = log.scrollHeight;
@@ -6475,7 +6694,7 @@ function renderBoard(){
   const rows = [...agg.values()].sort((x, y) => y.pts - x.pts || y.wins - x.wins || x.games - y.games);
   const showBest = lbFilter !== 'all';
   const hd = $('lbHead'); hd.textContent = '';
-  for (const t of ['#','Joueur','Parties','Victoires','Points', ...(showBest ? [lbFilter === 'pong' ? 'Renvois max' : lbFilter === 'derby' ? 'Meilleur temps' : lbFilter === 'naval' ? 'Touchés max' : lbFilter === 'mole' ? 'Taupes tapées max' : lbFilter === 'curling' ? 'Points max' : lbFilter === 'chairs' ? 'Chaises max' : (lbFilter === 'dodge' || lbFilter === 'tank') ? 'Touches max' : lbFilter === 'sheep' ? 'Record d\'équipe' : lbFilter === 'drakkar' ? 'Synchro max (%)' : (lbFilter === 'master' || lbFilter === 'kabaddi') ? 'Points max' : 'Meilleur score'] : [])]){
+  for (const t of ['#','Joueur','Parties','Victoires','Points', ...(showBest ? [lbFilter === 'pong' ? 'Arrêts max' : lbFilter === 'derby' ? 'Meilleur temps' : lbFilter === 'naval' ? 'Touchés max' : lbFilter === 'mole' ? 'Taupes tapées max' : lbFilter === 'curling' ? 'Points max' : lbFilter === 'chairs' ? 'Chaises max' : (lbFilter === 'dodge' || lbFilter === 'tank') ? 'Touches max' : lbFilter === 'sheep' ? 'Record d\'équipe' : lbFilter === 'drakkar' ? 'Synchro max (%)' : (lbFilter === 'master' || lbFilter === 'kabaddi') ? 'Points max' : 'Meilleur score'] : [])]){
     const th = document.createElement('th'); th.textContent = t; hd.append(th);
   }
   const tb = $('lbBody'); tb.textContent = '';
@@ -6496,7 +6715,7 @@ function renderBoard(){
   for (const g of games.slice(0, 15)){
     const li = document.createElement('li');
     const when = document.createElement('div'); when.className = 'when';
-    when.textContent = ({ pong:'Pong', derby:'Derby', naval:'Armada', mole:'Tape-taupe' }[g.game] || 'Tetris') + ' · ' + new Date(g.at).toLocaleString('fr-FR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' }) + ' · ' + g.n + (g.n > 1 ? ' joueurs' : ' joueur');
+    when.textContent = (GAME_NAMES[g.game] || GAME_NAMES.tetris) + ' · ' + new Date(g.at).toLocaleString('fr-FR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' }) + ' · ' + g.n + (g.n > 1 ? ' joueurs' : ' joueur');
     const who = document.createElement('div'); who.className = 'who';
     for (const p of g.p.slice().sort((a, b) => a.place - b.place)){
       const sp = document.createElement('span');
