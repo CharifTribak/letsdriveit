@@ -1712,6 +1712,15 @@ function drawBoard(now){
     paint(ctx, a.col*CELL, yy, CELL, a.v, now);
   }
   if (G.p && G.alive){
+    // aiming aid: a light band in each column under the piece, down to the stack (no silhouette of the piece)
+    const low = {};
+    for (const [x, y] of cellsOf(G.p)) low[x] = Math.max(low[x] ?? -1, y);
+    ctx.fillStyle = PCOL[G.p.t] + '30';
+    for (const x in low){
+      let y = low[x] + 1; while (y < ROWS && !G.board[y*COLS + +x]) y++;
+      const top = Math.max(HID, low[x] + 1);
+      if (y > top) ctx.fillRect(+x*CELL + 2, (top - HID)*CELL, CELL - 4, (y - top)*CELL);
+    }
     cellsOf(G.p).forEach(([x,y], i) => { if (y >= HID) paint(ctx, x*CELL, (y-HID)*CELL, CELL, i === G.p.sp ? G.p.t + '*' : G.p.t, now); });
   }
   G.shards = G.shards.filter(sh => now < sh.t0 + 420);
