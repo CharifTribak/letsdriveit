@@ -1,4 +1,4 @@
-/* English texts for Baston !
+/* English texts for Baston Arcade
    The game is written in French. When the page runs in English, every text shown (page, toasts, canvas)
    goes through this table:
    - P: whole-text patterns, for sentences built around a player's name or a number;
@@ -117,7 +117,7 @@ F: [
   ['La partie est déjà lancée.', 'The game has already started.'],
   ["Aucun salon ouvert pour l'instant.", 'No open room right now.'],
   ['Liste indisponible.', 'List unavailable.'],
-  ['⚠ Baston ! : salon en pause', '⚠ Baston ! : room paused'],
+  ['⚠ Baston Arcade : salon en pause', '⚠ Baston Arcade: room paused'],
   ['Salon privé (ne pas l\'afficher dans la liste)', 'Private room (keep it off the list)'],
   ['Les autres joueurs saisissent ce code depuis le menu.', 'The other players enter this code from the menu.'],
   ['Dites bonjour aux autres joueurs.', 'Say hello to the other players.'],

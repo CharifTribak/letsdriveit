@@ -2,8 +2,8 @@
 
 Déposez ici une image par jeu, au format 16:9 (1280×720 conseillé), en JPEG :
 
-- `tetris.jpg`
-- `pong.jpg`
+- `gravats.jpg` (jeu interne `tetris`)
+- `gardiens.jpg` (jeu interne `pong`)
 - `derby.jpg`
 - `naval.jpg` (Armada)
 - `mole.jpg` (Tape-taupe)
