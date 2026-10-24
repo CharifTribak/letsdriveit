@@ -913,11 +913,11 @@ setInterval(() => {
 // ================= connection helpers: relay server (TURN) and the public lobby list (Supabase) =================
 // Fill these to switch the features on; empty values keep the game working exactly as before.
 const NET_CFG = {
-  meteredApp:'', meteredKey:'',          // https://<meteredApp>.metered.live, API key from the Metered dashboard
+  meteredApp:'baston', meteredKey:'ed029bef44295041e34bf6c29050a4cfbf0a',          // https://<meteredApp>.metered.live, API key from the Metered dashboard
   supaUrl:'', supaKey:''                 // Supabase project URL and its public "anon" key
 };
 let ICE = null;
-(async () => {
+const icePromise = (async () => {
   if (!NET_CFG.meteredApp || !NET_CFG.meteredKey) return;
   try { const r = await fetch('https://' + NET_CFG.meteredApp + '.metered.live/api/v1/turn/credentials?apiKey=' + encodeURIComponent(NET_CFG.meteredKey)); if (r.ok){ const j = await r.json(); if (Array.isArray(j) && j.length) ICE = j; } } catch(_){}
 })();
@@ -6563,11 +6563,12 @@ requestAnimationFrame(frame);
 
 // ================= buttons =================
 function readName(){ me.name = cleanName($('nameIn').value); $('nameIn').value = me.name; store.set('tm-name', me.name); }
-$('btnCreate').onclick = () => { readName(); $('btnCreate').disabled = true; $('btnJoin').disabled = true; hostCreate(); };
+const iceReady = () => Promise.race([icePromise, new Promise(r => setTimeout(r, 2500))]);     // wait briefly for the relay credentials
+$('btnCreate').onclick = async () => { readName(); $('btnCreate').disabled = true; $('btnJoin').disabled = true; menuHint('Ouverture du salon…'); await iceReady(); hostCreate(); };
 $('btnJoin').onclick = () => {
   const c = $('codeIn').value.trim().toUpperCase();
   if (!/^[A-Z0-9]{4}$/.test(c)) return menuHint('Le code fait 4 caractères.', true);
-  readName(); $('btnCreate').disabled = true; $('btnJoin').disabled = true; guestJoin(c);
+  readName(); $('btnCreate').disabled = true; $('btnJoin').disabled = true; iceReady().then(() => guestJoin(c));
 };
 $('codeIn').addEventListener('keydown', e => { if (e.key === 'Enter') $('btnJoin').click(); });
 for (const b of $('gamePick').querySelectorAll('button')){
